@@ -1,9 +1,9 @@
 # 00 — Lessons Learned
 
 > Initiated: 2026-07-04
-> Last Updated: 2026-07-05
+> Last Updated: 2026-07-06
 > Project: hermex_android
-> Version: 1.3.0
+> Version: 1.4.0
 
 ## 2026-07-04 — Project Initiation
 - Decided Flutter over native Android (single codebase, existing expertise)
@@ -159,8 +159,8 @@
 | Architecture patterns | 5 (Notifier/AutoDispose, isBusy guard, route ordering, nullable repos, provider invalidation) |
 | Implementation pitfalls | 3 (Flutter symbol conflicts, async API key, duplicate files) |
 | Spec gaps found | 3 (API contract, security coverage, duplicate endpoints) |
-| Process & governance gaps | 2 (Big Bang QA, missing git push) |
-| **Total lessons** | **14 (LL-001 through LL-014)** |
+| Process & governance gaps | 3 (Big Bang QA, missing git push, workspace verification) |
+| **Total lessons** | **19 (LL-001 through LL-014, LL-017 through LL-021)** |
 
 ---
 
