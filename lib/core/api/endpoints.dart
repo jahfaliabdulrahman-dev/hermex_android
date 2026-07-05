@@ -1,8 +1,7 @@
 /// All Hermes Agent API Server endpoint paths — from 06_api_contract.md.
 ///
 /// Centralized path constants. Import this file instead of hardcoding paths
-/// in API calls. See also: core/constants/api_endpoints.dart for the same
-/// constants in the constants layer.
+/// in API calls.
 abstract class ApiEndpoints {
   ApiEndpoints._();
 

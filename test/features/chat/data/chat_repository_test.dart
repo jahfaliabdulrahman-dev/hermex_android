@@ -158,7 +158,7 @@ void main() {
 
     test('handles empty choices', () {
       final json = {'choices': <dynamic>[]};
-      final choices = json['choices'] as List<dynamic>?;
+      final choices = json['choices'];
       expect(choices, isEmpty);
     });
 
@@ -180,7 +180,6 @@ void main() {
 
   group('ChatRepository — SSE streaming formats', () {
     test('streamSessionChat builds correct body', () {
-      final sessionId = 'sess-abc123';
       final message = 'Continue our conversation';
       final model = 'deepseek-v4-pro';
 

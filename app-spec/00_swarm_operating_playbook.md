@@ -17,3 +17,8 @@ All must show status. If any stopped, restart via gateway.
 
 ## Kanban Board
 13-lane board. Lead Architect creates all tasks. Dispatcher routes.
+
+### Router Wiring Rule (LL-020)
+Every feature implementation task MUST include a paired "Router Wiring" subtask.
+Definition of Done includes: "Screen is reachable via router navigation."
+Lead Architect verifies wiring before marking feature DONE.

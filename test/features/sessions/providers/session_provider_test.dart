@@ -258,8 +258,6 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final notifier = container.read(sessionsNotifierProvider.notifier);
-
       // Manually mark as mutating to simulate in-flight.
       final currentState = container.read(sessionsNotifierProvider);
       container.read(sessionsNotifierProvider.notifier);

@@ -73,10 +73,10 @@ class SseClient {
           responseBody: errorBody,
         );
       }
-
-      debugPrint(
-          '=== HERMEX DEBUG: SSE connected to $path ===');
-
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: SSE connected to $path ===');
+      }
       // Parse SSE stream line by line.
       final lines =
           response.transform(utf8.decoder).transform(const LineSplitter());
@@ -118,7 +118,9 @@ class SseClient {
 
   /// Cancel an active SSE connection.
   void cancel() {
-    debugPrint('=== HERMEX DEBUG: SSE cancel requested ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SSE cancel requested ===');
+    }
     _isDisposed = true;
     _httpClient?.close(force: true);
     _httpClient = null;
@@ -134,9 +136,11 @@ class SseClient {
   StreamEvent? _parseEvent(String data) {
     // AUD-006: Reject oversized SSE events before parsing.
     if (data.length > SecurityLimits.maxSseEventSize) {
-      debugPrint(
-          '=== HERMEX DEBUG: SSE event rejected — size ${data.length} exceeds '
-          'limit ${SecurityLimits.maxSseEventSize} ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: SSE event rejected — size ${data.length} exceeds '
+            'limit ${SecurityLimits.maxSseEventSize} ===');
+      }
       return const StreamEvent.error(
         message: 'SSE event too large',
         code: 'PAYLOAD_TOO_LARGE',
@@ -181,8 +185,10 @@ class SseClient {
       }
 
       // Unknown event format — log and skip.
-      debugPrint(
-          '=== HERMEX DEBUG: Unknown SSE event format — $data ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: Unknown SSE event format — $data ===');
+      }
       return null;
     } catch (e) {
       debugPrint(

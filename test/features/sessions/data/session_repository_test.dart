@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:hermex_android/features/sessions/data/session_repository.dart';
 import 'package:hermex_android/core/api/api_client.dart';
 import 'package:hermex_android/models/session_summary.dart';
 

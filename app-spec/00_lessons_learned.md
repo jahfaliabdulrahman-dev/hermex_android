@@ -161,3 +161,59 @@
 | Spec gaps found | 3 (API contract, security coverage, duplicate endpoints) |
 | Process & governance gaps | 2 (Big Bang QA, missing git push) |
 | **Total lessons** | **14 (LL-001 through LL-014)** |
+
+---
+
+### LL-021 — Orchestrator Workspace Verification — File existence check before broadcast
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (EPIC Recovery)
+- **Source:** EPIC t_c7e1520f workspace misdirection
+- **Issue:** As Lead Architect, I directed all 13 child tasks of the Hermex Android Recovery EPIC to `/Users/abdurrahmanjahfali/CarSah` — a completely different project (local-first Isar MVP for vehicle maintenance). Workers began executing against CarSah, reporting that target files didn't exist, before the error was detected by cross-referencing completed audit task `t_a0f8a7db` which used workspace `/Users/abdurrahmanjahfali/Projects/hermex_android`.
+- **Root Cause:** The orchestrator assumed the workspace path based on recency of other projects, without verifying that ANY of the task bodies' target files actually existed at that path. No pre-broadcast validation gate existed. Additionally, `write_file` was used to append LL-021 to this file, which silently **overwrote all 163 previous lines** containing LL-001 through LL-014 — the file had to be recovered via `git checkout HEAD` and LL-021 re-appended via `cat >>`.
+- **Impact:** 3 tasks falsely completed against wrong project (T1 widget test for CarSahApp, T4 deprecated no-op against CarSah's SDK, T10 156-line security diff to CarSah reverted). 5 tasks blocked with file-not-found errors. ~30 minutes lost redirecting and correcting. This lessons file was destroyed and had to be restored from git. 3 replacement tasks (T1-R, T4-R, T10-R) created with correct Hermex workspace.
+- **Prevention Rule:** 1) Before broadcasting any workspace directive, the orchestrator MUST verify at least 2-3 target files exist at the proposed path via `ls`. 2) When appending to existing documentation files, use `cat >>` or `patch` — NEVER `write_file` which overwrites entire files. 3) Before any `write_file` call, re-read the target file completely to verify its current content.
+- **Linked Decision ID:** N/A (orchestration governance — discovered in EPIC recovery)
+
+---
+
+## 2026-07-06 — Triple Chinese MoA Audit Lessons
+
+### LL-017: Router Wiring Gap — Code exists but screens not wired
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (MoA Audit)
+- **Source:** Triple Chinese MoA analysis of Hermex Android
+- **Issue:** `chat_screen.dart`, `workspace_screen.dart`, and `skills_screen.dart` were fully implemented with passing tests, but `app_router.dart` used `_placeholderScreen()` stubs instead of importing and wiring the real screens. The Traceability Matrix marked F-002, F-005, F-006 as "✅ Implemented" — but users could never reach these screens because they weren't connected to the router.
+- **Root Cause:** No governance rule required Router Wiring as an acceptance gate. The Lead Architect wrote the router with stubs during early development and never updated them after State Engineer completed the implementations. No smoke test verified that each feature route renders the real screen.
+- **Impact:** 3 of 8 features (37.5%) were effectively dead code — implemented but unreachable. The project's real completion rate was ~50%, not 100% as the Traceability Matrix claimed.
+- **Prevention Rule:** Router Wiring = Acceptance Gate. No feature is DONE until its screen is imported and wired in `app_router.dart`. The Traceability Matrix must include a "Router Wired" column.
+- **Linked Decision ID:** N/A (governance gap — discovered in MoA audit)
+
+### LL-018: Missing ProviderScope in Widget Test — App renders without crashing FAILED
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (MoA Audit)
+- **Source:** Triple Chinese MoA analysis of Hermex Android
+- **Issue:** `widget_test.dart` called `HermexApp()` directly without wrapping it in `ProviderScope`. The main `runApp()` in `main.dart` does wrap with `ProviderScope`, but the test did not. This caused the most basic smoke test to fail: "HermexApp renders without crashing — FAILED."
+- **Root Cause:** No rule mandated that the smoke test be written FIRST (before feature implementation) or that it must mirror the exact widget tree from `main.dart`. Smoke test was likely written after features were complete, and the ProviderScope dependency was missed.
+- **Impact:** 402 tests passed but the single most important test — "does the app even load?" — failed. This means no one could verify end-to-end functionality through automated tests.
+- **Prevention Rule:** Smoke Test First. Every Flutter project MUST have `App renders without crashing` as the FIRST test, mirroring `main.dart`'s widget tree exactly (including ProviderScope). This test must pass before any feature implementation begins.
+- **Linked Decision ID:** N/A (governance gap)
+
+### LL-019: Empty Catch Blocks in Auth Path — Silent security failures
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (MoA Audit)
+- **Source:** Triple Chinese MoA analysis of Hermex Android
+- **Issue:** `auth_manager.dart` contains two `catch (_) {}` blocks that silently swallow all exceptions from `flutter_secure_storage`. Combined with null assertions (`!`) in `certificate_pinner.dart`, this creates a compound risk: TLS pinning silently disabled + no auth error surfaced = potential MITM attack vector.
+- **Root Cause:** Developer used empty catch blocks as a "quick fix" during development, intended to add proper error handling later. No linting rule or code review gate flagged them.
+- **Impact:** Security-critical operations (auth, TLS) can fail silently with zero visibility. Combined failure scenario: secure storage fails → TLS pinning disabled → MITM attack on public WiFi → API token theft.
+- **Prevention Rule:** Empty catch blocks are FORBIDDEN in security-critical paths (auth, TLS, storage, network). Minimum: log the error. Preferred: surface to user or fallback to safe state. Add linting rule: `avoid_empty_catch`.
+- **Linked Decision ID:** N/A (code quality — discovered in MoA audit)
+
+### LL-020: Stale Router After Feature Completion — No wiring verification gate
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (MoA Audit)
+- **Source:** Triple Chinese MoA analysis of Hermex Android
+- **Issue:** The Kanban workflow treated "Feature Implementation" and "Router Wiring" as a single implicit task. The State Engineer implemented features in `lib/features/` but the router in `lib/core/router/` was never updated. No Kanban task existed for "Wire Feature X to Router."
+- **Root Cause:** The Kanban decomposition model assumed that creating feature files automatically meant they were wired. Router wiring was not a separate, explicit task in the workflow.
+- **Impact:** Systematic risk — any future project using this workflow would have the same gap. Features get built but never connected.
+- **Prevention Rule:** Every Feature implementation task MUST have a paired "Router Wiring" subtask. The Kanban board must include a "ROUTER_WIRING" verification column or the Definition of Done must explicitly include "Screen is reachable via router navigation."
+- **Linked Decision ID:** N/A (process gap)

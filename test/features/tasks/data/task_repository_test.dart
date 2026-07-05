@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:hermex_android/features/tasks/data/task_repository.dart';
-import 'package:hermex_android/core/api/api_client.dart';
 import 'package:hermex_android/core/api/api_exception.dart';
 import 'package:hermex_android/models/cron_job.dart';
 

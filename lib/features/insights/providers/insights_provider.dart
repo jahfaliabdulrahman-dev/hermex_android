@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/api_endpoints.dart';
+import '../../../core/api/endpoints.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../../../models/insights_data.dart';
 

@@ -1,7 +1,8 @@
 # 19 — Traceability Matrix
 
-> Last Updated: 2026-07-05
+> Last Updated: 2026-07-06
 > Maps every feature (F-001 to F-008) across all spec files, implementation, and tests.
+> **Router Wired column populated by T2-R (t_ecd75ad7):** ChatScreen, WorkspaceScreen, SkillsScreen wired to GoRouter in app_router.dart. See LL-017.
 
 ## Traceability Legend
 
@@ -19,6 +20,7 @@
 | Gherkin Scenarios | 09_testing_acceptance.md |
 | Feature Folder | lib/features/ |
 | Implementation | lib/ (files) |
+| **Router Wired** | app_router.dart import + route entry (LL-017) |
 | Test Files | test/ |
 | Audit Status | 18_zero_trust_red_team_audit.md |
 
@@ -38,6 +40,7 @@
 | Gherkin Scenarios | AC-F001-01 through AC-F001-14 (14 scenarios) | ✅ |
 | Feature Folder | lib/features/connection/ | ✅ |
 | Implementation | server_repository.dart, connection_provider.dart, connection_screen.dart, server_list_screen.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | server_repository_test.dart, connection_provider_test.dart, connection_screen_test.dart, server_list_screen_test.dart | ✅ |
 | Audit Status | Vectors 1, 2, 3, 5 relevant — partial coverage in 08 | ⚠️ Partial |
 
@@ -55,6 +58,7 @@
 | Gherkin Scenarios | AC-F002-01 through AC-F002-13 (13 scenarios) | ✅ |
 | Feature Folder | lib/features/chat/ | ✅ |
 | Implementation | chat_screen.dart, chat_input.dart, message_bubble.dart, model_selector.dart, chat_provider.dart, stream_provider.dart, chat_repository.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | chat_screen_test.dart, chat_provider_test.dart, stream_provider_test.dart | ✅ |
 | Audit Status | SSE poisoning (18 #7) not explicitly mitigated | ⚠️ Gap |
 
@@ -72,6 +76,7 @@
 | Gherkin Scenarios | AC-F003-01 through AC-F003-14 (14 scenarios) | ✅ |
 | Feature Folder | lib/features/sessions/ | ✅ |
 | Implementation | session_list_screen.dart, session_detail_screen.dart, session_provider.dart, session_repository.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | session_list_screen_test.dart, session_provider_test.dart, session_repository_test.dart | ✅ |
 | Audit Status | All relevant vectors covered | ✅ |
 
@@ -89,6 +94,7 @@
 | Gherkin Scenarios | AC-F004-01 through AC-F004-14 (14 scenarios) | ✅ |
 | Feature Folder | lib/features/tasks/ | ✅ |
 | Implementation | task_list_screen.dart, task_detail_screen.dart, task_form_screen.dart, task_provider.dart, task_repository.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | task_list_screen_test.dart, task_detail_screen_test.dart, task_provider_test.dart, task_repository_test.dart | ✅ |
 | Audit Status | Input injection (18 #6) — CronJob uses freezed with safe defaults | ✅ |
 
@@ -106,6 +112,7 @@
 | Gherkin Scenarios | AC-F005-01 through AC-F005-09 (9 scenarios) | ✅ |
 | Feature Folder | lib/features/skills/ | ✅ |
 | Implementation | skills_screen.dart, skills_provider.dart, skills_repository.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | skills_screen_test.dart, skills_provider_test.dart, skills_repository_test.dart | ✅ |
 | Audit Status | Low risk — read-only feature | ✅ |
 
@@ -123,6 +130,7 @@
 | Gherkin Scenarios | AC-F006-01 through AC-F006-11 (11 scenarios) | ✅ |
 | Feature Folder | lib/features/workspace/ | ✅ |
 | Implementation | workspace_screen.dart, workspace_provider.dart, workspace_repository.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | workspace_screen_test.dart, workspace_provider_test.dart, workspace_repository_test.dart | ✅ |
 | Audit Status | Server-side path validation (risk: server implementation) | ⚠️ Server-dependent |
 
@@ -140,6 +148,7 @@
 | Gherkin Scenarios | AC-F007-01 through AC-F007-07 (7 scenarios) | ✅ |
 | Feature Folder | lib/features/memory/, lib/features/insights/ | ✅ |
 | Implementation | memory_screen.dart, memory_provider.dart, insights_screen.dart, insights_provider.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | memory_screen_test.dart, memory_entry_test.dart, insights_data_test.dart | ✅ |
 | Audit Status | Read-only — low risk | ✅ |
 
@@ -157,6 +166,7 @@
 | Gherkin Scenarios | AC-F008-01 through AC-F008-11 (11 scenarios) | ✅ |
 | Feature Folder | lib/features/settings/ | ✅ |
 | Implementation | settings_screen.dart, settings_provider.dart | ✅ |
+| Router Wired | app_router.dart import + route entry (LL-017, T2-R) | ✅ |
 | Test Files | settings_screen_test.dart, settings_provider_test.dart | ✅ |
 | Audit Status | Clipboard exposure (18 #9), Background snapshot (18 #10) — not mitigated | ⚠️ Gap |
 
@@ -164,16 +174,16 @@
 
 ## Coverage Summary
 
-| Feature | Specs | Implementation | Tests | Audit |
-|---------|-------|---------------|-------|-------|
-| F-001 | ✅ | ✅ | ✅ | ⚠️ Partial |
-| F-002 | ✅ | ✅ | ✅ | ⚠️ SSE poisoning |
-| F-003 | ✅ | ✅ | ✅ | ✅ |
-| F-004 | ✅ | ✅ | ✅ | ✅ |
-| F-005 | ✅ | ✅ | ✅ | ✅ |
-| F-006 | ⚠️ API gap | ✅ | ✅ | ⚠️ Server-dependent |
-| F-007 | ⚠️ API gap | ✅ | ✅ | ✅ |
-| F-008 | ✅ | ✅ | ✅ | ⚠️ 2 vectors |
+| Feature | Specs | Implementation | Tests | Router Wired | Audit |
+|---------|-------|---------------|-------|-------------|-------|
+| F-001 | ✅ | ✅ | ✅ | ✅ | ⚠️ Partial |
+| F-002 | ✅ | ✅ | ✅ | ✅ | ⚠️ SSE poisoning |
+| F-003 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| F-004 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| F-005 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| F-006 | ⚠️ API gap | ✅ | ✅ | ✅ | ⚠️ Server-dependent |
+| F-007 | ⚠️ API gap | ✅ | ✅ | ✅ | ✅ |
+| F-008 | ✅ | ✅ | ✅ | ✅ | ⚠️ 2 vectors |
 
 ## Spec Gaps Requiring Lead Architect Attention
 
@@ -181,4 +191,3 @@
 2. **05_data_model_erd.md** — Missing WorkspaceEntry, MemoryEntry, InsightsData models
 3. **08_security_privacy.md** — Missing mitigations for vectors 4-10 from 18_zero_trust_red_team_audit.md
 4. **Duplicate ApiEndpoints** — `lib/core/api/` vs `lib/core/constants/`
-5. **Router placeholders** — Chat, Workspace, Skills screens not wired in router

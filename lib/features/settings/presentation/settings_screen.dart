@@ -180,25 +180,27 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildAppearanceSection(BuildContext context, WidgetRef ref,
       SettingsState settings, ThemeData theme) {
     return _buildCard(
-      child: Column(
-        children: ThemeModeOption.values.map((mode) {
-          return RadioListTile<ThemeModeOption>(
-            value: mode,
-            groupValue: settings.themeMode,
-            title: Text(
-              mode.displayName,
-              style: TextStyle(color: HermesColors.textPrimary),
-            ),
-            activeColor: HermesColors.cyan,
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(settingsProvider.notifier).setThemeMode(value);
-              }
-            },
-          );
-        }).toList(),
+      child: RadioGroup<ThemeModeOption>(
+        groupValue: settings.themeMode,
+        onChanged: (value) {
+          if (value != null) {
+            ref.read(settingsProvider.notifier).setThemeMode(value);
+          }
+        },
+        child: Column(
+          children: ThemeModeOption.values.map((mode) {
+            return RadioListTile<ThemeModeOption>(
+              value: mode,
+              title: Text(
+                mode.displayName,
+                style: TextStyle(color: HermesColors.textPrimary),
+              ),
+              activeColor: HermesColors.cyan,
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            );
+          }).toList(),
+        ),
       ),
     );
   }

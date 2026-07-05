@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 
-import '../constants/api_endpoints.dart';
+import 'endpoints.dart';
 import '../constants/security_limits.dart';
 import '../security/certificate_pinner.dart';
 import 'api_exception.dart';
@@ -168,15 +168,19 @@ class ApiClient {
 class _DebugLogInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    debugPrint(
-        '=== HERMEX DEBUG: ${options.method} ${options.uri} ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: ${options.method} ${options.uri} ===');
+    }
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    debugPrint(
-        '=== HERMEX DEBUG: ${response.statusCode} ${response.requestOptions.uri} ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: ${response.statusCode} ${response.requestOptions.uri} ===');
+    }
     handler.next(response);
   }
 
@@ -197,9 +201,11 @@ class _SizeLimitInterceptor extends Interceptor {
 
     if (data is String) {
       if (data.length > SecurityLimits.maxJsonResponseSize) {
-        debugPrint(
-            '=== HERMEX DEBUG: Response rejected — size ${data.length} '
-            'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: Response rejected — size ${data.length} '
+              'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
+        }
         handler.reject(
           DioException(
             requestOptions: response.requestOptions,
@@ -215,9 +221,11 @@ class _SizeLimitInterceptor extends Interceptor {
       // List responses also checked for extreme size via JSON serialization.
       final size = data.toString().length;
       if (size > SecurityLimits.maxJsonResponseSize) {
-        debugPrint(
-            '=== HERMEX DEBUG: List response rejected — size $size '
-            'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: List response rejected — size $size '
+              'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
+        }
         handler.reject(
           DioException(
             requestOptions: response.requestOptions,

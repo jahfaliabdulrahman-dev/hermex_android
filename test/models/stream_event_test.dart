@@ -80,11 +80,6 @@ void main() {
 
   group('StreamEvent — fromJson', () {
     test('parses TextDelta from JSON', () {
-      final json = {
-        'runtimeType': 'TextDelta',
-        'text': 'Hello',
-      };
-
       // Note: freezed sealed classes don't auto-dispatch fromJson.
       // We test the individual factory constructors directly.
       final event = StreamEvent.textDelta(text: 'Hello');

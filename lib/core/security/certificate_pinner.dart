@@ -45,9 +45,11 @@ class CertificatePinner {
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
     _loadPinsFromStorage();
-    debugPrint(
-        '=== HERMEX DEBUG: CertificatePinner.init — '
-        'loaded ${_pinCache.length} pinned certificates ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: CertificatePinner.init — '
+          'loaded ${_pinCache.length} pinned certificates ===');
+    }
   }
 
   /// Synchronous certificate validation callback for use with
@@ -60,9 +62,11 @@ class CertificatePinner {
 
     // Non-release: warn only, always allow.
     if (!kReleaseMode) {
-      debugPrint(
-          '=== HERMEX DEBUG: CertificatePinner — '
-          'non-release: allowing $hostKey (SHA-256: $fingerprint) ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: CertificatePinner — '
+            'non-release: allowing $hostKey (SHA-256: $fingerprint) ===');
+      }
       return true;
     }
 
@@ -70,9 +74,11 @@ class CertificatePinner {
     final pinned = _pinCache[hostKey];
     if (pinned == null) {
       // TOFU: no pin yet — accept and store for future.
-      debugPrint(
-          '=== HERMEX DEBUG: CertificatePinner — '
-          'TOFU: pinning $hostKey → $fingerprint ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: CertificatePinner — '
+            'TOFU: pinning $hostKey → $fingerprint ===');
+      }
       _pinCache[hostKey] = fingerprint;
       _persistPinAsync(hostKey, fingerprint);
       return true;
@@ -83,16 +89,20 @@ class CertificatePinner {
     }
 
     // Mismatch — potential MITM or server cert rotation.
-    debugPrint(
-        '=== HERMEX DEBUG: CertificatePinner — '
-        'REJECTED: $hostKey fingerprint mismatch. '
-        'Pinned: $pinned, Got: $fingerprint ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: CertificatePinner — '
+          'REJECTED: $hostKey fingerprint mismatch. '
+          'Pinned: $pinned, Got: $fingerprint ===');
+    }
     return false;
   }
 
   /// Clear all pinned certificates.
   Future<void> clearAll() async {
-    debugPrint('=== HERMEX DEBUG: CertificatePinner.clearAll ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: CertificatePinner.clearAll ===');
+    }
     // Remove from SharedPreferences
     final keysToRemove = _prefs?.getKeys().where((k) => k.startsWith(_keyPrefix));
     if (keysToRemove != null) {

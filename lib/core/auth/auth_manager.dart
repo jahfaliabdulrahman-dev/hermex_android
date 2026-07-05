@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import '../storage/secure_storage.dart';
 import '../../models/server_config.dart';
 
@@ -45,8 +47,8 @@ class AuthManager {
           return config['url'] as String?;
         }
       }
-    } catch (_) {
-      // Config parse failure — return null.
+    } catch (e) {
+      debugPrint('=== DEBUG: auth_manager — getActiveServerUrl parse failed: $e ===');
     }
     return null;
   }
@@ -68,8 +70,8 @@ class AuthManager {
           return config;
         }
       }
-    } catch (_) {
-      // Config parse failure — return null.
+    } catch (e) {
+      debugPrint('=== DEBUG: auth_manager — getActiveServerConfig parse failed: $e ===');
     }
     return null;
   }

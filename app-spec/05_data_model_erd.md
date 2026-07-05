@@ -104,6 +104,35 @@ class Skill {
   final bool enabled;
 }
 
+// From GET /v1/workspace and GET /v1/workspace/{path}
+class WorkspaceEntry {
+  final String name;
+  final String type;       // 'file' | 'directory'
+  final int size;
+  final String? modifiedAt; // ISO 8601
+  final bool isBinary;
+}
+
+// From GET /v1/memory
+class MemoryEntry {
+  final String id;
+  final String title;
+  final String? description;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+}
+
+// From GET /v1/insights
+class InsightsData {
+  final int totalSessions;
+  final int totalMessages;
+  final int totalTokens;
+  final int activeTimeMinutes;
+  final DateTime? lastSynced;
+  final int cronJobsRun;
+  final int skillsCount;
+}
+
 // SSE Events
 sealed class StreamEvent {
   // ChatCompletions: choices[0].delta.content
@@ -142,3 +171,6 @@ UI Update ← State Update ← Model Parser ← JSON Response/SSE Stream
 | Session cache | Isar DB | ❌ (non-sensitive) | 7 days |
 | User prefs | SharedPreferences | ❌ | Permanent |
 | API keys | flutter_secure_storage | ✅ OS-level | Permanent |
+
+---
+*Last updated: 2026-07-06 — Added WorkspaceEntry, MemoryEntry, InsightsData models (T9-R). Ref: LL-010.*

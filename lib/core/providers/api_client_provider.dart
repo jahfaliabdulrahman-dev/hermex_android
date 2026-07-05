@@ -13,7 +13,9 @@ import '../../features/connection/providers/connection_provider.dart';
 final certificatePinnerProvider = FutureProvider<CertificatePinner>((ref) async {
   final pinner = CertificatePinner();
   await pinner.init();
-  debugPrint('=== HERMEX DEBUG: certificatePinnerProvider — initialized ===');
+  if (kDebugMode) {
+    debugPrint('=== HERMEX DEBUG: certificatePinnerProvider — initialized ===');
+  }
   return pinner;
 });
 
@@ -44,21 +46,27 @@ final resolvedApiClientProvider = FutureProvider<ApiClient?>((ref) async {
   final connectionState = ref.watch(connectionProvider);
   final activeServer = connectionState.activeServer;
   if (activeServer == null) {
-    debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — no active server ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — no active server ===');
+    }
     return null;
   }
 
   final authManager = AuthManager(secureStorage: SecureStorage());
   final apiKey = await authManager.getApiKey();
   if (apiKey == null || apiKey.isEmpty) {
-    debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — no API key for server ${activeServer.id} ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — no API key for server ${activeServer.id} ===');
+    }
     return null;
   }
 
   // AUD-001: Initialize certificate pinner for TOFU-based MITM protection.
   final pinner = await ref.watch(certificatePinnerProvider.future);
 
-  debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — creating client for ${activeServer.url} ===');
+  if (kDebugMode) {
+    debugPrint('=== HERMEX DEBUG: resolvedApiClientProvider — creating client for ${activeServer.url} ===');
+  }
   // NOTE: activeServer.url is logged for debugging; apiKey is NEVER logged.
   return ApiClient(
     baseUrl: activeServer.url,

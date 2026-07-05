@@ -12,6 +12,9 @@ import '../../features/tasks/presentation/task_form_screen.dart';
 import '../../features/memory/presentation/memory_screen.dart';
 import '../../features/insights/presentation/insights_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/chat/presentation/chat_screen.dart';
+import '../../features/workspace/presentation/workspace_screen.dart';
+import '../../features/skills/presentation/skills_screen.dart';
 
 /// Placeholder screen for features not yet implemented.
 Widget _placeholderScreen(String title) => Scaffold(
@@ -44,7 +47,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: RoutePaths.chat,
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: _ChatPlaceholder(),
+            child: ChatScreen(),
           ),
         ),
         GoRoute(
@@ -91,7 +94,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: RoutePaths.workspace,
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: _WorkspacePlaceholder(),
+            child: WorkspaceScreen(),
           ),
         ),
         GoRoute(
@@ -106,7 +109,7 @@ final appRouter = GoRouter(
     // ─── Settings sub-screens (full-screen, no bottom nav) ───
     GoRoute(
       path: RoutePaths.skills,
-      builder: (context, state) => _placeholderScreen('Skills'),
+      builder: (context, state) => const SkillsScreen(),
     ),
     GoRoute(
       path: RoutePaths.memory,
@@ -208,18 +211,4 @@ class _BottomNavBar extends StatelessWidget {
   }
 }
 
-// ─── Placeholder screen widgets (to be replaced by future tasks) ───
-
-class _ChatPlaceholder extends StatelessWidget {
-  const _ChatPlaceholder();
-
-  @override
-  Widget build(BuildContext context) => _placeholderScreen('Chat');
-}
-
-class _WorkspacePlaceholder extends StatelessWidget {
-  const _WorkspacePlaceholder();
-
-  @override
-  Widget build(BuildContext context) => _placeholderScreen('Workspace');
-}
+// _placeholderScreen still used for License route (line ~124).
