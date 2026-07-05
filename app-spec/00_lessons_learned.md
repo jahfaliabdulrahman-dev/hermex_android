@@ -124,6 +124,34 @@
 
 ---
 
+## 2026-07-05 — Process & Governance Lessons
+
+### LL-013: Big Bang QA — QA must be phased alongside feature delivery
+- **Date:** 2026-07-05
+- **Stage:** Post-Mortem (Post-Implementation)
+- **Source:** Sulaiman + Abdulrahman review
+- **Issue:** Lead Architect decomposed project as: all 8 features → single QA phase at end. This "Big Bang Testing" pattern means defects discovered late have exponentially higher fix costs and risk cascading rework across already-completed features.
+- **Root Cause:** Decomposition strategy treated QA as a final gate rather than a continuous phased gate. No rule in the Global Contract or Lead Architect's SOUL enforces phased testing.
+- **Impact:** If QA found a fundamental issue (e.g., SSE streaming breaks on certain responses), ALL features depending on Chat would need rework — potentially F-003, F-004, F-005, F-006, F-007.
+- **Severity:** 🔴 High — applies to ALL future projects, not just Hermex Android
+- **Prevention Rule:** QA must be decomposed into phases matching feature delivery groups. Each phase must pass its QA gate before the next phase begins implementation. The sequence should follow: F-001 build → QA → ✅ → F-002+F-003 build → QA integration → ✅ → F-004+F-005+F-006 build → QA → ✅ → F-007+F-008 build → QA → ✅ → Final integration QA → Zero-Trust Audit → Release.
+- **Governance Impact:** This rule must be added to `FLUTTER_GLOBAL_CONTRACT.md` (new rule: "No Big Bang QA — Phased Testing Mandatory") and `flutter-lead-architect/SOUL.md` (decomposition constraint).
+- **Linked Decision ID:** N/A (process gap — discovered in post-mortem)
+
+### LL-014: GitHub Repository Push — Release task must include git push
+- **Date:** 2026-07-05
+- **Stage:** Post-Mortem (Post-Implementation)
+- **Source:** Sulaiman + Abdulrahman review
+- **Issue:** `flutter-devops-release-engineer` completed RELEASE task (`t_31c01209`) with APK build config, signing, and branding — but NEVER initialized git or pushed the project to GitHub. The project existed only on the local machine with zero remote backup.
+- **Root Cause:** The RELEASE task description did not explicitly require git initialization, remote setup, or push as deliverables. The DevOps profile executed only what was specified.
+- **Impact:** Project was invisible to the outside world; no remote backup; Abdulrahman couldn't find the repo when searching GitHub. Required manual intervention to init git, commit, create repo, and push.
+- **Severity:** 🟡 Medium — easily fixable but reveals a critical gap in the RELEASE task template
+- **Prevention Rule:** All RELEASE tasks MUST include as mandatory deliverables: (1) `git init` if not already a repo, (2) `gh repo create` with description, (3) `git push` to remote. These must be in the task body, not left to the profile's discretion.
+- **Governance Impact:** Update `flutter-devops-release-engineer/SOUL.md` to add git push as non-negotiable step in release checklist. Update `10_devops_release_observability.md` template to include git remote push in release gates.
+- **Linked Decision ID:** N/A (process gap — discovered in post-mortem)
+
+---
+
 ## Summary
 
 | Category | Count |
@@ -131,4 +159,5 @@
 | Architecture patterns | 5 (Notifier/AutoDispose, isBusy guard, route ordering, nullable repos, provider invalidation) |
 | Implementation pitfalls | 3 (Flutter symbol conflicts, async API key, duplicate files) |
 | Spec gaps found | 3 (API contract, security coverage, duplicate endpoints) |
-| Total lessons | 12 (LL-001 through LL-012) |
+| Process & governance gaps | 2 (Big Bang QA, missing git push) |
+| **Total lessons** | **14 (LL-001 through LL-014)** |
