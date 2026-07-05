@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+
+/// Hermex brand color tokens — from 04_ui_design_system.md §1.
+///
+/// Never use raw hex values in widget code.
+/// All semantic colors defined here; use via theme extensions.
+abstract class HermesColors {
+  HermesColors._();
+
+  // ─── Core Palette ───
+  static const Color navy = Color(0xFF001F5E);
+  static const Color cyan = Color(0xFF32C2FF);
+  static const Color dark = Color(0xFF0D1117);
+  static const Color surface = Color(0xFF161B22);
+  static const Color border = Color(0xFF30363D);
+
+  // ─── Text ───
+  static const Color textPrimary = Color(0xFFE6EDF3);
+  static const Color textSecondary = Color(0xFF8B949E);
+  static const Color textDisabled = Color(0xFF484F58);
+  static const Color white = Color(0xFFFFFFFF);
+
+  // ─── Semantic ───
+  static const Color error = Color(0xFFF85149);
+  static const Color success = Color(0xFF3FB950);
+  static const Color warning = Color(0xFFD29922);
+  static const Color info = Color(0xFF58A6FF);
+
+  // ─── Chat-Specific ───
+  static const Color userBubble = Color(0xFF32C2FF); // cyan
+  static const Color userBubbleText = Color(0xFF0D1117); // dark
+  static const Color agentBubble = Color(0xFF161B22); // surface
+  static const Color agentBubbleText = Color(0xFFE6EDF3); // textPrimary
+  static const Color codeBlockBg = Color(0xFF0D1117); // dark
+  static const Color codeBlockBorder = Color(0xFF30363D); // border
+}
