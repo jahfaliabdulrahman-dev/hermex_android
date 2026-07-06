@@ -6,3 +6,4 @@ build/
 local.properties
 *.lock
 .kotlin/
+__pycache__/
