@@ -18,6 +18,9 @@ jobs:
       - name: Android Preflight Check
         run: bash scripts/android-preflight.sh
 
+      - name: SCSI Hunt (Bug Pattern Scan)
+        run: python3 scripts/scsi-hunt.py --quick
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.6'
