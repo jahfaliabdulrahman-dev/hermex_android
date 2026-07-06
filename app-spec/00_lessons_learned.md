@@ -217,3 +217,42 @@
 - **Impact:** Systematic risk — any future project using this workflow would have the same gap. Features get built but never connected.
 - **Prevention Rule:** Every Feature implementation task MUST have a paired "Router Wiring" subtask. The Kanban board must include a "ROUTER_WIRING" verification column or the Definition of Done must explicitly include "Screen is reachable via router navigation."
 - **Linked Decision ID:** N/A (process gap)
+
+---
+
+## 2026-07-06 — Android Build Failures & Skill Remediation
+
+### LL-024: Namespace Mismatch — AndroidManifest resolves to wrong class
+- **Date:** 2026-07-06
+- **Stage:** Release (first device install)
+- **Source:** Physical Android device install test
+- **Issue:** `namespace = "com.hermex.android"` in `build.gradle.kts` but `MainActivity.kt` declared `package com.jahfali.hermex_android`. Android resolved `android:name=".MainActivity"` relative to namespace → `com.hermex.android.MainActivity` → `ClassNotFoundException` → crash before splash screen.
+- **Root Cause:** 9-profile swarm generated code without coordination. DevOps Engineer set namespace, State Engineer set Kotlin package — no profile owned the end-to-end Android build correctness.
+- **Impact:** App "لم يفتح نهائيا" (never opened). User saw nothing. Critical first-impression failure.
+- **Prevention Rule:** Android Verification Gate §1 — namespace in build.gradle.kts MUST equal MainActivity.kt package. Automated script verifies before every release.
+- **Linked Decision ID:** N/A (build configuration gap)
+
+### LL-025: Isar + ProGuard/R8 Incompatibility
+- **Date:** 2026-07-06
+- **Stage:** Release (discovered during LL-024 investigation)
+- **Source:** Code audit
+- **Issue:** `isMinifyEnabled = true` in release build type strips Isar adapter classes (CachedSessionAdapter, etc.) because they are loaded reflectively, not directly referenced in Java/Kotlin code. Even if the namespace was correct, the app would crash on `Isar.open()`.
+- **Root Cause:** No profile SOUL or spec file documented the Isar + ProGuard incompatibility. `android/skills` official docs confirm this pattern.
+- **Impact:** Compound failure — two independent crashes, either one fatal.
+- **Prevention Rule:** Android Verification Gate §2 — if `isar:` in `pubspec.yaml`, `isMinifyEnabled` MUST be `false`. Automated script verifies before every release.
+- **Linked Decision ID:** N/A (build configuration gap)
+
+### LL-026: Android Build Knowledge Gap — No official sources in swarm
+- **Date:** 2026-07-06
+- **Stage:** Post-Mortem (Root Cause Analysis)
+- **Source:** Comprehensive audit of all 9 Flutter profiles + Spec Pack
+- **Issue:** Zero profiles had Android build knowledge. Words `namespace`, `ProGuard`, `applicationId` appeared NOWHERE in any SOUL file. Spec File 10 (DevOps) was 19 lines — no Android build configuration checklist.
+- **Root Cause:** Swarm was designed for Dart/Flutter expertise only. Android native build system was an implicit blind spot — everyone assumed "someone else handles it."
+- **Impact:** Systemic risk for ALL future Flutter projects.
+- **Prevention Rule — 3 New Skills Created from Official Sources:**
+  1. `android-build-system` ← github.com/android/skills (Google AI-optimized) + developer.android.com
+  2. `flutter-android-deployment` ← docs.flutter.dev/deployment/android
+  3. `android-verification-gate` ← custom (LL-024 enforcement)
+  
+  These skills are MANDATORY for flutter-devops-release-engineer and flutter-lead-architect. Updated SOULs to enforce loading.
+- **Linked Decision ID:** N/A (competency gap remediation)
