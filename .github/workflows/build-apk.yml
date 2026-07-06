@@ -29,7 +29,16 @@ jobs:
 
       - run: flutter build apk --release
 
-      - name: Publish APK to Release
+      - name: Delete old 'latest' tag (if exists)
+        run: |
+          git push origin :refs/tags/latest 2>/dev/null || true
+
+      - name: Create 'latest' tag at current commit
+        run: |
+          git tag -f latest
+          git push origin latest --force
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
