@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +29,12 @@ jobs:
 
       - run: flutter build apk --release
 
-      - uses: actions/upload-artifact@v4
+      - name: Publish APK to Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: hermex-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          tag_name: latest
+          name: "Latest APK Build"
+          body: "Automatically built from `main` — updated every push."
+          prerelease: false
+          make_latest: true
+          files: build/app/outputs/flutter-apk/app-release.apk
