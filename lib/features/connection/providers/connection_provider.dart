@@ -214,33 +214,99 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
     return true;
   }
 
-  /// Select an existing server as active.
+  /// Select an existing saved server and connect with actual health check.
+  ///
+  /// BUG-001 FIX: Previously this method set status=connected without
+  /// performing a health check or retrieving the API key. Now it:
+  /// 1. Gets the stored API key via SecureStorage
+  /// 2. Calls _repository.healthCheck() with the actual key
+  /// 3. Only sets status=connected on success
+  ///
+  /// On failure, sets status=error with a meaningful message.
+  /// On success, the ConnectionScreen auto-navigates to /chat.
   Future<void> selectServer(String serverId) async {
     if (kDebugMode) {
       debugPrint(
         '=== HERMEX DEBUG: ConnectionNotifier.selectServer — id=$serverId ===');
     }
 
-    state = state.copyWith(isBusy: true, errorMessage: null, clearError: true);
-
-    final config = await _repository.getById(serverId);
-    if (config == null) {
-      state = state.copyWith(
-        status: ConnectionStatus.error,
-        errorMessage: 'Server configuration not found.',
-        isBusy: false,
-      );
+    // Prevent duplicate submissions.
+    if (state.isBusy || state.status == ConnectionStatus.connecting) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ConnectionNotifier.selectServer — blocked: busy ===');
+      }
       return;
     }
 
-    // Set as active.
-    await _repository.setActive(serverId);
-
     state = state.copyWith(
-      status: ConnectionStatus.connected,
-      activeServer: config,
-      isBusy: false,
+      status: ConnectionStatus.connecting,
+      errorMessage: null,
+      clearError: true,
+      isBusy: true,
     );
+
+    try {
+      // Step 1: Get server config from storage.
+      final config = await _repository.getById(serverId);
+      if (config == null) {
+        state = state.copyWith(
+          status: ConnectionStatus.error,
+          errorMessage: 'Server configuration not found.',
+          isBusy: false,
+        );
+        return;
+      }
+
+      // Step 2: Retrieve the stored API key.
+      final apiKey = await _repository.getApiKey(serverId);
+      if (apiKey == null || apiKey.isEmpty) {
+        state = state.copyWith(
+          status: ConnectionStatus.error,
+          errorMessage:
+              'No API key saved for this server. Please re-enter your API key.',
+          isBusy: false,
+        );
+        return;
+      }
+
+      // Step 3: Perform actual health check.
+      final result = await _repository.healthCheck(
+        url: config.url,
+        apiKey: apiKey,
+      );
+
+      if (!result.isSuccess) {
+        state = state.copyWith(
+          status: ConnectionStatus.error,
+          errorMessage: result.message ?? 'Connection failed.',
+          isBusy: false,
+        );
+        return;
+      }
+
+      // Step 4: Health check passed — set as active.
+      await _repository.setActive(serverId);
+
+      final refreshedServers = await _repository.getAll();
+
+      state = state.copyWith(
+        status: ConnectionStatus.connected,
+        activeServer: config,
+        servers: refreshedServers,
+        isBusy: false,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ConnectionNotifier.selectServer error — $e ===');
+      }
+      state = state.copyWith(
+        status: ConnectionStatus.error,
+        errorMessage: 'Unexpected error: $e',
+        isBusy: false,
+      );
+    }
   }
 
   /// Soft-delete a server config.

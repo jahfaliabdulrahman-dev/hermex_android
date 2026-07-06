@@ -108,9 +108,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: 'New Chat',
             onPressed: () {
               _textController.clear();
-              ref.read(chatProvider.notifier).clearSession();
-              ref.read(chatProvider.notifier).clearError();
-              setState(() {}); // Clear input visually.
+              ref.read(chatProvider.notifier).startNewChat();
             },
           ),
           const SizedBox(width: 4),

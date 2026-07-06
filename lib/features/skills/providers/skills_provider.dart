@@ -5,9 +5,9 @@ import '../../../core/providers/api_client_provider.dart';
 import '../../../models/skill.dart';
 import '../data/skills_repository.dart';
 
-/// Provider for the SkillsRepository (DI via apiClientProvider).
+/// Provider for the SkillsRepository (DI via resolvedApiClientProvider).
 final skillsRepositoryProvider = Provider<SkillsRepository>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
+  final apiClient = ref.watch(resolvedApiClientProvider).valueOrNull;
   return SkillsRepository(apiClient: apiClient);
 });
 

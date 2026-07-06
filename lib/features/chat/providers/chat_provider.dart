@@ -369,6 +369,24 @@ class ChatNotifier extends Notifier<ChatState> {
     state = state.copyWith(clearSession: true);
   }
 
+  /// Start a completely new chat — clear messages, session, and reinitialize.
+  ///
+  /// BUG-004 FIX: Previously the "New Chat" button only called clearSession()
+  /// which only cleared the sessionId — messages remained visible, no new
+  /// session was created. Now this fully resets state and reinitializes.
+  void startNewChat() {
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatNotifier.startNewChat ===');
+    }
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
+    _repository?.dispose();
+    _repository = null;
+    state = ChatState();
+    // Reinitialize after reset.
+    initialize();
+  }
+
   // ─── Error Handling ────────────────────────────────────────────────────
 
   /// Clear the current error message.

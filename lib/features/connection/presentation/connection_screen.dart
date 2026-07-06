@@ -36,7 +36,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
   final _labelController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscureApiKey = true;
-  bool _hasAttemptedConnection = false;
 
   @override
   void dispose() {
@@ -219,8 +218,6 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       if (confirmed != true) return; // User cancelled the dialog.
     }
 
-    _hasAttemptedConnection = true;
-
     final success = await ref.read(connectionProvider.notifier).connect(
           url: url,
           apiKey: apiKey,
@@ -247,10 +244,13 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     final connectionState = ref.watch(connectionProvider);
     final theme = Theme.of(context);
 
-    // Auto-navigate to chat if connected and we just connected.
+    // BUG-002 FIX: Auto-navigate on ANY transition to connected,
+    // whether from manual connect OR from selecting a saved server.
+    // Previous condition (_hasAttemptedConnection) only triggered
+    // on manual connect — saved servers never auto-navigated.
     ref.listen<ServerConnectionState>(connectionProvider, (prev, next) {
-      if (next.status == ConnectionStatus.connected && _hasAttemptedConnection) {
-        _hasAttemptedConnection = false;
+      if (next.status == ConnectionStatus.connected &&
+          prev?.status != ConnectionStatus.connected) {
         context.go(RoutePaths.chat);
       }
     });

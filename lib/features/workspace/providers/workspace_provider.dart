@@ -5,9 +5,9 @@ import '../../../core/providers/api_client_provider.dart';
 import '../../../models/workspace_entry.dart';
 import '../data/workspace_repository.dart';
 
-/// Provider for the WorkspaceRepository (DI via apiClientProvider).
+/// Provider for the WorkspaceRepository (DI via resolvedApiClientProvider).
 final workspaceRepositoryProvider = Provider<WorkspaceRepository>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
+  final apiClient = ref.watch(resolvedApiClientProvider).valueOrNull;
   return WorkspaceRepository(apiClient: apiClient);
 });
 
