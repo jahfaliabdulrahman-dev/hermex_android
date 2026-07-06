@@ -57,8 +57,10 @@ class SseClient {
       request.headers.set('Cache-Control', 'no-cache');
 
       if (body != null) {
-        request.headers.set('Content-Type', 'application/json');
-        request.write(jsonEncode(body));
+        request.headers.set('Content-Type', 'application/json; charset=utf-8');
+        final bodyBytes = utf8.encode(jsonEncode(body));
+        request.contentLength = bodyBytes.length;
+        request.add(bodyBytes);
       }
 
       final response = await request.close();
