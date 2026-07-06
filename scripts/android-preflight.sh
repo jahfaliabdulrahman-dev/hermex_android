@@ -17,6 +17,9 @@ echo " Android Preflight Verification"
 echo " Gate: LL-024 (namespace) + LL-025 (Isar/ProGuard)"
 echo "=============================================="
 
+# Helper: safe increment — avoids set -e exit when value is 0
+_inc() { eval "$1=\$((\${$1} + 1))"; }
+
 # Helper: extract value from gradle property
 # Usage: gradle_prop "namespace" android/app/build.gradle.kts
 gradle_prop() {
@@ -34,19 +37,19 @@ PKG=$(find android/app/src/main/kotlin -name "*.kt" -exec grep '^package' {} \; 
 
 if [ -z "$NS" ]; then
     echo "❌  FAILED: Cannot extract namespace from build.gradle.kts"
-    ((FAIL++))
+    _inc FAIL
 elif [ -z "$PKG" ]; then
     echo "❌  FAILED: Cannot find MainActivity.kt or extract package"
-    ((FAIL++))
+    _inc FAIL
 elif [ "$NS" != "$PKG" ]; then
     echo "❌  FAILED"
     echo "   namespace  = '$NS'  (in build.gradle.kts)"
     echo "   package    = '$PKG'  (in MainActivity.kt)"
     echo "   Fix: Make them identical. See: /android/flutter-android-build-system §1"
-    ((FAIL++))
+    _inc FAIL
 else
     echo "✅  PASSED: namespace == package ($NS)"
-    ((PASS++))
+    _inc PASS
 fi
 
 # ──────────────────────────────────────────────
@@ -61,14 +64,14 @@ if grep -q 'isar:' pubspec.yaml 2>/dev/null; then
         echo "❌  FAILED: isMinifyEnabled=true with Isar dependency"
         echo "   R8 strips Isar adapter classes (loaded reflectively) → IsarError crash."
         echo "   Fix: Set isMinifyEnabled=false, or add -keep rules from /android/flutter-android-build-system §2"
-        ((FAIL++))
+        _inc FAIL
     else
         echo "✅  PASSED: isMinifyEnabled is false (or not set)"
-        ((PASS++))
+        _inc PASS
     fi
 else
     echo "✅  PASSED: Isar not detected — no conflict possible"
-    ((PASS++))
+    _inc PASS
 fi
 
 # ──────────────────────────────────────────────
@@ -81,13 +84,13 @@ APP_ID=$(gradle_prop "applicationId" android/app/build.gradle.kts)
 if [ -n "$APP_ID" ] && [ -n "$NS" ] && [ "$APP_ID" != "$NS" ]; then
     echo "⚠️   WARNING: applicationId='$APP_ID' ≠ namespace='$NS'"
     echo "   Valid but unusual. Verify intent."
-    ((PASS++))
+    _inc PASS
 elif [ -n "$APP_ID" ]; then
     echo "✅  PASSED: applicationId == namespace ($APP_ID)"
-    ((PASS++))
+    _inc PASS
 else
     echo "⚠️   WARNING: Could not extract applicationId"
-    ((PASS++))
+    _inc PASS
 fi
 
 # ──────────────────────────────────────────────
@@ -100,16 +103,16 @@ if grep -q 'isar_flutter_libs' pubspec.yaml 2>/dev/null; then
     echo "   isar_flutter_libs detected in pubspec.yaml"
     if grep -q 'gradle.projectsEvaluated' android/build.gradle.kts 2>/dev/null; then
         echo "✅  PASSED: AGP compat hook present"
-        ((PASS++))
+        _inc PASS
     else
         echo "❌  FAILED: isar_flutter_libs detected but no AGP 8.8+ compat hook"
         echo "   isar_flutter_libs carries package attribute → rejected by AGP 8.8+"
         echo "   Fix: Add gradle.projectsEvaluated block. See /android/flutter-android-build-system §3"
-        ((FAIL++))
+        _inc FAIL
     fi
 else
     echo "✅  PASSED: isar_flutter_libs not detected"
-    ((PASS++))
+    _inc PASS
 fi
 
 # ──────────────────────────────────────────────
@@ -124,14 +127,14 @@ if [ -f "$NSC_FILE" ]; then
         echo "❌  FAILED: network_security_config blocks cleartext HTTP globally"
         echo "   Android will silently drop HTTP connections to IPs not in the whitelist."
         echo "   Fix: Set base-config cleartextTrafficPermitted=\"true\" (LL-027)"
-        ((FAIL++))
+        _inc FAIL
     else
         echo "✅  PASSED: cleartext traffic not globally blocked"
-        ((PASS++))
+        _inc PASS
     fi
 else
     echo "⚠️   WARNING: network_security_config.xml not found"
-    ((PASS++))
+    _inc PASS
 fi
 
 # ──────────────────────────────────────────────
