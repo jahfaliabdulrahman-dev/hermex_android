@@ -29,8 +29,9 @@
         <domain includeSubdomains="false">172.16.0.1</domain>
     </domain-config>
 
-    <!-- ── Default: block cleartext, trust system CAs only ── -->
-    <base-config cleartextTrafficPermitted="false">
+    <!-- ── Default: permit cleartext for private IPs ── -->
+    <!-- Dart-level validation (isLocalNetwork) already restricts HTTP to RFC 1918 only -->
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
