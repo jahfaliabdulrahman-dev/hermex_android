@@ -29,8 +29,10 @@ class ServerRepository {
   /// Save (create or update) a server configuration.
   /// Returns the saved [ServerConfig].
   Future<ServerConfig> save(ServerConfig config) async {
-    debugPrint(
-        '=== HERMEX DEBUG: ServerRepository.save — id=${config.id}, name=${config.name} ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: ServerRepository.save — id=${config.id}, name=${config.name} ===');
+    }
     await _secureStorage.saveServerConfig(config);
     return config;
   }
@@ -53,7 +55,9 @@ class ServerRepository {
 
   /// Get all non-deleted server configurations.
   Future<List<ServerConfig>> getAll() async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.getAll ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.getAll ===');
+    }
     return _secureStorage.getServerConfigs();
   }
 
@@ -68,7 +72,9 @@ class ServerRepository {
 
   /// Soft-delete a server config (isDeleted = true, deletedAt = now).
   Future<void> softDelete(String id) async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.softDelete — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.softDelete — id=$id ===');
+    }
     final config = await getById(id);
     if (config == null) return;
 
@@ -84,7 +90,9 @@ class ServerRepository {
 
   /// Hard-delete all data for a server (no soft delete — used when clearing all).
   Future<void> delete(String id) async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.delete — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.delete — id=$id ===');
+    }
     final configs = await getAll();
     configs.removeWhere((c) => c.id == id);
 
@@ -112,7 +120,9 @@ class ServerRepository {
 
   /// Set a server as active.
   Future<void> setActive(String id) async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.setActive — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.setActive — id=$id ===');
+    }
     await _secureStorage.writeActiveServerId(id);
 
     // Update lastConnected timestamp.
@@ -128,7 +138,9 @@ class ServerRepository {
   /// Save the API key for a server ID.
   /// SECURITY: [apiKey] is NEVER logged.
   Future<void> saveApiKey(String serverId, String apiKey) async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.saveApiKey — serverId=$serverId ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.saveApiKey — serverId=$serverId ===');
+    }
     await _secureStorage.saveApiKey(serverId, apiKey);
   }
 
@@ -150,7 +162,9 @@ class ServerRepository {
     required String url,
     required String apiKey,
   }) async {
-    debugPrint('=== HERMEX DEBUG: ServerRepository.healthCheck — url=$url ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ServerRepository.healthCheck — url=$url ===');
+    }
     // NOTE: url is logged for debugging; apiKey is NEVER logged.
 
     final normalizedUrl = _normalizeUrl(url);
@@ -177,8 +191,10 @@ class ServerRepository {
 
     try {
       final response = await dio.get(ApiEndpoints.health);
-      debugPrint(
-          '=== HERMEX DEBUG: Health check response — status=${response.statusCode} ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: Health check response — status=${response.statusCode} ===');
+      }
 
       if (response.statusCode == 200) {
         return HealthCheckResult.success();
@@ -195,12 +211,16 @@ class ServerRepository {
         );
       }
     } on DioException catch (e) {
-      debugPrint(
-          '=== HERMEX DEBUG: Health check DioException — type=${e.type}, message=${e.message} ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: Health check DioException — type=${e.type}, message=${e.message} ===');
+      }
       return _mapDioError(e);
     } catch (e) {
-      debugPrint(
-          '=== HERMEX DEBUG: Health check unexpected error — $e ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: Health check unexpected error — $e ===');
+      }
       return HealthCheckResult.failure(
         HealthCheckFailure.unknown,
         message: 'Unexpected error: $e',
@@ -246,8 +266,10 @@ class ServerRepository {
     // Dart's Uri parser separates userInfo from host — if userInfo is
     // non-empty, an `@` was present (e.g., http://evil.com@192.168.1.100:8642).
     if (uri.userInfo.isNotEmpty) {
-      debugPrint(
-          '=== HERMEX DEBUG: _validateUrl — rejected: userInfo present ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: _validateUrl — rejected: userInfo present ===');
+      }
       return AppStrings.invalidUrlHostInjection;
     }
 
@@ -264,8 +286,10 @@ class ServerRepository {
 
     // HTTP only allowed on local/RFC 1918 networks.
     if (scheme == 'http' && !isLocalNetwork(url)) {
-      debugPrint(
-          '=== HERMEX DEBUG: _validateUrl — rejected: HTTP on non-local host ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: _validateUrl — rejected: HTTP on non-local host ===');
+      }
       return AppStrings.invalidUrlHttpRemote;
     }
 
@@ -336,7 +360,11 @@ class ServerRepository {
       if (parts.length != 4) return false;
       final second = int.parse(parts[1]);
       return second >= 16 && second <= 31;
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: ServerRepository._isPrivate172 — parse error: $e ===');
+      }
       return false;
     }
   }

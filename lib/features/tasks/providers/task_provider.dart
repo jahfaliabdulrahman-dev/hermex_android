@@ -105,16 +105,20 @@ class TaskListNotifier extends Notifier<TaskListState> {
     final connectionState = ref.read(connectionProvider);
     final activeServer = connectionState.activeServer;
     if (activeServer == null) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier — no active server, skipping load ===');
+      }
       return;
     }
 
     final authManager = AuthManager(secureStorage: SecureStorage());
     final apiKey = await authManager.getApiKey();
     if (apiKey == null || apiKey.isEmpty) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier — no API key, skipping load ===');
+      }
       return;
     }
 
@@ -146,12 +150,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
   /// Load jobs from the server.
   Future<void> _loadJobs() async {
-    debugPrint('=== HERMEX DEBUG: TaskListNotifier._loadJobs ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskListNotifier._loadJobs ===');
+    }
 
     // Prevent duplicate loads.
     if (state.status == TaskLoadStatus.loading || state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier._loadJobs — blocked: already loading ===');
+      }
       return;
     }
 
@@ -177,8 +185,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
         jobs: jobs,
       );
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier._loadJobs — error: $e ===');
+      }
       state = state.copyWith(
         status: TaskLoadStatus.error,
         errorMessage: e.toString(),
@@ -203,12 +213,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
     String? modelName,
     String? deliver,
   }) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.createJob — schedule=$schedule ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.createJob — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -236,8 +250,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(isBusy: false);
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.createJob — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         errorMessage: e.toString(),
@@ -259,12 +275,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
     String? modelName,
     String? deliver,
   }) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.updateJob — id=$id ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.updateJob — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -296,8 +316,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(isBusy: false, clearBusyJobId: true);
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.updateJob — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
@@ -311,12 +333,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
   /// Delete a cron job. Returns true on success.
   Future<bool> deleteJob(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.deleteJob — id=$id ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.deleteJob — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -344,8 +370,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       );
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.deleteJob — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
@@ -360,12 +388,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
   /// Trigger an immediate run of a cron job. Returns true on success.
   Future<bool> runJobNow(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.runJobNow — id=$id ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.runJobNow — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -393,8 +425,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       );
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.runJobNow — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
@@ -409,12 +443,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
   /// Pause a cron job. Returns true on success.
   Future<bool> pauseJob(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.pauseJob — id=$id ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.pauseJob — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -437,8 +475,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(isBusy: false, clearBusyJobId: true);
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.pauseJob — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
@@ -450,12 +490,16 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
   /// Resume a paused cron job. Returns true on success.
   Future<bool> resumeJob(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: TaskListNotifier.resumeJob — id=$id ===');
+    }
 
     if (state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.resumeJob — blocked: already busy ===');
+      }
       return false;
     }
 
@@ -478,8 +522,10 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(isBusy: false, clearBusyJobId: true);
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier.resumeJob — error: $e ===');
+      }
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
@@ -511,7 +557,9 @@ final taskListProvider =
 /// Provider for a single job detail (fetched on demand).
 final taskDetailProvider =
     FutureProvider.family<CronJob?, String>((ref, id) async {
-  debugPrint('=== HERMEX DEBUG: taskDetailProvider — id=$id ===');
+  if (kDebugMode) {
+    debugPrint('=== HERMEX DEBUG: taskDetailProvider — id=$id ===');
+  }
 
   final connectionState = ref.read(connectionProvider);
   final activeServer = connectionState.activeServer;

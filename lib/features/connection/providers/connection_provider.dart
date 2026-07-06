@@ -119,13 +119,17 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
     required String apiKey,
     String? label,
   }) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ConnectionNotifier.connect — url=$url ===');
+    }
 
     // Prevent duplicate submissions.
     if (state.status == ConnectionStatus.connecting || state.isBusy) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ConnectionNotifier.connect — blocked: already connecting ===');
+      }
       return false;
     }
 
@@ -203,15 +207,19 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
       isBusy: false,
     );
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ConnectionNotifier.connect — success: id=${config.id} ===');
+    }
     return true;
   }
 
   /// Select an existing server as active.
   Future<void> selectServer(String serverId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ConnectionNotifier.selectServer — id=$serverId ===');
+    }
 
     state = state.copyWith(isBusy: true, errorMessage: null, clearError: true);
 
@@ -237,8 +245,10 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
 
   /// Soft-delete a server config.
   Future<void> deleteServer(String serverId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ConnectionNotifier.deleteServer — id=$serverId ===');
+    }
 
     state = state.copyWith(isBusy: true);
 
@@ -264,7 +274,9 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
 
   /// Disconnect from the active server.
   Future<void> disconnect() async {
-    debugPrint('=== HERMEX DEBUG: ConnectionNotifier.disconnect ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ConnectionNotifier.disconnect ===');
+    }
 
     // Clear the active server ID from storage.
     final repo = _repository;

@@ -80,12 +80,24 @@ void main() {
       await tester.pumpWidget(_buildTestApp());
       await tester.pumpAndSettle();
 
-      // Scroll down by dragging the ListView
-      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      // Scroll until Danger Zone is visible
+      await tester.scrollUntilVisible(
+        find.text('Danger Zone'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pumpAndSettle();
 
-      // Danger Zone and About should now be visible
       expect(find.text('Danger Zone'), findsOneWidget);
+
+      // Scroll further to About
+      await tester.scrollUntilVisible(
+        find.text('About'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
       expect(find.text('About'), findsOneWidget);
     });
 
@@ -94,7 +106,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Scroll to Danger Zone
-      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.scrollUntilVisible(
+        find.text('Delete All Local Data'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Delete All Local Data'));
@@ -113,6 +129,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(TextFormField), findsOneWidget);
+    });
+
+    testWidgets('agent data section shows Skills, Memory, Insights', (tester) async {
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+
+      // Scroll to Agent Data section
+      await tester.scrollUntilVisible(
+        find.text('Skills'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Skills'), findsOneWidget);
+      expect(find.text('Memory'), findsOneWidget);
+      expect(find.text('Insights'), findsOneWidget);
     });
   });
 }

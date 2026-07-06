@@ -101,7 +101,9 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<void> initialize() async {
     if (state.isInitialized && _repository != null) return;
 
-    debugPrint('=== HERMEX DEBUG: ChatNotifier.initialize ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatNotifier.initialize ===');
+    }
 
     try {
       final authManager = AuthManager(secureStorage: SecureStorage());
@@ -128,8 +130,10 @@ class ChatNotifier extends Notifier<ChatState> {
       // Load models after initialization.
       await loadModels();
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.initialize error — $e ===');
+      }
       state = state.copyWith(
         isInitialized: true,
         errorMessage: 'Failed to initialize chat: $e',
@@ -143,7 +147,9 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<void> loadModels() async {
     if (_repository == null) return;
 
-    debugPrint('=== HERMEX DEBUG: ChatNotifier.loadModels ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatNotifier.loadModels ===');
+    }
 
     state = state.copyWith(isLoadingModels: true, clearError: true);
 
@@ -156,8 +162,10 @@ class ChatNotifier extends Notifier<ChatState> {
         selectedModelId: state.selectedModelId ?? _firstModelId(models),
       );
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.loadModels error — $e ===');
+      }
       state = state.copyWith(
         isLoadingModels: false,
         errorMessage: 'Failed to load models. Using last known model.',
@@ -167,8 +175,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Select a model for chat.
   void selectModel(String modelId) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatNotifier.selectModel — $modelId ===');
+    }
     state = state.copyWith(selectedModelId: modelId);
   }
 
@@ -197,8 +207,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
     final trimmed = text.trim();
     if (trimmed.isEmpty) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.sendMessage — blocked: empty message ===');
+      }
       return false;
     }
 
@@ -211,13 +223,17 @@ class ChatNotifier extends Notifier<ChatState> {
 
     // Prevent duplicate sends during active stream.
     if (state.isStreaming) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.sendMessage — blocked: already streaming ===');
+      }
       return false;
     }
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatNotifier.sendMessage — model=${state.selectedModelId} ===');
+    }
 
     // 1. Append user message.
     final userMessage = ChatMessage(
@@ -260,8 +276,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.sendMessage stream error — $e ===');
+      }
 
       // Fallback: non-streaming request.
       try {
@@ -290,7 +308,9 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Stop the active stream generation.
   void stopGeneration() {
-    debugPrint('=== HERMEX DEBUG: ChatNotifier.stopGeneration ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatNotifier.stopGeneration ===');
+    }
 
     _streamSubscription?.cancel();
     _streamSubscription = null;
@@ -313,8 +333,10 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<void> loadHistory(String sessionId) async {
     if (_repository == null) return;
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatNotifier.loadHistory — session=$sessionId ===');
+    }
 
     state = state.copyWith(
       isLoadingHistory: true,
@@ -329,8 +351,10 @@ class ChatNotifier extends Notifier<ChatState> {
         isLoadingHistory: false,
       );
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatNotifier.loadHistory error — $e ===');
+      }
       state = state.copyWith(
         isLoadingHistory: false,
         errorMessage: 'Failed to load session history.',
@@ -404,8 +428,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Handle a stream error.
   void _handleStreamError(dynamic error) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatNotifier stream error — $error ===');
+    }
 
     _streamSubscription?.cancel();
     _streamSubscription = null;
@@ -434,7 +460,9 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Handle stream completion.
   void _handleStreamDone() {
-    debugPrint('=== HERMEX DEBUG: ChatNotifier stream done ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatNotifier stream done ===');
+    }
 
     _streamSubscription?.cancel();
     _streamSubscription = null;

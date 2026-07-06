@@ -148,9 +148,11 @@ class CertificatePinner {
     try {
       await _prefs?.setString('$_keyPrefix$hostKey', fingerprint);
     } catch (e) {
-      debugPrint(
-          '=== HERMEX DEBUG: CertificatePinner — '
-          'failed to persist pin for $hostKey: $e ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: CertificatePinner — '
+            'failed to persist pin for $hostKey: $e ===');
+      }
     }
   }
 

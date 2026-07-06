@@ -77,7 +77,9 @@ class SettingsNotifier extends Notifier<SettingsState> {
   // ─── Theme Mode ───
 
   Future<void> setThemeMode(ThemeModeOption mode) async {
-    debugPrint('=== HERMEX DEBUG: SettingsNotifier.setThemeMode — $mode ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SettingsNotifier.setThemeMode — $mode ===');
+    }
     await _prefs.setThemeMode(mode.name);
     state = state.copyWith(themeMode: mode);
   }
@@ -85,8 +87,10 @@ class SettingsNotifier extends Notifier<SettingsState> {
   // ─── Default Model ───
 
   Future<void> setDefaultModel(String? modelId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SettingsNotifier.setDefaultModel — $modelId ===');
+    }
     if (modelId != null && modelId.isNotEmpty) {
       await _prefs.setDefaultModel(modelId);
       state = state.copyWith(defaultModel: modelId);
@@ -99,8 +103,10 @@ class SettingsNotifier extends Notifier<SettingsState> {
   // ─── Default Server ───
 
   Future<void> setDefaultServerId(String? serverId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SettingsNotifier.setDefaultServerId — $serverId ===');
+    }
     if (serverId != null && serverId.isNotEmpty) {
       await _prefs.setDefaultServerId(serverId);
       state = state.copyWith(defaultServerId: serverId);
@@ -115,8 +121,10 @@ class SettingsNotifier extends Notifier<SettingsState> {
   /// Delete ALL local data: secure storage + shared preferences.
   /// Also clears the connection provider state.
   Future<void> deleteAllData() async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SettingsNotifier.deleteAllData ===');
+    }
 
     final secureStorage = SecureStorage();
     await secureStorage.deleteAll();

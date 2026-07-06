@@ -48,7 +48,9 @@ class AuthManager {
         }
       }
     } catch (e) {
-      debugPrint('=== DEBUG: auth_manager — getActiveServerUrl parse failed: $e ===');
+      if (kDebugMode) {
+        debugPrint('=== DEBUG: auth_manager — getActiveServerUrl parse failed: $e ===');
+      }
     }
     return null;
   }
@@ -71,7 +73,9 @@ class AuthManager {
         }
       }
     } catch (e) {
-      debugPrint('=== DEBUG: auth_manager — getActiveServerConfig parse failed: $e ===');
+      if (kDebugMode) {
+        debugPrint('=== DEBUG: auth_manager — getActiveServerConfig parse failed: $e ===');
+      }
     }
     return null;
   }

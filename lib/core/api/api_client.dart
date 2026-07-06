@@ -59,8 +59,10 @@ class ApiClient {
     _dio.interceptors.add(InterceptorsWrapper(
       onError: (error, handler) {
         final exception = _classifyError(error);
-        debugPrint(
-            '=== HERMEX DEBUG: ApiClient error — ${exception.runtimeType}: ${exception.message} ===');
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: ApiClient error — ${exception.runtimeType}: ${exception.message} ===');
+        }
         handler.next(error);
       },
     ));
@@ -125,7 +127,9 @@ class ApiClient {
       );
       return response.statusCode == 200;
     } catch (e) {
-      debugPrint('=== HERMEX DEBUG: Health check failed — $e ===');
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: Health check failed — $e ===');
+      }
       return false;
     }
   }
@@ -186,8 +190,10 @@ class _DebugLogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    debugPrint(
-        '=== HERMEX DEBUG: ERROR ${err.type} ${err.message} ===');
+    if (kDebugMode) {
+      debugPrint(
+          '=== HERMEX DEBUG: ERROR ${err.type} ${err.message} ===');
+    }
     handler.next(err);
   }
 }

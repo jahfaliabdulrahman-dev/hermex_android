@@ -112,6 +112,7 @@ abstract class AppStrings {
   static const installSkillsOnServer =
       'Install skills on your Hermes server to see them here.';
   static const searchSkills = 'Search skills...';
+  static const skillsSubtitle = 'View and manage agent skills';
 
   // ─── Workspace ───
   static const workspace = 'Workspace';
@@ -124,6 +125,7 @@ abstract class AppStrings {
   static const noMemoriesStored = 'No memories stored';
   static const agentLearnsOverTime =
       'The agent will save facts as it learns about you.';
+  static const memorySubtitle = 'Browse persistent agent memory';
 
   // ─── Insights ───
   static const insights = 'Insights';
@@ -131,6 +133,7 @@ abstract class AppStrings {
   static const startUsingAgentForData =
       'Start using the agent to generate data.';
   static const lastSynced = 'Last synced';
+  static const insightsSubtitle = 'Usage analytics and insights';
 
   // ─── Settings ───
   static const settings = 'Settings';

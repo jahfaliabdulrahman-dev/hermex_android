@@ -90,7 +90,7 @@ void main() {
   group('SSE stream — event streaming contract', () {
     /// Helper: collect events from a stream created by a callback that adds
     /// events and then closes the controller.
-    Future<List<StreamEvent>> _collect(
+    Future<List<StreamEvent>> collect(
         void Function(StreamController<StreamEvent>) addEvents) async {
       final controller = StreamController<StreamEvent>();
       addEvents(controller);
@@ -102,7 +102,7 @@ void main() {
 
     test('stream can emit TextDelta then ToolProgress then StreamDone',
         () async {
-      final events = await _collect((ctrl) {
+      final events = await collect((ctrl) {
         ctrl.add(StreamEvent.textDelta(text: 'Hello'));
         ctrl.add(StreamEvent.toolProgress(
             toolName: 'search', status: 'completed'));
@@ -116,7 +116,7 @@ void main() {
     });
 
     test('stream can emit error mid-sequence', () async {
-      final events = await _collect((ctrl) {
+      final events = await collect((ctrl) {
         ctrl.add(StreamEvent.textDelta(text: 'Partial...'));
         ctrl.add(StreamEvent.error(message: 'Connection lost'));
       });
@@ -127,7 +127,7 @@ void main() {
     });
 
     test('stream can emit only StreamDone for empty responses', () async {
-      final events = await _collect((ctrl) {
+      final events = await collect((ctrl) {
         ctrl.add(StreamEvent.done());
       });
 

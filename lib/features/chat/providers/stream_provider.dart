@@ -45,13 +45,17 @@ class StreamManager {
     // Cancel any existing connection.
     cancel();
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: StreamManager.connect — path=$path ===');
+    }
 
     _controller = StreamController<StreamEvent>.broadcast(
       onCancel: () {
-        debugPrint(
+        if (kDebugMode) {
+          debugPrint(
             '=== HERMEX DEBUG: StreamManager — all listeners cancelled ===');
+        }
       },
     );
 
@@ -71,8 +75,10 @@ class StreamManager {
         }
       },
       onError: (error) {
-        debugPrint(
+        if (kDebugMode) {
+          debugPrint(
             '=== HERMEX DEBUG: StreamManager stream error — $error ===');
+        }
         if (_controller != null && !_controller!.isClosed) {
           _controller!.add(StreamEvent.error(
             message: error.toString(),
@@ -80,7 +86,9 @@ class StreamManager {
         }
       },
       onDone: () {
-        debugPrint('=== HERMEX DEBUG: StreamManager stream done ===');
+        if (kDebugMode) {
+          debugPrint('=== HERMEX DEBUG: StreamManager stream done ===');
+        }
         if (_controller != null && !_controller!.isClosed) {
           _controller!.add(const StreamEvent.done());
         }
@@ -93,7 +101,9 @@ class StreamManager {
 
   /// Cancel the active stream and close the controller.
   void cancel() {
-    debugPrint('=== HERMEX DEBUG: StreamManager.cancel ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: StreamManager.cancel ===');
+    }
 
     _subscription?.cancel();
     _subscription = null;
@@ -117,9 +127,11 @@ class StreamManager {
   /// to [SecurityLimits.maxTextDeltaSize] before forwarding to UI.
   StreamEvent _sanitizeEvent(StreamEvent event) {
     if (event is TextDelta && event.text.length > SecurityLimits.maxTextDeltaSize) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TextDelta truncated — '
           '${event.text.length} chars -> ${SecurityLimits.maxTextDeltaSize} chars ===');
+      }
       return StreamEvent.textDelta(
         text: event.text.substring(0, SecurityLimits.maxTextDeltaSize),
       );

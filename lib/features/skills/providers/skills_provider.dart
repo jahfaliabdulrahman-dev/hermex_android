@@ -122,7 +122,9 @@ class SkillsNotifier extends Notifier<SkillsScreenState> {
   /// Toggle a skill's enabled state.
   /// Currently a local-only toggle for MVP — API mutation not yet implemented.
   Future<void> toggleSkill(String name) async {
-    debugPrint('=== HERMEX DEBUG: SkillsNotifier.toggleSkill — name=$name ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SkillsNotifier.toggleSkill — name=$name ===');
+    }
 
     if (state.isToggling(name)) {
       return;
@@ -147,8 +149,10 @@ class SkillsNotifier extends Notifier<SkillsScreenState> {
         togglingSkills: state.togglingSkills.difference({name}),
       );
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SkillsNotifier.toggleSkill — error: $e ===');
+      }
       state = state.copyWith(
         togglingSkills: state.togglingSkills.difference({name}),
       );

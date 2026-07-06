@@ -105,32 +105,47 @@ class Skill {
 }
 
 // From GET /v1/workspace and GET /v1/workspace/{path}
+// Implementation: @freezed + json_serializable
+// JSON keys: name, type, size, modified_at, is_binary
+@freezed
 class WorkspaceEntry {
-  final String name;
-  final String type;       // 'file' | 'directory'
-  final int size;
-  final String? modifiedAt; // ISO 8601
-  final bool isBinary;
+  final String name;                         // required
+  @Default('file') final String type;        // 'file' | 'directory'
+  @Default(0) final int size;                // bytes, 0 for directories
+  @JsonKey(name: 'modified_at') final String? modifiedAt;  // ISO 8601
+  @JsonKey(name: 'is_binary') @Default(false) final bool isBinary;
 }
 
 // From GET /v1/memory
+// Implementation: plain Dart (not Freezed) with safe JSON parsing.
+// Handles malformed payloads: falls back to 'key'/'name' for title,
+// 'key' for id, nested {memories: [...]} or {data: [...]} wrapping.
 class MemoryEntry {
-  final String id;
-  final String title;
-  final String? description;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final String id;              // required; falls back to json['key']
+  final String title;           // required; falls back to json['key'] → json['name'] → 'Untitled'
+  final String? description;    // nullable
+  final DateTime? createdAt;    // parsed from created_at or createdAt
+  final DateTime? updatedAt;    // parsed from updated_at or updatedAt
+
+  static List<MemoryEntry> parseList(dynamic body);  // handles List or Map wrapper
 }
 
 // From GET /v1/insights
+// Implementation: plain Dart (not Freezed) with safe JSON parsing.
+// Handles nested {insights: {...}} or {data: {...}} wrapping.
+// Computed props: formattedActiveTime ("Xh Ym"), formattedTokens ("1.2k" / "3.5M").
 class InsightsData {
-  final int totalSessions;
-  final int totalMessages;
-  final int totalTokens;
-  final int activeTimeMinutes;
-  final DateTime? lastSynced;
-  final int cronJobsRun;
-  final int skillsCount;
+  @Default(0) final int totalSessions;
+  @Default(0) final int totalMessages;
+  @Default(0) final int totalTokens;
+  @Default(0) final int activeTimeMinutes;   // minutes
+  final DateTime? lastSynced;               // parsed from last_synced
+  @Default(0) final int cronJobsRun;
+  @Default(0) final int skillsCount;
+
+  String get formattedActiveTime;           // "0m" / "2h 30m" / "45m"
+  String get formattedTokens;               // "0" / "1.2k" / "3.5M"
+  static InsightsData parse(dynamic body);  // handles Map or nested wrapping
 }
 
 // SSE Events
@@ -173,4 +188,4 @@ UI Update ← State Update ← Model Parser ← JSON Response/SSE Stream
 | API keys | flutter_secure_storage | ✅ OS-level | Permanent |
 
 ---
-*Last updated: 2026-07-06 — Added WorkspaceEntry, MemoryEntry, InsightsData models (T9-R). Ref: LL-010.*
+*Last updated: 2026-07-06 — FIX: Enhanced WorkspaceEntry, MemoryEntry, InsightsData with Freezed annotations, JSON key mappings, default values, safe-parsing notes, static helpers, and computed properties. Ref: t_98123697.*

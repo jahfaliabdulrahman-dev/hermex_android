@@ -17,21 +17,31 @@ final memoryListProvider = FutureProvider<List<MemoryEntry>>((ref) async {
   final apiClientAsync = ref.watch(resolvedApiClientProvider);
   final apiClient = apiClientAsync.valueOrNull;
   if (apiClient == null) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: memoryListProvider — no active server, returning empty ===');
+    }
     return [];
   }
 
-  debugPrint('=== HERMEX DEBUG: memoryListProvider — fetching ===');
+  if (kDebugMode) {
+    debugPrint('=== HERMEX DEBUG: memoryListProvider — fetching ===');
+  }
   try {
     final response = await apiClient.get(ApiEndpoints.memory);
     final entries = MemoryEntry.parseList(response);
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: memoryListProvider — got ${entries.length} entries ===');
+    }
     return entries;
   } catch (e, stack) {
-    debugPrint('=== HERMEX DEBUG: memoryListProvider — error: $e ===');
-    debugPrint('=== HERMEX DEBUG: memoryListProvider — stack: $stack ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: memoryListProvider — error: $e ===');
+    }
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: memoryListProvider — stack: $stack ===');
+    }
     throw Exception('Failed to load memory entries: $e');
   }
 });

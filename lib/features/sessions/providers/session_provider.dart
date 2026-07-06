@@ -27,8 +27,10 @@ final sessionListProvider = FutureProvider<List<SessionSummary>>((ref) async {
   try {
     return await repository.getSessions();
   } catch (e) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: sessionListProvider — API failed, trying cache: $e ===');
+    }
 
     // Try cache fallback.
     final cached = await repository.getCachedSessions();
@@ -164,8 +166,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Create a new session and return its ID for navigation.
   Future<String?> createSession({String? title}) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.createSession — title=$title ===');
+    }
 
     if (state.isOffline) {
       state = state.copyWith(
@@ -183,8 +187,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       ref.invalidate(sessionListProvider);
       return session.id;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.createSession — error: $e ===');
+      }
       state = state.copyWith(
         errorMessage: 'Failed to create session: $e',
       );
@@ -194,8 +200,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Rename a session.
   Future<bool> renameSession(String id, String newTitle) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.renameSession — id=$id, title=$newTitle ===');
+    }
 
     if (state.isOffline) {
       state = state.copyWith(
@@ -206,8 +214,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
     // Prevent duplicate submissions.
     if (state.isMutating(id)) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.renameSession — blocked: already mutating ===');
+      }
       return false;
     }
 
@@ -228,8 +238,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       );
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.renameSession — error: $e ===');
+      }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
         errorMessage: 'Failed to rename session: $e',
@@ -240,8 +252,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Delete a session (after user confirmation).
   Future<bool> deleteSession(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.deleteSession — id=$id ===');
+    }
 
     if (state.isOffline) {
       state = state.copyWith(
@@ -251,8 +265,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
     }
 
     if (state.isMutating(id)) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.deleteSession — blocked: already mutating ===');
+      }
       return false;
     }
 
@@ -273,8 +289,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       );
       return true;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.deleteSession — error: $e ===');
+      }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
         errorMessage: 'Failed to delete session: $e',
@@ -285,8 +303,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Toggle pin on a session.
   Future<void> togglePin(String id, bool currentPinned) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.togglePin — id=$id, pinned=$currentPinned ===');
+    }
 
     if (state.isOffline) return;
     if (state.isMutating(id)) return;
@@ -303,8 +323,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       ref.invalidate(sessionListProvider);
       ref.invalidate(sessionDetailProvider(id));
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.togglePin — error: $e ===');
+      }
       state = state.copyWith(
         errorMessage: 'Failed to update session: $e',
       );
@@ -317,8 +339,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Toggle archive on a session.
   Future<void> toggleArchive(String id, bool currentArchived) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.toggleArchive — id=$id, archived=$currentArchived ===');
+    }
 
     if (state.isOffline) return;
     if (state.isMutating(id)) return;
@@ -335,8 +359,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       ref.invalidate(sessionListProvider);
       ref.invalidate(sessionDetailProvider(id));
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.toggleArchive — error: $e ===');
+      }
       state = state.copyWith(
         errorMessage: 'Failed to update session: $e',
       );
@@ -349,8 +375,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
 
   /// Fork a session.
   Future<String?> forkSession(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionsNotifier.forkSession — id=$id ===');
+    }
 
     if (state.isOffline) {
       state = state.copyWith(
@@ -376,8 +404,10 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       );
       return newSession.id;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: SessionsNotifier.forkSession — error: $e ===');
+      }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
         errorMessage: 'Failed to fork session: $e',

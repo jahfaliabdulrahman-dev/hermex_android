@@ -21,7 +21,9 @@ class TaskRepository {
   /// Fetch all cron jobs from the server.
   /// Parses the JSON response safely — invalid entries are skipped.
   Future<List<CronJob>> getAll() async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.getAll ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.getAll ===');
+    }
     try {
       final response = await _apiClient.get(ApiEndpoints.jobs);
       final jobsList = response['jobs'] as List<dynamic>? ?? [];
@@ -30,29 +32,37 @@ class TaskRepository {
             try {
               return CronJob.fromJson(json as Map<String, dynamic>);
             } catch (e) {
-              debugPrint(
+              if (kDebugMode) {
+                debugPrint(
                   '=== HERMEX DEBUG: TaskRepository.getAll — skipping malformed job: $e ===');
+              }
               return null;
             }
           })
           .whereType<CronJob>()
           .toList();
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.getAll DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
 
   /// Fetch a single cron job by ID.
   Future<CronJob> getById(String id) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.getById — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.getById — id=$id ===');
+    }
     try {
       final response = await _apiClient.get(ApiEndpoints.jobById(id));
       return CronJob.fromJson(response);
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.getById DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
@@ -70,7 +80,9 @@ class TaskRepository {
     String? modelName,
     String? deliver,
   }) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.create — schedule=$schedule ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.create — schedule=$schedule ===');
+    }
     try {
       final body = <String, dynamic>{
         'prompt': prompt,
@@ -85,8 +97,10 @@ class TaskRepository {
       final response = await _apiClient.post(ApiEndpoints.jobs, data: body);
       return CronJob.fromJson(response);
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.create DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
@@ -106,7 +120,9 @@ class TaskRepository {
     String? deliver,
     bool? paused,
   }) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.update — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.update — id=$id ===');
+    }
     try {
       final body = <String, dynamic>{};
       if (prompt != null) body['prompt'] = prompt;
@@ -122,8 +138,10 @@ class TaskRepository {
           await _apiClient.put(ApiEndpoints.jobById(id), data: body);
       return CronJob.fromJson(response);
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.update DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
@@ -132,12 +150,16 @@ class TaskRepository {
 
   /// Delete a cron job by ID.
   Future<void> delete(String id) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.delete — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.delete — id=$id ===');
+    }
     try {
       await _apiClient.delete(ApiEndpoints.jobById(id));
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.delete DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
@@ -146,27 +168,35 @@ class TaskRepository {
 
   /// Trigger an immediate run of a cron job.
   Future<CronJob> runNow(String id) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.runNow — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.runNow — id=$id ===');
+    }
     try {
       final response =
           await _apiClient.post('${ApiEndpoints.jobById(id)}/run');
       return CronJob.fromJson(response);
     } on DioException catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: TaskRepository.runNow DioException — ${e.type}: ${e.message} ===');
+      }
       throw _classifyError(e);
     }
   }
 
   /// Pause a cron job.
   Future<CronJob> pause(String id) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.pause — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.pause — id=$id ===');
+    }
     return update(id: id, paused: true);
   }
 
   /// Resume a paused cron job.
   Future<CronJob> resume(String id) async {
-    debugPrint('=== HERMEX DEBUG: TaskRepository.resume — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: TaskRepository.resume — id=$id ===');
+    }
     return update(id: id, paused: false);
   }
 

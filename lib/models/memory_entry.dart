@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// A single memory entry returned by the Hermes Agent API (GET /v1/memory).
 ///
 /// This is a read-only API model — not persisted locally.
@@ -43,7 +45,11 @@ class MemoryEntry {
     if (value is DateTime) return value;
     try {
       return DateTime.parse(value.toString());
-    } catch (_) {
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: MemoryEntry._parseDateTime — parse error: $e ===');
+      }
       return null;
     }
   }

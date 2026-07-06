@@ -28,7 +28,9 @@ class SessionRepository {
   /// Fetch all sessions from the API.
   /// Returns a list of [SessionSummary] parsed from the server response.
   Future<List<SessionSummary>> getSessions() async {
-    debugPrint('=== HERMEX DEBUG: SessionRepository.getSessions ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SessionRepository.getSessions ===');
+    }
 
     final data = await _apiClient.get(ApiEndpoints.sessions);
 
@@ -39,8 +41,10 @@ class SessionRepository {
         .map((json) => SessionSummary.fromJson(json as Map<String, dynamic>))
         .toList();
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.getSessions — got ${sessions.length} sessions ===');
+    }
 
     // Cache to Isar.
     await _cacheSessions(sessions);
@@ -50,7 +54,9 @@ class SessionRepository {
 
   /// Fetch a single session by ID from the API.
   Future<SessionSummary> getSession(String id) async {
-    debugPrint('=== HERMEX DEBUG: SessionRepository.getSession — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SessionRepository.getSession — id=$id ===');
+    }
 
     final data = await _apiClient.get(ApiEndpoints.sessionById(id));
     final sessionJson = _extractSessionFromResponse(data);
@@ -59,8 +65,10 @@ class SessionRepository {
 
   /// Create a new session on the server.
   Future<SessionSummary> createSession({String? title}) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.createSession — title=$title ===');
+    }
 
     final body = <String, dynamic>{};
     if (title != null && title.isNotEmpty) {
@@ -79,7 +87,9 @@ class SessionRepository {
     bool? isPinned,
     bool? isArchived,
   }) async {
-    debugPrint('=== HERMEX DEBUG: SessionRepository.updateSession — id=$id ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: SessionRepository.updateSession — id=$id ===');
+    }
 
     final body = <String, dynamic>{};
     if (title != null) body['title'] = title;
@@ -94,8 +104,10 @@ class SessionRepository {
 
   /// Delete a session on the server.
   Future<void> deleteSession(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.deleteSession — id=$id ===');
+    }
 
     await _apiClient.delete(ApiEndpoints.sessionById(id));
 
@@ -105,8 +117,10 @@ class SessionRepository {
 
   /// Fork a session on the server.
   Future<SessionSummary> forkSession(String id) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.forkSession — id=$id ===');
+    }
 
     final data =
         await _apiClient.post('${ApiEndpoints.sessionById(id)}/fork');
@@ -119,8 +133,10 @@ class SessionRepository {
   /// Cache a list of sessions locally.
   /// Uses Isar writeTxn for atomicity — this repository OWNS the transaction.
   Future<void> _cacheSessions(List<SessionSummary> sessions) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository._cacheSessions — caching ${sessions.length} sessions ===');
+    }
 
     final now = DateTime.now();
 
@@ -147,8 +163,10 @@ class SessionRepository {
 
   /// Remove a cached session by server session ID.
   Future<void> _removeCachedSession(String sessionId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository._removeCachedSession — sessionId=$sessionId ===');
+    }
 
     await _isar.writeTxn(() async {
       final cached = await _isar.cachedSessions
@@ -169,8 +187,10 @@ class SessionRepository {
   Future<List<CachedSession>> getCachedSessions({
     String? serverId,
   }) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.getCachedSessions — serverId=$serverId ===');
+    }
 
     final staleThreshold = DateTime.now().subtract(_cacheTtl);
 
@@ -185,8 +205,10 @@ class SessionRepository {
 
     final sessions = await query.sortByLastActivityDesc().findAll();
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.getCachedSessions — found ${sessions.length} cached sessions ===');
+    }
 
     return sessions;
   }
@@ -200,8 +222,10 @@ class SessionRepository {
   /// Clear all cached sessions for a server ID (hard delete from Isar).
   /// Used when switching servers or disconnecting.
   Future<void> clearCache({String? serverId}) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: SessionRepository.clearCache — serverId=$serverId ===');
+    }
 
     await _isar.writeTxn(() async {
       if (serverId != null) {

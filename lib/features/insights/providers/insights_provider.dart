@@ -16,22 +16,32 @@ final insightsProvider = FutureProvider<InsightsData>((ref) async {
   final apiClientAsync = ref.watch(resolvedApiClientProvider);
   final apiClient = apiClientAsync.valueOrNull;
   if (apiClient == null) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: insightsProvider — no active server, returning default ===');
+    }
     return const InsightsData();
   }
 
-  debugPrint('=== HERMEX DEBUG: insightsProvider — fetching ===');
+  if (kDebugMode) {
+    debugPrint('=== HERMEX DEBUG: insightsProvider — fetching ===');
+  }
   try {
     final response = await apiClient.get(ApiEndpoints.insights);
     final data = InsightsData.parse(response);
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: insightsProvider — sessions=${data.totalSessions}, '
         'msgs=${data.totalMessages} ===');
+    }
     return data;
   } catch (e, stack) {
-    debugPrint('=== HERMEX DEBUG: insightsProvider — error: $e ===');
-    debugPrint('=== HERMEX DEBUG: insightsProvider — stack: $stack ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: insightsProvider — error: $e ===');
+    }
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: insightsProvider — stack: $stack ===');
+    }
     throw Exception('Failed to load insights: $e');
   }
 });

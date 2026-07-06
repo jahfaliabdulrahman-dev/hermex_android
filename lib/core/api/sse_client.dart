@@ -65,8 +65,10 @@ class SseClient {
 
       if (response.statusCode != 200) {
         final errorBody = await response.transform(utf8.decoder).join();
-        debugPrint(
-            '=== HERMEX DEBUG: SSE connection failed — ${response.statusCode}: $errorBody ===');
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: SSE connection failed — ${response.statusCode}: $errorBody ===');
+        }
         throw StreamException(
           'SSE connection failed with status ${response.statusCode}',
           statusCode: response.statusCode,
@@ -105,10 +107,14 @@ class SseClient {
     } on StreamException {
       rethrow;
     } on SocketException catch (e) {
-      debugPrint('=== HERMEX DEBUG: SSE socket error — $e ===');
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: SSE socket error — $e ===');
+      }
       throw StreamException('Connection lost: ${e.message}');
     } catch (e) {
-      debugPrint('=== HERMEX DEBUG: SSE unexpected error — $e ===');
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: SSE unexpected error — $e ===');
+      }
       throw StreamException('Unexpected SSE error: $e');
     } finally {
       _httpClient?.close();
@@ -191,8 +197,10 @@ class SseClient {
       }
       return null;
     } catch (e) {
-      debugPrint(
-          '=== HERMEX DEBUG: SSE parse error — $e (data: $data) ===');
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: SSE parse error — $e (data: $data) ===');
+      }
       return null; // Malformed JSON — skip this event, don't crash the stream
     }
   }

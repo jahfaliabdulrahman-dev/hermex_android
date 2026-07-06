@@ -73,8 +73,10 @@ class WorkspaceBrowserNotifier extends Notifier<WorkspaceBrowserState> {
         : '${state.currentPath}/$folderName';
     final segments = _pathToSegments(newPath);
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: WorkspaceBrowserNotifier.navigateInto — $newPath ===');
+    }
 
     state = state.copyWith(
       currentPath: newPath,
@@ -91,8 +93,10 @@ class WorkspaceBrowserNotifier extends Notifier<WorkspaceBrowserState> {
     final segments = List<String>.from(state.pathSegments)..removeLast();
     final newPath = segments.join('/');
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: WorkspaceBrowserNotifier.navigateUp — $newPath ===');
+    }
 
     state = state.copyWith(
       currentPath: newPath,
@@ -112,8 +116,10 @@ class WorkspaceBrowserNotifier extends Notifier<WorkspaceBrowserState> {
     }
     final newPath = segments.join('/');
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: WorkspaceBrowserNotifier.navigateToSegment — $newPath ===');
+    }
 
     state = state.copyWith(
       currentPath: newPath,
@@ -129,8 +135,10 @@ class WorkspaceBrowserNotifier extends Notifier<WorkspaceBrowserState> {
         ? filePath
         : '${state.currentPath}/$filePath';
 
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: WorkspaceBrowserNotifier.selectFile — $fullPath ===');
+    }
 
     state = state.copyWith(selectedFilePath: fullPath);
   }
@@ -145,8 +153,10 @@ class WorkspaceBrowserNotifier extends Notifier<WorkspaceBrowserState> {
 
   /// Refresh current directory.
   void refresh() {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: WorkspaceBrowserNotifier.refresh — ${state.currentPath} ===');
+    }
     // The widget watching directoryContentsProvider will trigger a fresh fetch.
   }
 

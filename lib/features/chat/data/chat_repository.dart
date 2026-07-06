@@ -37,7 +37,9 @@ class ChatRepository {
   /// Returns a list of [ModelInfo] parsed from the server response.
   /// Throws [ApiException] on non-200 responses.
   Future<List<ModelInfo>> getModels() async {
-    debugPrint('=== HERMEX DEBUG: ChatRepository.getModels ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatRepository.getModels ===');
+    }
 
     try {
       final json = await _apiClient.get(ApiEndpoints.models);
@@ -50,7 +52,9 @@ class ChatRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      debugPrint('=== HERMEX DEBUG: ChatRepository.getModels error — $e ===');
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: ChatRepository.getModels error — $e ===');
+      }
       throw ClientException('Failed to load models: $e');
     }
   }
@@ -59,8 +63,10 @@ class ChatRepository {
 
   /// Load message history for a session from GET /api/sessions/{id}/messages.
   Future<List<ChatMessage>> getSessionMessages(String sessionId) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatRepository.getSessionMessages — session=$sessionId ===');
+    }
 
     try {
       final json = await _apiClient.get(
@@ -75,8 +81,10 @@ class ChatRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatRepository.getSessionMessages error — $e ===');
+      }
       throw ClientException('Failed to load messages: $e');
     }
   }
@@ -98,8 +106,10 @@ class ChatRepository {
     required String model,
     List<Map<String, dynamic>>? history,
   }) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatRepository.streamChatCompletion — model=$model ===');
+    }
 
     final messages = <Map<String, dynamic>>[];
 
@@ -135,8 +145,10 @@ class ChatRepository {
     required String message,
     required String model,
   }) {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatRepository.streamSessionChat — session=$sessionId, model=$model ===');
+    }
 
     final body = {
       'message': message,
@@ -159,8 +171,10 @@ class ChatRepository {
     required String message,
     required String model,
   }) async {
-    debugPrint(
+    if (kDebugMode) {
+      debugPrint(
         '=== HERMEX DEBUG: ChatRepository.sendChatCompletion (non-streaming) — model=$model ===');
+    }
 
     try {
       final body = {
@@ -185,8 +199,10 @@ class ChatRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      debugPrint(
+      if (kDebugMode) {
+        debugPrint(
           '=== HERMEX DEBUG: ChatRepository.sendChatCompletion error — $e ===');
+      }
       throw ClientException('Chat request failed: $e');
     }
   }
@@ -195,13 +211,17 @@ class ChatRepository {
 
   /// Cancel the active SSE stream.
   void cancelStream() {
-    debugPrint('=== HERMEX DEBUG: ChatRepository.cancelStream ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatRepository.cancelStream ===');
+    }
     _sseClient.cancel();
   }
 
   /// Dispose the repository and underlying clients.
   void dispose() {
-    debugPrint('=== HERMEX DEBUG: ChatRepository.dispose ===');
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: ChatRepository.dispose ===');
+    }
     _sseClient.dispose();
   }
 }

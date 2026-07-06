@@ -80,6 +80,13 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 32),
 
+          // ─── Agent Data ───
+          _buildSectionHeader('Agent Data', Icons.dataset_outlined, theme),
+          const SizedBox(height: 12),
+          _buildAgentDataSection(context, theme),
+
+          const SizedBox(height: 32),
+
           // ─── Danger Zone ───
           _buildSectionHeader('Danger Zone', Icons.warning_amber_outlined, theme,
               color: HermesColors.error),
@@ -263,6 +270,73 @@ class SettingsScreen extends ConsumerWidget {
             color: HermesColors.textSecondary,
           ),
         ),
+      ),
+    );
+  }
+
+  // ─── Agent Data Section (Skills, Memory, Insights) ───
+
+  Widget _buildAgentDataSection(BuildContext context, ThemeData theme) {
+    return _buildCard(
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.psychology_outlined,
+                color: HermesColors.cyan),
+            title: Text(
+              AppStrings.skills,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              AppStrings.skillsSubtitle,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
+            ),
+            onTap: () => context.push(RoutePaths.skills),
+          ),
+          const Divider(color: HermesColors.border, height: 1),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.memory_outlined,
+                color: HermesColors.cyan),
+            title: Text(
+              AppStrings.memory,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              AppStrings.memorySubtitle,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
+            ),
+            onTap: () => context.push(RoutePaths.memory),
+          ),
+          const Divider(color: HermesColors.border, height: 1),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.insights_outlined,
+                color: HermesColors.cyan),
+            title: Text(
+              AppStrings.insights,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              AppStrings.insightsSubtitle,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
+            ),
+            onTap: () => context.push(RoutePaths.insights),
+          ),
+        ],
       ),
     );
   }
