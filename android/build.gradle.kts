@@ -44,29 +44,20 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
-// Disable resource verification for isar_flutter_libs (lStar AGP 8.11+ compat)
+// isar_flutter_libs AGP 8.11+ compat — strip package attr + skip verifyResources
 gradle.projectsEvaluated {
     subprojects {
         if (name == "isar_flutter_libs") {
             tasks.matching { it.name.contains("verifyReleaseResources") }.configureEach {
                 enabled = false
             }
-        }
-    }
-}
-
-// Fix: strip package attribute from isar_flutter_libs AndroidManifest for AGP 8.11+ compatibility
-subprojects {
-    afterEvaluate {
-        if (name == "isar_flutter_libs" && project.hasProperty("android")) {
             tasks.matching { it.name.startsWith("process") && it.name.contains("Manifest") }.configureEach {
                 doFirst {
                     val manifestFile = file("${project.projectDir}/src/main/AndroidManifest.xml")
                     if (manifestFile.exists()) {
                         val content = manifestFile.readText()
                         if (content.contains("package=")) {
-                            val fixed = content.replace(Regex("""package="[^"]*"\s*"""), "")
-                            manifestFile.writeText(fixed)
+                            manifestFile.writeText(content.replace(Regex("""package="[^"]*"\s*"""), ""))
                         }
                     }
                 }
