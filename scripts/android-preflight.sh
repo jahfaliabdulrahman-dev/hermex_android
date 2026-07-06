@@ -113,6 +113,28 @@ else
 fi
 
 # ──────────────────────────────────────────────
+# Gate 5: network_security_config.xml — cleartext traffic (LL-027)
+# ──────────────────────────────────────────────
+echo ""
+echo "── Gate 5: Android Cleartext HTTP (LL-027) ──"
+
+NSC_FILE="android/app/src/main/res/xml/network_security_config.xml"
+if [ -f "$NSC_FILE" ]; then
+    if grep -q 'base-config.*cleartextTrafficPermitted="false"' "$NSC_FILE" 2>/dev/null; then
+        echo "❌  FAILED: network_security_config blocks cleartext HTTP globally"
+        echo "   Android will silently drop HTTP connections to IPs not in the whitelist."
+        echo "   Fix: Set base-config cleartextTrafficPermitted=\"true\" (LL-027)"
+        ((FAIL++))
+    else
+        echo "✅  PASSED: cleartext traffic not globally blocked"
+        ((PASS++))
+    fi
+else
+    echo "⚠️   WARNING: network_security_config.xml not found"
+    ((PASS++))
+fi
+
+# ──────────────────────────────────────────────
 # Verdict
 # ──────────────────────────────────────────────
 echo ""

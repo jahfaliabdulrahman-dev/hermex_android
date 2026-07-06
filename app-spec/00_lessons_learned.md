@@ -256,3 +256,22 @@
   
   These skills are MANDATORY for flutter-devops-release-engineer and flutter-lead-architect. Updated SOULs to enforce loading.
 - **Linked Decision ID:** N/A (competency gap remediation)
+
+### LL-027: Android Cleartext HTTP Blocked — network_security_config whitelist too narrow
+- **Date:** 2026-07-06
+- **Stage:** Release (first real-device connection test)
+- **Source:** User tested app with real Hermes Agent server on LAN
+- **Issue:** `network_security_config.xml` allowed cleartext HTTP only for hardcoded IPs (192.168.1.1, 192.168.0.1, etc.). User's server at `192.168.8.80` was NOT on the list. Android silently dropped all HTTP connections to any IP not in the domain-config whitelist. The server returned HTTP 200 via curl from Mac — proving server/firewall/port were all correct. The app timed out after exactly 10 seconds (matching the Dart `connectTimeout`) with zero network activity reaching the server.
+- **Root Cause:** The domain-config whitelist in `network_security_config.xml` was designed during development with hardcoded common IPs (192.168.1.1, 192.168.0.1, 192.168.1.100, 10.0.0.1, etc.). Android's `<domain>` element does NOT support CIDR notation, so the list had to be exhaustive. Any IP not explicitly listed was blocked at the OS level before Dio/Dart ever saw the request.
+- **Impact:** 2+ hours of debugging across macOS firewall, Hermes config paths, port binding, proxy attempts, and gateway restarts — none of which were the actual problem. The bug was in the app's Android configuration, 4 layers removed from where we were debugging.
+- **Fix:** Changed `<base-config cleartextTrafficPermitted="false">` to `true`. Dart-level validation (`_validateUrl()` → `isLocalNetwork()`) already restricts HTTP to RFC 1918 private IPs, so this doesn't weaken security — it just removes an overly restrictive OS-level duplicate check.
+- **Prevention Rule:** 1) `network_security_config.xml` MUST use `cleartextTrafficPermitted="true"` in base-config for local-server apps. 2) The `android-preflight.sh` script MUST verify the base-config allows cleartext. 3) If domain-config whitelist is used, it MUST include a comment warning that any IP not listed will be silently blocked by Android.
+- **Linked Decision ID:** N/A (Android network policy gap)
+
+### LL-028: macOS Firewall Blocks Hermes Python Binary
+- **Date:** 2026-07-06
+- **Stage:** Connection debugging
+- **Source:** User's Mac refused incoming connections to Python server despite `host: 0.0.0.0`
+- **Issue:** macOS Application Firewall (`socketfilterfw`) allows specific binaries. The Hermes gateway runs Python 3.11 from uv's cache path (`~/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11`). This path was NOT in the firewall allow list, even though `/usr/bin/python3` and `/opt/homebrew/.../python3.12` were. Incoming connections were silently dropped.
+- **Fix:** `sudo socketfilterfw --add <hermes-python-path>` + `sudo socketfilterfw --unblockapp <path>`
+- **Prevention Rule:** After any Hermes Python upgrade or venv recreation, verify the new Python binary is in the macOS firewall allow list. Add to the `android-preflight.sh` or a separate macOS setup script.
