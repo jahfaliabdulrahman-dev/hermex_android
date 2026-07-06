@@ -1,9 +1,9 @@
 # 00 — Lessons Learned
 
 > Initiated: 2026-07-04
-> Last Updated: 2026-07-06
+> Last Updated: 2026-07-07
 > Project: hermex_android
-> Version: 1.4.0
+> Version: 1.5.0
 
 ## 2026-07-04 — Project Initiation
 - Decided Flutter over native Android (single codebase, existing expertise)
@@ -160,7 +160,9 @@
 | Implementation pitfalls | 3 (Flutter symbol conflicts, async API key, duplicate files) |
 | Spec gaps found | 3 (API contract, security coverage, duplicate endpoints) |
 | Process & governance gaps | 3 (Big Bang QA, missing git push, workspace verification) |
-| **Total lessons** | **19 (LL-001 through LL-014, LL-017 through LL-021)** |
+| Operational bug recovery | 3 (LL-022 Silent API Key Redaction, LL-023 Fake Connection State, LL-024–LL-029 Android) |
+| Governance failures | 1 (LL-030 Orchestrator Direct Code Execution) |
+| **Total lessons** | **28 (LL-001 through LL-030)** |
 
 ---
 
@@ -286,3 +288,45 @@
 - **Prevention Rule:** 1) Never call a history/snapshot builder AFTER mutating the state it reads from. 2) Add a unit test for `sendMessage` that verifies exactly one user message appears in the API request body. 3) Consider a lint rule or PR checklist item: "Does any state.copyWith() precede a _buildHistory()-style snapshot?"
 - **Bug Class:** NEW — this is a Flutter/Riverpod state management bug, NOT an Android knowledge gap. Different from LL-024/025/027 (which were Android build/config issues). Requires Dart-level testing, not Android-level gates.
 - **Linked Decision ID:** N/A (state management pattern)
+
+---
+
+## 2026-07-07 — Operational Bug Recovery Session
+
+### LL-022: Silent API Key Redaction — `***` literal replaced variable
+- **Date:** 2026-07-07
+- **Stage:** Production Bug Recovery
+- **Source:** Abdulrahman report — "Agent Data (Skills, Memory, Insight) لا تعمل"
+- **Issue:** Two files (`api_client_provider.dart:73`, `connection_screen.dart:226`) contained `apiKey: ***` as a literal string instead of the `apiKey` variable. This redaction artifact — likely from the swarm's SOUL-level security sanitization — silently broke ALL API-dependent features. Every request carried the literal HTTP header `Authorization: Bearer ***`.
+- **Root Cause:** The MoA swarm's security layer replaced actual API key values with `***` during output redaction. These redacted outputs were then treated as source code and committed. No human or automated gate detected that `***` is not valid Dart syntax referencing a variable named `apiKey`. The compiler does not flag this — `***` is valid Dart (three `*` operators).
+- **Impact:** Skills, Memory, Insights, Chat streaming, and any feature relying on `ApiClient` failed silently. Health endpoint returned 401 but error messages were not surfaced properly. The app appeared functional but every API call received "Unauthorized."
+- **Prevention Rule (PERMANENT — GOV-005):** No commit may pass if `grep -rn "apiKey: \*\*\*" lib/` or `grep -rn "api_key: \*\*\*" lib/` returns matches. These are SOUL-redaction artifacts that MUST be reverted to actual variable names before commit. Add to CI pre-commit hook and governance rules.
+- **Governance Impact:** Added to `00_swarm_operating_playbook.md` as permanent rule under §Governance.
+- **Linked Decision ID:** N/A (security sanitization defect)
+
+### LL-023: Fake Connection State — selectServer declared connected without health check
+- **Date:** 2026-07-07
+- **Stage:** Production Bug Recovery
+- **Source:** Abdulrahman report — "السيرفرات المحفوظة لا تدخلني على السيرفر"
+- **Issue:** `ConnectionNotifier.selectServer()` set `status: ConnectionStatus.connected` immediately after `setActive(serverId)` — without retrieving the stored API key or performing a health check against the server. ConnectionScreen's listener used a flag `_hasAttemptedConnection` that only triggered after manual `_handleConnect()`, so saved server selection never auto-navigated to chat.
+- **Root Cause:** `selectServer` was designed as a state-local operation ("mark this server as active") but its name (`selectServer`) and state flag (`connected`) implied full connection functionality. No health check, no key retrieval, no auto-navigation. Two separate bugs compounded: (1) the fake connection, (2) the auto-nav gate.
+- **Prevention Rule (PERMANENT):** Any method that transitions status to `ConnectionStatus.connected` MUST: (a) retrieve the API key, (b) perform a health check, (c) only transition on success. Never use `connected` as a local-only state — it MUST represent verified server reachability.
+- **Governance Impact:** Connection lifecycle is a security boundary. Mark as invariant in architecture spec.
+- **Linked Decision ID:** N/A
+
+### LL-030: Orchestrator Direct Code Execution — Bypassed Kanban, Documentation, Audit, Review
+- **Date:** 2026-07-07
+- **Stage:** Governance Failure
+- **Source:** Abdulrahman warning — "هذا تحذير شديد اللهجة لك"
+- **Issue:** The Lead Architect executed 6 code changes across 7 files directly — bypassing the entire governance system. No Kanban tasks were created. No specification was consulted. No external review was requested. No documentation was written before or during execution. No audit was performed. No push to GitHub was attempted. The work produced correct code (404 tests, 0 analyze issues) but deprived the project of traceability, institutional memory, and quality gates.
+- **Six Governance Violations in One Session:**
+  1. No Kanban task created for any of the 3 bug fixes
+  2. Implementer = Reviewer (same agent)
+  3. No external audit before declaring "done"
+  4. No documentation written during execution
+  5. No decision log entry for architectural changes
+  6. No push to GitHub for remote backup
+- **Root Cause:** The orchestrator privileged speed over system. The user's initial request to bypass Kanban was accepted without pushback. Accumulated false confidence from "3 MoA references agree" statements that had no external verification.
+- **Prevention Rule (PERMANENT — GOV-001):** The Lead Architect shall NEVER write application code. This profile's role is orchestration, approval, conflict resolution, architectural integrity, traceability, and final technical governance (§1 SOUL identity). Code changes flow through: Kanban task → specialized agent → QA → audit → deployment. The orchestrator verifies, never implements.
+- **Governance Impact:** Added to `00_swarm_operating_playbook.md` §Governance as immutable rule GOV-001. This rule is PERMANENT and shall not be waived for speed, urgency, or user request.
+- **Linked Decision ID:** N/A (sovereign governance — user directive)
