@@ -2,32 +2,27 @@
 <!--
   Network Security Configuration — AUD-001 (MITM Protection)
 
-  DESIGN NOTE: Android's <domain> element does NOT support CIDR notation.
-  Individual IPs are listed for common local-network addresses; full private
-  range enforcement (192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12) is handled
-  in Dart via ServerRepository._validateUrl() → isLocalNetwork().
+  DESIGN NOTE: Android's <domain> element does NOT support CIDR notation
+  (e.g. 192.168.0.0/16). Instead of an exhaustive IP whitelist (which
+  silently blocks any IP not listed — see LL-027), the base-config below
+  permits cleartext to ALL destinations. Dart-level validation in
+  ServerRepository._validateUrl() → isLocalNetwork() further restricts
+  HTTP to RFC 1918 private IPs only.
 
   For release builds connecting to a LAN Hermes Agent server, HTTPS is
   strongly recommended. See app-spec/08_security_privacy.md §Network Security.
 -->
 <network-security-config xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ── Local Network: permit cleartext (HTTP) ── -->
-    <domain-config cleartextTrafficPermitted="true">
-        <!-- Loopback / emulator -->
-        <domain includeSubdomains="false">localhost</domain>
-        <domain includeSubdomains="false">127.0.0.1</domain>
-        <domain includeSubdomains="false">10.0.2.2</domain>
-        <!-- Common 192.168.x.x router / server addresses -->
-        <domain includeSubdomains="false">192.168.1.1</domain>
-        <domain includeSubdomains="false">192.168.0.1</domain>
-        <domain includeSubdomains="false">192.168.1.100</domain>
-        <!-- Common 10.x.x.x addresses -->
-        <domain includeSubdomains="false">10.0.0.1</domain>
-        <domain includeSubdomains="false">10.0.0.2</domain>
-        <!-- Common 172.16.x.x addresses -->
-        <domain includeSubdomains="false">172.16.0.1</domain>
-    </domain-config>
+    <!--
+      ── Local Network: permit cleartext (HTTP) to ANY private IP ──
+      LL-027: domain-config whitelist with hardcoded IPs was removed.
+      Android's <domain> element does NOT support CIDR (e.g. 192.168.0.0/16),
+      so any IP not explicitly listed gets silently blocked. The base-config
+      below now handles ALL destinations. Dart-level validation in
+      ServerRepository._validateUrl() → isLocalNetwork() further restricts
+      HTTP to RFC 1918 private IPs only.
+    -->
 
     <!-- ── Default: permit cleartext for private IPs ── -->
     <!-- Dart-level validation (isLocalNetwork) already restricts HTTP to RFC 1918 only -->
