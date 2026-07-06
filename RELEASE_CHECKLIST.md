@@ -26,7 +26,7 @@ Version: 0.1.0 (build 1) | Date: 2026-07-05
 
 | Setting | Value |
 |---------|-------|
-| Application ID | `com.hermex.android` |
+| Application ID | `com.jahfali.hermex_android` |
 | Version Name | `0.1.0` |
 | Version Code | `1` |
 | Min SDK | 26 (Android 8.0) |

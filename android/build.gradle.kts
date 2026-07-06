@@ -29,7 +29,7 @@ subprojects {
                         .getMethod("setNamespace", String::class.java)
                     nsResolver.invoke(
                         project.extensions.getByName("android"),
-                        "com.hermex.android.${project.name.replace("-", "_")}"
+                        "com.jahfali.hermex_android.${project.name.replace("-", "_")}"
                     )
                 }
             } catch (_: Exception) {

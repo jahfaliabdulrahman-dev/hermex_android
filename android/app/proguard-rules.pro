@@ -18,7 +18,7 @@
 # ─── JSON Serialization ───
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class com.hermex.android.** { *; }
+-keep class com.jahfali.hermex_android.** { *; }
 
 # ─── Isar ───
 -keep class io.isar.** { *; }

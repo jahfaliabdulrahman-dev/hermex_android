@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.hermex.android"
+    namespace = "com.jahfali.hermex_android"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.hermex.android"
+        applicationId = "com.jahfali.hermex_android"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
