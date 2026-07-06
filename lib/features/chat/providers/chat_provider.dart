@@ -235,7 +235,12 @@ class ChatNotifier extends Notifier<ChatState> {
         '=== HERMEX DEBUG: ChatNotifier.sendMessage — model=${state.selectedModelId} ===');
     }
 
-    // 1. Append user message.
+    // Build message history BEFORE adding current user message to state.
+    // This prevents the current message from appearing twice in the API
+    // request (once from history, once from the explicit 'message' parameter).
+    final history = _buildHistory();
+
+    // 1. Append user message + placeholder agent message to UI.
     final userMessage = ChatMessage(
       role: 'user',
       content: trimmed,
@@ -255,9 +260,6 @@ class ChatNotifier extends Notifier<ChatState> {
       isStreaming: true,
       clearError: true,
     );
-
-    // Build message history for context (last 20 messages, excluding streaming).
-    final history = _buildHistory();
 
     // 3. Connect to SSE stream.
     try {
