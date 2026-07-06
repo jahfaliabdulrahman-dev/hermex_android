@@ -275,3 +275,14 @@
 - **Issue:** macOS Application Firewall (`socketfilterfw`) allows specific binaries. The Hermes gateway runs Python 3.11 from uv's cache path (`~/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/bin/python3.11`). This path was NOT in the firewall allow list, even though `/usr/bin/python3` and `/opt/homebrew/.../python3.12` were. Incoming connections were silently dropped.
 - **Fix:** `sudo socketfilterfw --add <hermes-python-path>` + `sudo socketfilterfw --unblockapp <path>`
 - **Prevention Rule:** After any Hermes Python upgrade or venv recreation, verify the new Python binary is in the macOS firewall allow list. Add to the `android-preflight.sh` or a separate macOS setup script.
+
+### LL-029: Duplicate User Messages — State Mutation Before History Capture
+- **Date:** 2026-07-06
+- **Stage:** First chat test after successful connection
+- **Source:** User sent first message "السلام عليكم" — app crashed with API error
+- **Issue:** `ChatNotifier.sendMessage()` added the user message to `state.messages` (line 254) BEFORE calling `_buildHistory()` (line 260). Since `_buildHistory()` reads from `state.messages`, the history included the just-added user message. Then `chat_repository.dart` added the same message AGAIN explicitly: `messages.add({'role': 'user', 'content': message})`. Result: two consecutive `role: user` messages in the API request. Hermes API enforces strict user/assistant alternation and rejected with "Invalid argument (string): Contains invalid characters."
+- **Root Cause:** Mutation order bug — mutable state (`state.messages`) was updated before the snapshot (`_buildHistory()`) was taken. This is a classic React/Riverpod anti-pattern: reading derived state after mutating the source.
+- **Fix:** Moved `final history = _buildHistory()` to BEFORE `state = state.copyWith(messages: [...state.messages, userMessage, agentMessage])`. History now contains only previous messages.
+- **Prevention Rule:** 1) Never call a history/snapshot builder AFTER mutating the state it reads from. 2) Add a unit test for `sendMessage` that verifies exactly one user message appears in the API request body. 3) Consider a lint rule or PR checklist item: "Does any state.copyWith() precede a _buildHistory()-style snapshot?"
+- **Bug Class:** NEW — this is a Flutter/Riverpod state management bug, NOT an Android knowledge gap. Different from LL-024/025/027 (which were Android build/config issues). Requires Dart-level testing, not Android-level gates.
+- **Linked Decision ID:** N/A (state management pattern)
