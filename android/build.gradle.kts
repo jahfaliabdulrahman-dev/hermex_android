@@ -54,3 +54,23 @@ gradle.projectsEvaluated {
         }
     }
 }
+
+// Fix: strip package attribute from isar_flutter_libs AndroidManifest for AGP 8.11+ compatibility
+subprojects {
+    afterEvaluate {
+        if (name == "isar_flutter_libs" && project.hasProperty("android")) {
+            tasks.matching { it.name.startsWith("process") && it.name.contains("Manifest") }.configureEach {
+                doFirst {
+                    val manifestFile = file("${project.projectDir}/src/main/AndroidManifest.xml")
+                    if (manifestFile.exists()) {
+                        val content = manifestFile.readText()
+                        if (content.contains("package=")) {
+                            val fixed = content.replace(Regex("""package="[^"]*"\s*"""), "")
+                            manifestFile.writeText(fixed)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
