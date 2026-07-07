@@ -113,6 +113,17 @@ abstract class AppStrings {
       'Install skills on your Hermes server to see them here.';
   static const searchSkills = 'Search skills...';
   static const skillsSubtitle = 'View and manage agent skills';
+  // ─── Skills error diagnostics (BUG-5) ───
+  static const skillAuthErrorTitle = 'API Key Invalid';
+  static const skillAuthErrorMessage =
+      'The stored API key was rejected. You may have entered the wrong '
+      'key type. Use API_SERVER_KEY from ~/.hermes/.env.';
+  static const skillNetworkErrorTitle = 'Cannot Reach Server';
+  static const skillNetworkErrorMessage =
+      'Could not connect to the server. Check your network connection '
+      'and server status.';
+  static const skillLoadErrorTitle = 'Failed to Load Skills';
+  static const reconnectWithCorrectApiKey = 'Reconnect with Correct API Key';
 
   // ─── Workspace ───
   static const workspace = 'Workspace';
@@ -126,6 +137,9 @@ abstract class AppStrings {
   static const agentLearnsOverTime =
       'The agent will save facts as it learns about you.';
   static const memorySubtitle = 'Browse persistent agent memory';
+  static const memoryRequiresDashboard =
+      'Memory requires the Hermes Workspace dashboard (port 9119).\n'
+      'Start the dashboard to access persistent agent memory.';
 
   // ─── Insights ───
   static const insights = 'Insights';
@@ -134,6 +148,9 @@ abstract class AppStrings {
       'Start using the agent to generate data.';
   static const lastSynced = 'Last synced';
   static const insightsSubtitle = 'Usage analytics and insights';
+  static const insightsRequiresDashboard =
+      'Insights requires the Hermes Workspace dashboard (port 9119).\n'
+      'Start the dashboard to access usage analytics.';
 
   // ─── Settings ───
   static const settings = 'Settings';
@@ -152,6 +169,25 @@ abstract class AppStrings {
   static const hermesAgentVersion = 'Hermes Agent';
   static const license = 'License';
   static const disconnectExit = 'Disconnect & Exit';
+  static const noServerConnected = 'Not connected';
+  static const activeServerLabel = 'Active Server';
+
+  // ─── Settings Danger Zone (BUG-006) ───
+  static const settingsDangerZoneDeleteTitle = 'Delete All Data?';
+  static const settingsDangerZoneDeleteMessage =
+      'This will permanently remove all server configurations, '
+      'API keys, preferences, and cached data. This action cannot be undone.';
+  static const settingsDangerZoneDeleteAction = 'Delete Everything';
+  static const settingsDangerZoneResetTitle = 'Reset Preferences?';
+  static const settingsDangerZoneResetMessage =
+      'This will reset theme, default model, and other preferences '
+      'to their defaults. Server configurations will be kept.';
+  static const settingsDangerZoneResetAction = 'Reset';
+  static const settingsDangerZoneDisconnectTitle = 'Disconnect from Server?';
+  static const settingsDangerZoneDisconnectMessage =
+      'You will be returned to the connection screen. '
+      'Your saved server configurations will be kept.';
+  static const settingsDangerZoneDisconnectAction = 'Disconnect';
 
   // ─── Generic ───
   static const retry = 'Retry';

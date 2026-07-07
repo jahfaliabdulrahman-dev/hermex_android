@@ -393,10 +393,17 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: HermesColors.surface,
-        title: const Text('Delete All Data?'),
-        content: const Text(
-          'This will permanently remove all server configurations, '
-          'API keys, preferences, and cached data. This action cannot be undone.',
+        title: Text(
+          AppStrings.settingsDangerZoneDeleteTitle,
+          style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+        ),
+        content: Text(
+          AppStrings.settingsDangerZoneDeleteMessage,
+          style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
         ),
         actions: [
           TextButton(
@@ -411,7 +418,7 @@ class SettingsScreen extends ConsumerWidget {
             style: FilledButton.styleFrom(
               backgroundColor: HermesColors.error,
             ),
-            child: const Text('Delete Everything'),
+            child: Text(AppStrings.settingsDangerZoneDeleteAction),
           ),
         ],
       ),
@@ -423,10 +430,17 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: HermesColors.surface,
-        title: const Text('Reset Preferences?'),
-        content: const Text(
-          'This will reset theme, default model, and other preferences '
-          'to their defaults. Server configurations will be kept.',
+        title: Text(
+          AppStrings.settingsDangerZoneResetTitle,
+          style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+        ),
+        content: Text(
+          AppStrings.settingsDangerZoneResetMessage,
+          style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
         ),
         actions: [
           TextButton(
@@ -444,7 +458,7 @@ class SettingsScreen extends ConsumerWidget {
               backgroundColor: HermesColors.warning,
               foregroundColor: HermesColors.dark,
             ),
-            child: const Text('Reset'),
+            child: Text(AppStrings.settingsDangerZoneResetAction),
           ),
         ],
       ),

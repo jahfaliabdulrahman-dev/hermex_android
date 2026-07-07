@@ -146,6 +146,15 @@ abstract class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
         ),
+        // BUG-006: Explicit text styles prevent M3 dark-mode
+        // inheritance failures where AlertDialog text renders invisible
+        // on the dark HermesColors.surface (#161B22) background.
+        titleTextStyle: HermesTextTheme.buildTextTheme().headlineSmall?.copyWith(
+              color: HermesColors.textPrimary,
+            ),
+        contentTextStyle: HermesTextTheme.buildTextTheme().bodyMedium?.copyWith(
+              color: HermesColors.textSecondary,
+            ),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: HermesColors.surface,
