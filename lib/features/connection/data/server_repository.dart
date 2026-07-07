@@ -349,6 +349,8 @@ class ServerRepository {
     if (host.startsWith('192.168.')) return true;
     if (host.startsWith('10.')) return true;
     if (host.startsWith('172.') && _isPrivate172(host)) return true;
+    // Tailscale / CGNAT: 100.64.0.0/10
+    if (host.startsWith('100.') && _isTailscaleOrCGNAT(host)) return true;
 
     return false;
   }
@@ -364,6 +366,22 @@ class ServerRepository {
       if (kDebugMode) {
         debugPrint(
             '=== HERMEX DEBUG: ServerRepository._isPrivate172 — parse error: $e ===');
+      }
+      return false;
+    }
+  }
+
+  /// Check if a 100.x.x.x address is in the Tailscale/CGNAT 100.64.0.0/10 range.
+  static bool _isTailscaleOrCGNAT(String host) {
+    try {
+      final parts = host.split('.');
+      if (parts.length != 4) return false;
+      final second = int.parse(parts[1]);
+      return second >= 64 && second <= 127;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            '=== HERMEX DEBUG: ServerRepository._isTailscaleOrCGNAT — parse error: $e ===');
       }
       return false;
     }
