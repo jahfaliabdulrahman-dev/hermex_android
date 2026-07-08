@@ -143,28 +143,6 @@ void main() {
   });
 
   group('ChatInput — UI states', () {
-    testWidgets('shows model name in selector button', (tester) async {
-      final controller = TextEditingController();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ChatInput(
-              controller: controller,
-              isStreaming: false,
-              selectedModelId: 'deepseek-v4',
-              availableModels: const [],
-              onSend: () {},
-              onModelSelected: (_) {},
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('deepseek-v4'), findsOneWidget);
-      addTearDown(controller.dispose);
-    });
-
     testWidgets('shows stop button when streaming', (tester) async {
       final controller = TextEditingController(text: 'Hello');
 
@@ -174,10 +152,7 @@ void main() {
             body: ChatInput(
               controller: controller,
               isStreaming: true,
-              selectedModelId: 'test-model',
-              availableModels: const [],
               onSend: () {},
-              onModelSelected: (_) {},
             ),
           ),
         ),
@@ -197,10 +172,7 @@ void main() {
             body: ChatInput(
               controller: controller,
               isStreaming: false,
-              selectedModelId: 'test-model',
-              availableModels: const [],
               onSend: () {},
-              onModelSelected: (_) {},
             ),
           ),
         ),
@@ -221,10 +193,7 @@ void main() {
             body: ChatInput(
               controller: controller,
               isStreaming: false,
-              selectedModelId: 'test-model',
-              availableModels: const [],
               onSend: () => sent = true,
-              onModelSelected: (_) {},
             ),
           ),
         ),
@@ -249,10 +218,7 @@ void main() {
             body: ChatInput(
               controller: controller,
               isStreaming: true,
-              selectedModelId: 'test-model',
-              availableModels: const [],
               onSend: () => stopped = true, // onSend triggers stop when streaming
-              onModelSelected: (_) {},
             ),
           ),
         ),

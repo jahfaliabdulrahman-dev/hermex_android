@@ -131,7 +131,7 @@ void main() {
       expect(find.byType(TextFormField), findsOneWidget);
     });
 
-    testWidgets('agent data section shows Skills, Memory, Insights', (tester) async {
+    testWidgets('agent data section shows Skills (Memory and Insights gated)', (tester) async {
       await tester.pumpWidget(_buildTestApp());
       await tester.pumpAndSettle();
 
@@ -144,8 +144,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Skills'), findsOneWidget);
-      expect(find.text('Memory'), findsOneWidget);
-      expect(find.text('Insights'), findsOneWidget);
+      // Memory and Insights are gated behind FeatureFlags (both false)
+      expect(find.text('Memory'), findsNothing);
+      expect(find.text('Insights'), findsNothing);
     });
   });
 }

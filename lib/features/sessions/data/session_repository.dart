@@ -32,7 +32,11 @@ class SessionRepository {
       debugPrint('=== HERMEX DEBUG: SessionRepository.getSessions ===');
     }
 
-    final data = await _apiClient.get(ApiEndpoints.sessions);
+    final data = await _apiClient.getDynamic(ApiEndpoints.sessions);
+    if (kDebugMode) {
+      debugPrint(
+        '=== HERMEX DEBUG: SessionRepository.getSessions — raw response type=${data.runtimeType} ===');
+    }
 
     // The API may return a list directly or wrap it in a 'sessions' key.
     final List<dynamic> rawList = _extractListFromResponse(data);
@@ -242,18 +246,20 @@ class SessionRepository {
   // ─── API Response Helpers ───
 
   /// Extract a list from various API response shapes.
-  List<dynamic> _extractListFromResponse(Map<String, dynamic> data) {
-    if (data.containsKey('sessions')) {
-      return data['sessions'] as List<dynamic>;
-    }
-    if (data.containsKey('data')) {
-      return data['data'] as List<dynamic>;
-    }
-    final results = data['results'] ?? data['items'];
-    if (results is List) {
-      return results;
-    }
-    if (data.isNotEmpty) {
+  /// Accepts both bare JSON arrays (`List`) and wrapped objects (`Map`).
+  List<dynamic> _extractListFromResponse(dynamic data) {
+    if (data is List) return data;
+    if (data is Map<String, dynamic>) {
+      if (data.containsKey('sessions')) {
+        return data['sessions'] as List<dynamic>;
+      }
+      if (data.containsKey('data')) {
+        return data['data'] as List<dynamic>;
+      }
+      final results = data['results'] ?? data['items'];
+      if (results is List) {
+        return results;
+      }
       final listValues = data.values.whereType<List>();
       if (listValues.isNotEmpty) {
         return listValues.first;

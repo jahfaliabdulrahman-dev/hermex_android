@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/colors.dart';
-import '../../../models/model_info.dart';
-import 'model_selector.dart';
 
-/// Chat input bar — multi-line text field, send button, model selector trigger,
-/// and attachment placeholder.
+/// Chat input bar — multi-line text field, send button, and attachment placeholder.
 ///
 /// Supports:
 /// - Multi-line text input with auto-expand up to 6 lines
 /// - Send button (disabled when input is empty or streaming)
-/// - Model selector trigger (shows current model name)
 /// - Attachment button (placeholder for future)
 /// - RTL support for Arabic text input
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
   final bool isStreaming;
-  final String? selectedModelId;
-  final List<ModelInfo> availableModels;
   final VoidCallback onSend;
-  final ValueChanged<String> onModelSelected;
 
   const ChatInput({
     super.key,
     required this.controller,
     required this.isStreaming,
-    required this.selectedModelId,
-    required this.availableModels,
     required this.onSend,
-    required this.onModelSelected,
   });
 
   @override
@@ -51,25 +41,18 @@ class ChatInput extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ─── Row 1: Model selector + attachment placeholder ───
+          // ─── Row: attachment placeholder ───
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: [
-                // Model selector button.
-                _ModelButton(
-                  selectedModelId: selectedModelId,
-                  models: availableModels,
-                  onModelSelected: onModelSelected,
-                ),
                 const Spacer(),
-
                 // Attachment button (placeholder).
                 IconButton(
                   icon: const Icon(Icons.attach_file_outlined, size: 20),
                   color: HermesColors.textDisabled,
                   onPressed: null, // Future feature.
-                  tooltip: 'Attach file (coming soon)',
+                  tooltip: 'Attach file',
                 ),
               ],
             ),
@@ -191,73 +174,5 @@ class ChatInput extends StatelessWidget {
       return TextDirection.rtl;
     }
     return TextDirection.ltr;
-  }
-}
-
-/// Compact button showing the currently selected model name.
-/// Tapping opens the [ModelSelector] bottom sheet.
-class _ModelButton extends StatelessWidget {
-  final String? selectedModelId;
-  final List<ModelInfo> models;
-  final ValueChanged<String> onModelSelected;
-
-  const _ModelButton({
-    required this.selectedModelId,
-    required this.models,
-    required this.onModelSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final displayName = selectedModelId ?? 'Select model';
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: models.isNotEmpty
-            ? () => ModelSelector.show(
-                  context,
-                  models: models,
-                  selectedModelId: selectedModelId,
-                  onModelSelected: onModelSelected,
-                )
-            : null,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: HermesColors.navy.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: HermesColors.border,
-              width: 0.5,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.psychology_outlined,
-                size: 16,
-                color: HermesColors.cyan,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                displayName,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: HermesColors.cyan,
-                    ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.arrow_drop_down,
-                size: 18,
-                color: HermesColors.cyan,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

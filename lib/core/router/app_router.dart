@@ -16,7 +16,6 @@ import '../../features/memory/presentation/memory_screen.dart';
 import '../../features/insights/presentation/insights_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/chat/presentation/chat_screen.dart';
-import '../../features/workspace/presentation/workspace_screen.dart';
 import '../../features/skills/presentation/skills_screen.dart';
 
 /// Placeholder screen for features not yet implemented.
@@ -95,22 +94,6 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // FEATURE_GATE: BUG-N2-Workspace — /v1/workspace returns 404 from gateway.
-        // Re-enable when the Hermes Agent API Server supports this endpoint.
-        if (FeatureFlags.workspaceEnabled)
-          GoRoute(
-            path: RoutePaths.workspace,
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: WorkspaceScreen(),
-            ),
-          )
-        else
-          GoRoute(
-            path: RoutePaths.workspace,
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: _placeholderScreen('Workspace — Coming Soon'),
-            ),
-          ),
         GoRoute(
           path: RoutePaths.settings,
           pageBuilder: (context, state) => const NoTransitionPage(
@@ -136,7 +119,7 @@ final appRouter = GoRouter(
       GoRoute(
         path: RoutePaths.memory,
         builder: (context, state) =>
-            _placeholderScreen('Memory — Coming Soon'),
+            _placeholderScreen('Memory — Not Available'),
       ),
     // FEATURE_GATE: BUG-5-Insights — /v1/insights returns 404 from gateway.
     // Re-enable when the Hermes Agent API Server supports this endpoint.
@@ -149,7 +132,7 @@ final appRouter = GoRouter(
       GoRoute(
         path: RoutePaths.insights,
         builder: (context, state) =>
-            _placeholderScreen('Insights — Coming Soon'),
+            _placeholderScreen('Insights — Not Available'),
       ),
     GoRoute(
       path: RoutePaths.license,
@@ -190,10 +173,8 @@ class _BottomNavBar extends StatelessWidget {
       currentIndex = 1;
     } else if (location.startsWith(RoutePaths.tasks)) {
       currentIndex = 2;
-    } else if (location.startsWith(RoutePaths.workspace)) {
-      currentIndex = 3;
     } else {
-      currentIndex = 4; // settings
+      currentIndex = 3; // settings
     }
 
     return NavigationBar(
@@ -207,8 +188,6 @@ class _BottomNavBar extends StatelessWidget {
           case 2:
             context.go(RoutePaths.tasks);
           case 3:
-            context.go(RoutePaths.workspace);
-          case 4:
             context.go(RoutePaths.settings);
         }
       },
@@ -227,11 +206,6 @@ class _BottomNavBar extends StatelessWidget {
           icon: Icon(Icons.schedule_outlined),
           selectedIcon: Icon(Icons.schedule),
           label: 'Tasks',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.folder_outlined),
-          selectedIcon: Icon(Icons.folder),
-          label: 'Workspace',
         ),
         NavigationDestination(
           icon: Icon(Icons.settings_outlined),
@@ -272,7 +246,7 @@ String? _redirectGuard(BuildContext context, GoRouterState state) {
 /// Excluded: /connection, /servers, /skills, /memory, /insights, /settings/license
 bool _isShellRoutePath(String location) {
   // Exact-match base ShellRoute paths.
-  const shellExact = {'/chat', '/workspace', '/settings'};
+  const shellExact = {'/chat', '/settings'};
   if (shellExact.contains(location)) return true;
   // Sub-paths inside ShellRoute.
   if (location.startsWith('/sessions')) return true;

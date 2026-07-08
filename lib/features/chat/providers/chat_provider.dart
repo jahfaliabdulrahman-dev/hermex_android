@@ -129,6 +129,17 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Load models after initialization.
       await loadModels();
+
+      // Auto-select model: preference → first available → hardcoded default.
+      // Never leave selectedModelId null — the model selector UI was removed
+      // per user directive, so there's no way for the user to pick a model.
+      if (state.selectedModelId == null && state.availableModels.isEmpty) {
+        state = state.copyWith(selectedModelId: 'hermes-default');
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatNotifier.initialize — fallback model: hermes-default ===');
+        }
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -215,8 +226,12 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     if (state.selectedModelId == null) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatNotifier.sendMessage — blocked: null model ===');
+      }
       state = state.copyWith(
-        errorMessage: 'No model selected. Please select a model.',
+        errorMessage: 'No models available from server. Check your connection and API key.',
       );
       return false;
     }

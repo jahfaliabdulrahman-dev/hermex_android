@@ -42,11 +42,22 @@ class ChatRepository {
     }
 
     try {
-      final json = await _apiClient.get(ApiEndpoints.models);
-      final data = json['data'] as List<dynamic>?;
-      if (data == null) return [];
+      final data = await _apiClient.getDynamic(ApiEndpoints.models);
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatRepository.getModels — raw response type=${data.runtimeType} ===');
+      }
 
-      return data
+      final List<dynamic> modelList;
+      if (data is List) {
+        modelList = data;
+      } else if (data is Map<String, dynamic>) {
+        modelList = (data['data'] as List<dynamic>?) ?? [];
+      } else {
+        modelList = [];
+      }
+
+      return modelList
           .map((e) => ModelInfo.fromJson(e as Map<String, dynamic>))
           .toList();
     } on ApiException {

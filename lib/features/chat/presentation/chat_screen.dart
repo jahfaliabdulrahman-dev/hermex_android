@@ -71,8 +71,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _handleSend() {
-    final text = _textController.text;
-    if (text.trim().isEmpty) return;
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
 
     // If streaming, stop instead.
     final notifier = ref.read(chatProvider.notifier);
@@ -86,10 +86,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Auto-scroll after sending.
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-  }
-
-  void _handleModelSelected(String modelId) {
-    ref.read(chatProvider.notifier).selectModel(modelId);
   }
 
   @override
@@ -129,10 +125,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ChatInput(
               controller: _textController,
               isStreaming: state.isStreaming,
-              selectedModelId: state.selectedModelId,
-              availableModels: state.availableModels,
               onSend: _handleSend,
-              onModelSelected: _handleModelSelected,
             )
           else
             _LoadingInput(),

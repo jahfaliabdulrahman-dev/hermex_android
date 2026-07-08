@@ -73,7 +73,24 @@ class ApiClient {
 
   // ─── Convenience Methods ───
 
+  /// GET request. Returns raw decoded JSON as `dynamic`.
+  ///
+  /// Use this instead of [get] when the API may return a bare JSON array
+  /// (e.g. [ModelInfo] list, [SessionSummary] list) which Dio's typed
+  /// `Map<String, dynamic>` return would silently reject.
+  Future<dynamic> getDynamic(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final response = await _dio.get(
+      path,
+      queryParameters: queryParameters,
+    );
+    return response.data;
+  }
+
   /// GET request. Returns decoded JSON map.
+  /// Prefer [getDynamic] when the response shape may be a bare array.
   Future<Map<String, dynamic>> get(
     String path, {
     Map<String, dynamic>? queryParameters,

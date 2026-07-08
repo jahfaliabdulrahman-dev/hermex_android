@@ -76,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
           // ─── Profile ───
           _buildSectionHeader('Profile', Icons.person_outline, theme),
           const SizedBox(height: 12),
-          _buildProfileSection(theme),
+          _buildProfileSection(theme, connectionState),
 
           const SizedBox(height: 32),
 
@@ -250,7 +250,8 @@ class SettingsScreen extends ConsumerWidget {
 
   // ─── Profile Section ───
 
-  Widget _buildProfileSection(ThemeData theme) {
+  Widget _buildProfileSection(
+      ThemeData theme, ServerConnectionState connectionState) {
     return _buildCard(
       child: ListTile(
         contentPadding: EdgeInsets.zero,
@@ -259,13 +260,15 @@ class SettingsScreen extends ConsumerWidget {
           child: const Icon(Icons.person, color: HermesColors.cyan),
         ),
         title: Text(
-          'flutter-state-engineer',
+          connectionState.activeServer?.name ?? 'Not connected',
           style: theme.textTheme.bodyLarge?.copyWith(
             color: HermesColors.textPrimary,
           ),
         ),
         subtitle: Text(
-          'Hermes Agent Profile',
+          connectionState.activeServer != null
+              ? connectionState.activeServer!.url
+              : 'No active server',
           style: theme.textTheme.labelSmall?.copyWith(
             color: HermesColors.textSecondary,
           ),
@@ -299,43 +302,47 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push(RoutePaths.skills),
           ),
           const Divider(color: HermesColors.border, height: 1),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.memory_outlined,
-                color: HermesColors.cyan),
-            title: Text(
-              AppStrings.memory,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+          if (FeatureFlags.memoryEnabled) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.memory_outlined,
+                  color: HermesColors.cyan),
+              title: Text(
+                AppStrings.memory,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: HermesColors.textPrimary,
+                ),
               ),
-            ),
-            subtitle: Text(
-              AppStrings.memorySubtitle,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+              subtitle: Text(
+                AppStrings.memorySubtitle,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: HermesColors.textSecondary,
+                ),
               ),
+              onTap: () => context.push(RoutePaths.memory),
             ),
-            onTap: () => context.push(RoutePaths.memory),
-          ),
-          const Divider(color: HermesColors.border, height: 1),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.insights_outlined,
-                color: HermesColors.cyan),
-            title: Text(
-              AppStrings.insights,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+            const Divider(color: HermesColors.border, height: 1),
+          ],
+          if (FeatureFlags.insightsEnabled) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.insights_outlined,
+                  color: HermesColors.cyan),
+              title: Text(
+                AppStrings.insights,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: HermesColors.textPrimary,
+                ),
               ),
-            ),
-            subtitle: Text(
-              AppStrings.insightsSubtitle,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+              subtitle: Text(
+                AppStrings.insightsSubtitle,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: HermesColors.textSecondary,
+                ),
               ),
+              onTap: () => context.push(RoutePaths.insights),
             ),
-            onTap: () => context.push(RoutePaths.insights),
-          ),
+          ],
         ],
       ),
     );
@@ -348,6 +355,24 @@ class SettingsScreen extends ConsumerWidget {
       borderColor: HermesColors.error.withValues(alpha: 0.3),
       child: Column(
         children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout, color: HermesColors.cyan),
+            title: Text(
+              AppStrings.disconnectExit,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: HermesColors.cyan,
+              ),
+            ),
+            subtitle: Text(
+              'Return to connection screen. Server configs are kept.',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
+            ),
+            onTap: () => _showDisconnectConfirmation(context, ref),
+          ),
+          const Divider(color: HermesColors.border, height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.delete_forever, color: HermesColors.error),
@@ -382,6 +407,46 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             onTap: () => _showResetConfirmation(context, ref),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDisconnectConfirmation(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: HermesColors.surface,
+        title: Text(
+          AppStrings.settingsDangerZoneDisconnectTitle,
+          style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                color: HermesColors.textPrimary,
+              ),
+        ),
+        content: Text(
+          AppStrings.settingsDangerZoneDisconnectMessage,
+          style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                color: HermesColors.textSecondary,
+              ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(AppStrings.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              ref.read(connectionProvider.notifier).disconnect();
+              Navigator.of(ctx).pop();
+              // Outer context survives dialog pop — safe to navigate here.
+              context.go(RoutePaths.connection);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: HermesColors.cyan,
+              foregroundColor: HermesColors.dark,
+            ),
+            child: Text(AppStrings.settingsDangerZoneDisconnectAction),
           ),
         ],
       ),
