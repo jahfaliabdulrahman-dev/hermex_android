@@ -160,7 +160,7 @@ class _ShellScaffold extends StatelessWidget {
   }
 }
 
-/// Bottom navigation bar — Chat | Sessions | Tasks | Workspace | Settings.
+/// Bottom navigation bar — Chat | Sessions | Tasks | Settings.
 class _BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -242,7 +242,7 @@ String? _redirectGuard(BuildContext context, GoRouterState state) {
 
 /// Returns true if [location] is a page inside the ShellRoute (bottom nav).
 ///
-/// ShellRoute pages: /chat, /sessions/*, /tasks/*, /workspace, /settings
+/// ShellRoute pages: /chat, /sessions/*, /tasks/*, /settings
 /// Excluded: /connection, /servers, /skills, /memory, /insights, /settings/license
 bool _isShellRoutePath(String location) {
   // Exact-match base ShellRoute paths.
