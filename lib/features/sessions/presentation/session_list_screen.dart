@@ -450,6 +450,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: HermesColors.surface,
         title: const Text(AppStrings.deleteSession),
         content: const Text(AppStrings.deleteSessionConfirm),
         actions: [

@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/route_paths.dart';
+import '../../features/connection/providers/connection_provider.dart';
 import '../../features/connection/presentation/connection_screen.dart';
 import '../../features/connection/presentation/server_list_screen.dart';
 import '../../features/sessions/presentation/session_list_screen.dart';
@@ -32,6 +35,7 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: RoutePaths.connection,
+  redirect: _redirectGuard,
   routes: [
     // ─── Connection (no bottom nav) ───
     GoRoute(
@@ -91,12 +95,22 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        GoRoute(
-          path: RoutePaths.workspace,
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: WorkspaceScreen(),
+        // FEATURE_GATE: BUG-N2-Workspace — /v1/workspace returns 404 from gateway.
+        // Re-enable when the Hermes Agent API Server supports this endpoint.
+        if (FeatureFlags.workspaceEnabled)
+          GoRoute(
+            path: RoutePaths.workspace,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: WorkspaceScreen(),
+            ),
+          )
+        else
+          GoRoute(
+            path: RoutePaths.workspace,
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: _placeholderScreen('Workspace — Coming Soon'),
+            ),
           ),
-        ),
         GoRoute(
           path: RoutePaths.settings,
           pageBuilder: (context, state) => const NoTransitionPage(
@@ -111,14 +125,32 @@ final appRouter = GoRouter(
       path: RoutePaths.skills,
       builder: (context, state) => const SkillsScreen(),
     ),
-    GoRoute(
-      path: RoutePaths.memory,
-      builder: (context, state) => const MemoryScreen(),
-    ),
-    GoRoute(
-      path: RoutePaths.insights,
-      builder: (context, state) => const InsightsScreen(),
-    ),
+    // FEATURE_GATE: BUG-N2-Memory — /v1/memory returns 404 from gateway.
+    // Re-enable when the Hermes Agent API Server supports this endpoint.
+    if (FeatureFlags.memoryEnabled)
+      GoRoute(
+        path: RoutePaths.memory,
+        builder: (context, state) => const MemoryScreen(),
+      )
+    else
+      GoRoute(
+        path: RoutePaths.memory,
+        builder: (context, state) =>
+            _placeholderScreen('Memory — Coming Soon'),
+      ),
+    // FEATURE_GATE: BUG-5-Insights — /v1/insights returns 404 from gateway.
+    // Re-enable when the Hermes Agent API Server supports this endpoint.
+    if (FeatureFlags.insightsEnabled)
+      GoRoute(
+        path: RoutePaths.insights,
+        builder: (context, state) => const InsightsScreen(),
+      )
+    else
+      GoRoute(
+        path: RoutePaths.insights,
+        builder: (context, state) =>
+            _placeholderScreen('Insights — Coming Soon'),
+      ),
     GoRoute(
       path: RoutePaths.license,
       builder: (context, state) => _placeholderScreen('License'),
@@ -211,4 +243,39 @@ class _BottomNavBar extends StatelessWidget {
   }
 }
 
-// _placeholderScreen still used for License route (line ~124).
+// ─── Router Guard ────────────────────────────────────────────────────────────
+
+/// Redirect guard: sends unauthenticated users back to /connection.
+///
+/// When [ConnectionStatus.idle], any ShellRoute page redirects to connection.
+/// Non-ShellRoute pages (/connection, /servers, /skills, /memory, /insights,
+/// /settings/license) are accessible regardless of connection state.
+String? _redirectGuard(BuildContext context, GoRouterState state) {
+  final container = ProviderScope.containerOf(context);
+  final connState = container.read(connectionProvider);
+  final location = state.uri.toString();
+
+  if (connState.status == ConnectionStatus.idle &&
+      location != RoutePaths.connection &&
+      _isShellRoutePath(location)) {
+    if (kDebugMode) {
+      debugPrint('=== HERMEX DEBUG: _redirectGuard → redirecting to /connection ===');
+    }
+    return RoutePaths.connection;
+  }
+  return null;
+}
+
+/// Returns true if [location] is a page inside the ShellRoute (bottom nav).
+///
+/// ShellRoute pages: /chat, /sessions/*, /tasks/*, /workspace, /settings
+/// Excluded: /connection, /servers, /skills, /memory, /insights, /settings/license
+bool _isShellRoutePath(String location) {
+  // Exact-match base ShellRoute paths.
+  const shellExact = {'/chat', '/workspace', '/settings'};
+  if (shellExact.contains(location)) return true;
+  // Sub-paths inside ShellRoute.
+  if (location.startsWith('/sessions')) return true;
+  if (location.startsWith('/tasks')) return true;
+  return false;
+}
