@@ -433,7 +433,7 @@ void main() {
       );
     });
 
-    test('ApiClient throws DioException on 404', () async {
+    test('ApiClient returns error response body on 404', () async {
       final client = ApiClient(
         baseUrl: 'https://test.example.com',
         apiKey: 'test-api-key',
@@ -445,10 +445,10 @@ void main() {
         responseBody: {'error': 'not found'},
       );
 
-      await expectLater(
-        client.get('/test'),
-        throwsA(isA<DioException>()),
-      );
+      // validateStatus < 500 → 404 is a valid HTTP response, not an exception.
+      // The callee is responsible for inspecting response data for errors.
+      final response = await client.get('/test');
+      expect(response, {'error': 'not found'});
     });
 
     test('ApiClient healthCheck returns false on 404', () async {

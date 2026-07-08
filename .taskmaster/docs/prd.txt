@@ -1,0 +1,42 @@
+PRD: Critical Bug Fixes — Hermex Android v0.1.0
+
+BUG-001: Tailscale/CGNAT IP Validation — "HTTP is only allowed on local network" blocks connection
+
+Problem: Users entering Tailscale IP addresses (100.64.0.0/10 range, e.g., http://100.64.0.1:8642) in ConnectionScreen see the error "HTTP is only allowed on local networks. Use HTTPS for remote servers." The Connect button cannot proceed because the URL form validation fails.
+
+Root Cause: ConnectionScreen._validateUrl() at connection_screen.dart:97 calls ServerRepository.isLocalNetwork() which handles localhost, 127.0.0.1, 192.168.x.x, 10.x.x.x, 172.16-31.x.x but previously did not handle 100.64-127.x.x (Tailscale/CGNAT). A partial fix was attempted in server_repository.dart lines 352-388 adding _isTailscaleOrCGNAT() but the bug persists — likely due to a Flutter build cache issue needing a full rebuild.
+
+Two validation points exist:
+- ServerRepository._validateUrl() at server_repository.dart:255 (data layer — validates during health check)
+- ConnectionScreen._validateUrl() at connection_screen.dart:70 (UI layer — validates before enabling Connect button)
+Both should be updated to recognize Tailscale IPs as local network.
+
+Additionally, there is code duplication between the two _validateUrl() methods that increases risk of future drift.
+
+Tasks needed:
+1. Verify the isLocalNetwork() fix works with a full flutter clean + flutter run
+2. Add unit tests for Tailscale IP ranges in isLocalNetwork()
+3. Document the Tailscale/CGNAT range support
+
+BUG-002: Cannot return to ConnectionScreen after connecting — navigation dead-end
+
+Problem: After successfully connecting to a server, the app navigates to /chat inside the ShellRoute. From there, there is NO way to return to /connection to change servers. The only workaround is to clear all app data.
+
+Root Cause: GoRouter configuration in app_router.dart puts /connection as a top-level route OUTSIDE the ShellRoute (line 37-40). All main screens (/chat, /sessions, /tasks, /workspace, /settings) are inside the ShellRoute. Once navigated into the ShellRoute, there is no navigation path back to /connection:
+- Bottom nav has no "Connection" or "Disconnect" tab
+- Settings has "Manage Servers" but pushes to /servers, not /connection
+- ConnectionNotifier.disconnect() changes state to idle but no listener navigates
+- No redirect guard watches for ConnectionStatus.idle to auto-navigate back
+
+Tasks needed:
+1. Add a "Switch Server" or "Disconnect" entry point in the ShellRoute (e.g., in Settings or as a bottom nav action)
+2. Add a GoRouter redirect that watches connection state and auto-navigates to /connection when status becomes idle
+3. Ensure ConnectionScreen shows correct state (idle, not showing old data) when navigated back
+4. Add a listener in ConnectionNotifier.disconnect() or ShellRoute to navigate back to /connection
+
+Assignees:
+- flutter-state-engineer: Riverpod state, ConnectionNotifier fixes
+- flutter-backend-db-architect: ServerRepository, isLocalNetwork validation
+- flutter-ui-ux-designer: Navigation UX, button placement, disconnect flow
+- flutter-zero-trust-auditor: Verify security validation is correct, no regressions
+- flutter-qa-tester: Write/run unit tests for Tailscale IP detection and navigation
