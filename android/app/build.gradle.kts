@@ -5,6 +5,18 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Release keystore properties — loaded from key.properties (local) or env vars (CI)
+val keystoreProps = mutableMapOf<String, String>()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.forEachLine { line ->
+        val parts = line.split("=", limit = 2)
+        if (parts.size == 2) {
+            keystoreProps[parts[0].trim()] = parts[1].trim()
+        }
+    }
+}
+
 android {
     namespace = "com.jahfali.hermex_android"
     compileSdk = 36
@@ -27,6 +39,23 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProps["keyAlias"] ?: "hermex"
+                keyPassword = keystoreProps["keyPassword"] ?: ""
+                storeFile = file(keystoreProps["storeFile"] ?: "../app/hermex-release.keystore")
+                storePassword = keystoreProps["storePassword"] ?: ""
+            } else {
+                // CI fallback — environment variables
+                keyAlias = System.getenv("HERMEX_KEY_ALIAS") ?: "hermex"
+                keyPassword = System.getenv("HERMEX_KEY_PASSWORD") ?: ""
+                storeFile = file(System.getenv("HERMEX_KEYSTORE_FILE") ?: "../app/hermex-release.keystore")
+                storePassword = System.getenv("HERMEX_KEYSTORE_PASSWORD") ?: ""
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
@@ -41,7 +70,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

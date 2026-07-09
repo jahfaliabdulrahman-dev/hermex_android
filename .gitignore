@@ -7,3 +7,9 @@ local.properties
 *.lock
 .kotlin/
 __pycache__/
+
+# Keystore secrets
+*.jks
+*.keystore
+*.p12
+key.properties
