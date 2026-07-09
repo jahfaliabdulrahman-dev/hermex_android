@@ -34,7 +34,8 @@ class TaskRepository {
             } catch (e) {
               if (kDebugMode) {
                 debugPrint(
-                  '=== HERMEX DEBUG: TaskRepository.getAll — skipping malformed job: $e ===');
+                  '=== HERMEX DEBUG: TaskRepository.getAll — skipping malformed job: $e ===',
+                );
               }
               return null;
             }
@@ -44,7 +45,8 @@ class TaskRepository {
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.getAll DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.getAll DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -59,12 +61,16 @@ class TaskRepository {
     try {
       final response = await _apiClient.get(ApiEndpoints.jobById(id));
       // DEC-EPIC001-DEPCHECK: API returns {"job": {...}}, not bare job object.
-      final jobData = response['job'] as Map<String, dynamic>;
+      final jobData = response['job'];
+      if (jobData == null || jobData is! Map<String, dynamic>) {
+        throw ClientException('Invalid job data from server');
+      }
       return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.getById DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.getById DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -84,13 +90,12 @@ class TaskRepository {
     String? deliver,
   }) async {
     if (kDebugMode) {
-      debugPrint('=== HERMEX DEBUG: TaskRepository.create — schedule=$schedule ===');
+      debugPrint(
+        '=== HERMEX DEBUG: TaskRepository.create — schedule=$schedule ===',
+      );
     }
     try {
-      final body = <String, dynamic>{
-        'prompt': prompt,
-        'schedule': schedule,
-      };
+      final body = <String, dynamic>{'prompt': prompt, 'schedule': schedule};
       if (name != null && name.isNotEmpty) body['name'] = name;
       if (skills != null && skills.isNotEmpty) body['skills'] = skills;
       if (modelProvider != null) body['model_provider'] = modelProvider;
@@ -99,12 +104,16 @@ class TaskRepository {
 
       final response = await _apiClient.post(ApiEndpoints.jobs, data: body);
       // DEC-EPIC001-DEPCHECK: POST returns {"job": {...}}, not bare job object.
-      final jobData = response['job'] as Map<String, dynamic>;
+      final jobData = response['job'];
+      if (jobData == null || jobData is! Map<String, dynamic>) {
+        throw ClientException('Invalid job data from server');
+      }
       return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.create DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.create DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -141,15 +150,21 @@ class TaskRepository {
       if (deliver != null) body['deliver'] = deliver;
       if (paused != null) body['paused'] = paused;
 
-      final response =
-          await _apiClient.patch(ApiEndpoints.jobById(id), data: body);
+      final response = await _apiClient.patch(
+        ApiEndpoints.jobById(id),
+        data: body,
+      );
       // DEC-EPIC001-DEPCHECK: PATCH returns {"job": {...}}, not bare job object.
-      final jobData = response['job'] as Map<String, dynamic>;
+      final jobData = response['job'];
+      if (jobData == null || jobData is! Map<String, dynamic>) {
+        throw ClientException('Invalid job data from server');
+      }
       return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.update DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.update DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -167,7 +182,8 @@ class TaskRepository {
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.delete DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.delete DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -181,15 +197,18 @@ class TaskRepository {
       debugPrint('=== HERMEX DEBUG: TaskRepository.runNow — id=$id ===');
     }
     try {
-      final response =
-          await _apiClient.post('${ApiEndpoints.jobById(id)}/run');
+      final response = await _apiClient.post('${ApiEndpoints.jobById(id)}/run');
       // DEC-EPIC001-DEPCHECK: POST /run returns {"job": {...}}.
-      final jobData = response['job'] as Map<String, dynamic>;
+      final jobData = response['job'];
+      if (jobData == null || jobData is! Map<String, dynamic>) {
+        throw ClientException('Invalid job data from server');
+      }
       return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '=== HERMEX DEBUG: TaskRepository.runNow DioException — ${e.type}: ${e.message} ===');
+          '=== HERMEX DEBUG: TaskRepository.runNow DioException — ${e.type}: ${e.message} ===',
+        );
       }
       throw _classifyError(e);
     }
@@ -223,24 +242,39 @@ class TaskRepository {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.connectionError:
-        return ConnectionException(message,
-            statusCode: statusCode, responseBody: body);
+        return ConnectionException(
+          message,
+          statusCode: statusCode,
+          responseBody: body,
+        );
 
       case DioExceptionType.badResponse:
         if (statusCode == 401) {
-          return AuthException(message,
-              statusCode: statusCode, responseBody: body);
+          return AuthException(
+            message,
+            statusCode: statusCode,
+            responseBody: body,
+          );
         }
         if (statusCode != null && statusCode >= 500) {
-          return ServerException(message,
-              statusCode: statusCode, responseBody: body);
+          return ServerException(
+            message,
+            statusCode: statusCode,
+            responseBody: body,
+          );
         }
-        return ClientException(message,
-            statusCode: statusCode, responseBody: body);
+        return ClientException(
+          message,
+          statusCode: statusCode,
+          responseBody: body,
+        );
 
       default:
-        return ConnectionException(message,
-            statusCode: statusCode, responseBody: body);
+        return ConnectionException(
+          message,
+          statusCode: statusCode,
+          responseBody: body,
+        );
     }
   }
 }
