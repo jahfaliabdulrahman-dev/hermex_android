@@ -66,7 +66,7 @@ class ClipboardSanitizer {
       RegExp(r'\b(sk|hk)-[A-Za-z0-9_-]{20,}\b'),
       // env-style: KEY= or KEY: long value (exclude quoted values)
       RegExp(
-        r'(?<![A-Za-z0-9])(api[_-]?key|secret|token|password|credential)s?\s*[=:]\s*[^\s"<>]{16,}',
+        r'''(?<![A-Za-z0-9])(api[_-]?key|secret|token|password|credential)s?\s*[=:]\s*[^\s"<>]{16,}''',
         caseSensitive: false,
       ),
     ];
