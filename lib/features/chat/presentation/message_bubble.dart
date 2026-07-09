@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/colors.dart';
+import '../../../core/utils/clipboard_sanitizer.dart';
 import '../../../core/utils/markdown_renderer.dart';
 import '../../../models/chat_message.dart';
 
@@ -43,7 +44,8 @@ class MessageBubble extends StatelessWidget {
 
 /// Copies [content] to clipboard and shows a SnackBar confirmation.
 void _copyToClipboard(BuildContext context, String content) {
-  Clipboard.setData(ClipboardData(text: content));
+  final sanitized = ClipboardSanitizer.sanitize(content);
+  Clipboard.setData(ClipboardData(text: sanitized));
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
       content: Text('Copied to clipboard'),
