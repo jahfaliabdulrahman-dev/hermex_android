@@ -76,12 +76,27 @@ class SettingsNotifier extends Notifier<SettingsState> {
 
   // ─── Theme Mode ───
 
+  /// Deduplicated sequential queue prevents race condition on rapid toggle.
+  /// Only the last requested mode is persisted to SharedPreferences (T-2 fix).
+  ThemeModeOption? _pendingThemeMode;
+  bool _isWritingTheme = false;
+
   Future<void> setThemeMode(ThemeModeOption mode) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: SettingsNotifier.setThemeMode — $mode ===');
     }
-    await _prefs.setThemeMode(mode.name);
-    state = state.copyWith(themeMode: mode);
+    _pendingThemeMode = mode;
+    if (_isWritingTheme) return;
+    _isWritingTheme = true;
+
+    while (_pendingThemeMode != null) {
+      final modeToWrite = _pendingThemeMode!;
+      _pendingThemeMode = null;
+      await _prefs.setThemeMode(modeToWrite.name);
+      state = state.copyWith(themeMode: modeToWrite);
+    }
+
+    _isWritingTheme = false;
   }
 
   // ─── Default Model ───

@@ -20,8 +20,8 @@ class AppPreferences {
 
   // ─── Theme Mode ───
 
-  /// Returns 'system', 'light', or 'dark'. Defaults to 'system'.
-  String get themeMode => _prefs.getString(PrefKeys.themeMode) ?? 'system';
+  /// Returns 'system', 'light', or 'dark'. Defaults to 'dark' (Hermes brand default, EPIC-001).
+  String get themeMode => _prefs.getString(PrefKeys.themeMode) ?? 'dark';
 
   Future<bool> setThemeMode(String mode) =>
       _prefs.setString(PrefKeys.themeMode, mode);
