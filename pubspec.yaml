@@ -40,8 +40,6 @@ dependencies:
 
   # ─── UI ───
   flutter_markdown: ^0.7.0
-  google_fonts: ^6.1.0
-
   # ─── Localization ───
   flutter_localizations:
     sdk: flutter
@@ -109,3 +107,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # ─── Bundled fonts (no runtime network fetch) ───
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+          weight: 400

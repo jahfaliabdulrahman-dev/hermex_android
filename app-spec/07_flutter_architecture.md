@@ -187,7 +187,6 @@ dependencies:
   isar_flutter_libs: ^3.1.0
   # UI
   flutter_markdown: ^0.7.0
-  google_fonts: ^6.1.0
   # Utilities
   uuid: ^4.3.0
   intl: ^0.19.0

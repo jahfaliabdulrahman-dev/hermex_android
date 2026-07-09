@@ -43,7 +43,7 @@ Version: 0.1.0 (build 1) | Date: 2026-07-05
 - `isar_flutter_libs` verifyReleaseResources disabled (AGP 8.11+ compat, no impact on runtime)
 - Release APK signed with debug keystore (production keystore needed before store submission)
 - `shrinkResources` disabled temporarily due to isar lStar issue
-- `google_fonts` bundles all font assets (can be optimized with `--no-tree-shake-icons` already active)
+- Fonts bundled as static assets in `assets/fonts/` (no runtime network fetch)
 
 ## Rollback Plan
 

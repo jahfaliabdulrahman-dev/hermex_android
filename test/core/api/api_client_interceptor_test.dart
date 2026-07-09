@@ -23,6 +23,8 @@ class _FakeHttpAdapter implements HttpClientAdapter {
     required this.statusCode,
     this.statusMessage = 'OK',
     this.responseBody,
+    // ignore: unused_element_parameter
+    // ignore: unused_element_parameter
     this.delay = Duration.zero,
   });
 

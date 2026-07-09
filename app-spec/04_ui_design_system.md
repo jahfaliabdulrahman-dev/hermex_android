@@ -87,10 +87,10 @@ Generated via `material_color_utilities` to produce full `ColorScheme` from `her
 | `labelSmall` | 11 | 16 | 0.5 |
 | `code` | 13 | 20 | 0 |
 
-### §2.3 Loading via google_fonts
+### §2.3 Bundled Static Fonts
 
-Inter and JetBrains Mono loaded via `google_fonts` package.
-`GoogleFonts.interTextTheme()` and `GoogleFonts.jetBrainsMono()` for code.
+Inter and JetBrains Mono are bundled as static assets in `assets/fonts/`.
+No runtime network fetch — fonts work offline and respect user privacy.
 
 ---
 

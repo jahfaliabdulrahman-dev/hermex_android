@@ -2,6 +2,12 @@
 <!--
   Network Security Configuration — AUD-001 (MITM Protection)
 
+  This file is the SINGLE SOURCE OF TRUTH for cleartext policy.
+  android:usesCleartextTraffic was intentionally REMOVED from AndroidManifest.xml
+  (Guardian C-5) to eliminate dual-permission redundancy. When both are set,
+  networkSecurityConfig takes precedence, but the manifest attribute still
+  appears in audit scans as a separate permission surface.
+
   DESIGN NOTE: Android's <domain> element does NOT support CIDR notation
   (e.g. 192.168.0.0/16). Instead of an exhaustive IP whitelist (which
   silently blocks any IP not listed — see LL-027), the base-config below

@@ -45,6 +45,17 @@ jobs:
 
       - run: flutter test
 
+      - name: Setup release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.HERMEX_KEYSTORE_FILE }}
+          STORE_PASS: ${{ secrets.HERMEX_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.HERMEX_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HERMEX_KEY_ALIAS }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/hermex-release.keystore
+          printf "storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=../app/hermex-release.keystore\n" \
+            "$STORE_PASS" "$KEY_PASS" "$KEY_ALIAS" > android/key.properties
+
       - run: flutter build apk --release
 
       - name: Delete old 'latest' tag (if exists)
