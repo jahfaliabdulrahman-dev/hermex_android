@@ -7,9 +7,13 @@ abstract class ApiException implements Exception {
 
   const ApiException(this.message, {this.statusCode, this.responseBody});
 
+  /// NEVER leaks server body to user-facing messages.
   @override
-  String toString() =>
-      'ApiException: $message (status: $statusCode, body: $responseBody)';
+  String toString() => 'ApiException: $message (status: $statusCode)';
+
+  /// Safe for debug logging. Access the raw server response body
+  /// through this getter instead.
+  String? get debugBody => responseBody;
 }
 
 /// Server unreachable — DNS failure, timeout, network error.

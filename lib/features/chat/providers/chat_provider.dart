@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/sse_client.dart';
 import '../../../core/auth/auth_manager.dart';
 import '../../../core/storage/secure_storage.dart';
@@ -479,7 +480,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
     }
 
-    final errorText = error is String ? error : error.toString();
+    final errorText = error is String ? error : (error is ApiException ? error.message : error.toString());
     messages.add(ChatMessage(
       role: 'system',
       content: 'Error: $errorText',

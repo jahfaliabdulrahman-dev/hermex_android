@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/sse_client.dart';
 import '../../../core/constants/security_limits.dart';
 import '../../../models/stream_event.dart';
@@ -81,7 +82,7 @@ class StreamManager {
         }
         if (_controller != null && !_controller!.isClosed) {
           _controller!.add(StreamEvent.error(
-            message: error.toString(),
+            message: error is ApiException ? error.message : error.toString(),
           ));
         }
       },

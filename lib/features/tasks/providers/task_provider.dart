@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_manager.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../models/cron_job.dart';
@@ -79,6 +80,12 @@ class TaskListState {
         isRunNow: isRunNow ?? this.isRunNow,
         isDeleting: isDeleting ?? this.isDeleting,
       );
+}
+
+/// Never expose raw server body to users.
+String _sanitizeError(Object e) {
+  if (e is ApiException) return e.message;
+  return e.toString();
 }
 
 // ─── Notifier ───
@@ -191,7 +198,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       }
       state = state.copyWith(
         status: TaskLoadStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
     }
   }
@@ -256,7 +263,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       }
       state = state.copyWith(
         isBusy: false,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
@@ -323,7 +330,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
@@ -378,7 +385,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
         isBusy: false,
         clearBusyJobId: true,
         isDeleting: false,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
@@ -433,7 +440,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
         isBusy: false,
         clearBusyJobId: true,
         isRunNow: false,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
@@ -482,7 +489,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
@@ -529,7 +536,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       state = state.copyWith(
         isBusy: false,
         clearBusyJobId: true,
-        errorMessage: e.toString(),
+        errorMessage: _sanitizeError(e),
       );
       return false;
     }
