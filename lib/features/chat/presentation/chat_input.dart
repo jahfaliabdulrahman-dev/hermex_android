@@ -85,7 +85,7 @@ class ChatInput extends StatelessWidget {
                               color: HermesColors.textDisabled,
                             ),
                     filled: true,
-                    fillColor: HermesColors.dark,
+                    fillColor: Theme.of(context).colorScheme.surface,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,

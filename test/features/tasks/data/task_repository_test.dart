@@ -8,6 +8,10 @@ import 'package:hermex_android/models/cron_job.dart';
 /// These tests focus on the repository's parsing logic without requiring
 /// a live server. The repository's API calls are tested indirectly through
 /// the provider tests.
+///
+/// DEC-EPIC001-DEPCHECK: Updated all test fixtures to use real Hermes API
+/// Server v0.18.2 field names (state, last_run_at, next_run_at, provider,
+/// model, paused_at).
 void main() {
   group('CronJob JSON parsing', () {
     test('parses a complete job with all fields', () {
@@ -15,17 +19,17 @@ void main() {
         'id': 'job-123',
         'prompt': 'Daily briefing',
         'schedule': '0 9 * * *',
-        'status': 'active',
-        'last_run': 1750000000,
-        'next_run': 1750086400,
+        'state': 'active',
+        'last_run_at': 1750000000,
+        'next_run_at': 1750086400,
         'skills': ['hermes-agent', 'code-review'],
-        'model_provider': 'deepseek',
-        'model_name': 'deepseek-v4-pro',
+        'provider': 'deepseek',
+        'model': 'deepseek-v4-pro',
         'name': 'Morning Briefing',
         'deliver': 'telegram',
         'created_at': 1749000000,
         'last_error': null,
-        'paused': false,
+        'paused_at': null,
       };
 
       final job = CronJob.fromJson(json);
@@ -70,7 +74,7 @@ void main() {
         'id': 'job-paused',
         'prompt': 'Paused job',
         'schedule': '0 * * * *',
-        'paused': true,
+        'paused_at': '2026-07-09T10:00:00+03:00',
       };
 
       final job = CronJob.fromJson(json);
@@ -83,8 +87,8 @@ void main() {
         'id': 'job-ts',
         'prompt': 'No timestamps',
         'schedule': '* * * * *',
-        'last_run': null,
-        'next_run': null,
+        'last_run_at': null,
+        'next_run_at': null,
         'created_at': null,
       };
 
@@ -100,8 +104,8 @@ void main() {
         'id': 'job-str',
         'prompt': 'String timestamps',
         'schedule': '0 9 * * *',
-        'last_run': '2026-07-05T09:00:00',
-        'next_run': '2026-07-06T09:00:00',
+        'last_run_at': '2026-07-05T09:00:00',
+        'next_run_at': '2026-07-06T09:00:00',
       };
 
       final job = CronJob.fromJson(json);
@@ -148,17 +152,9 @@ void main() {
         modelName: 'test-model',
       );
 
-      // fromJson(toJson()) should work for the key fields
-      final json = {
-        'id': original.id,
-        'prompt': original.prompt,
-        'schedule': original.schedule,
-        'status': original.status,
-        'name': original.name,
-        'paused': original.paused,
-        'skills': original.skills,
-        'model_name': original.modelName,
-      };
+      // fromJson(toJson()) should work for the key fields.
+      // toJson() now emits real API keys (state, provider, model, etc.)
+      final json = original.toJson();
 
       final restored = CronJob.fromJson(json);
 
@@ -170,6 +166,39 @@ void main() {
       expect(restored.paused, original.paused);
       expect(restored.skills, original.skills);
       expect(restored.modelName, original.modelName);
+    });
+
+    test('parses schedule as object (interval kind)', () {
+      final json = {
+        'id': 'job-int',
+        'prompt': 'Interval job',
+        'schedule': {
+          'kind': 'interval',
+          'minutes': 2,
+          'display': 'every 2m',
+        },
+      };
+
+      final job = CronJob.fromJson(json);
+
+      // schedule object should be converted to display string
+      expect(job.schedule, 'every 2m');
+    });
+
+    test('parses schedule as object (cron kind)', () {
+      final json = {
+        'id': 'job-cron',
+        'prompt': 'Cron job',
+        'schedule': {
+          'kind': 'cron',
+          'expr': '0 4 * * 0',
+          'display': '0 4 * * 0',
+        },
+      };
+
+      final job = CronJob.fromJson(json);
+
+      expect(job.schedule, '0 4 * * 0');
     });
   });
 

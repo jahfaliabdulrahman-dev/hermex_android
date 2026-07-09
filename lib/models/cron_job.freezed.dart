@@ -22,16 +22,18 @@ CronJob _$CronJobFromJson(Map<String, dynamic> json) {
 mixin _$CronJob {
   String get id => throw _privateConstructorUsedError;
   String get prompt => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _parseSchedule)
   String get schedule => throw _privateConstructorUsedError;
+  @JsonKey(name: 'state')
   String? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp)
   DateTime? get lastRun => throw _privateConstructorUsedError;
-  @JsonKey(name: 'next_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp)
   DateTime? get nextRun => throw _privateConstructorUsedError;
   List<String> get skills => throw _privateConstructorUsedError;
-  @JsonKey(name: 'model_provider')
+  @JsonKey(name: 'provider')
   String? get modelProvider => throw _privateConstructorUsedError;
-  @JsonKey(name: 'model_name')
+  @JsonKey(name: 'model')
   String? get modelName => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
   String? get deliver => throw _privateConstructorUsedError;
@@ -39,6 +41,7 @@ mixin _$CronJob {
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'last_error')
   String? get lastError => throw _privateConstructorUsedError;
+  @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
   bool get paused => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -54,18 +57,19 @@ abstract class $CronJobCopyWith<$Res> {
   $Res call(
       {String id,
       String prompt,
-      String schedule,
-      String? status,
-      @JsonKey(name: 'last_run', fromJson: _fromTimestamp) DateTime? lastRun,
-      @JsonKey(name: 'next_run', fromJson: _fromTimestamp) DateTime? nextRun,
+      @JsonKey(fromJson: _parseSchedule) String schedule,
+      @JsonKey(name: 'state') String? status,
+      @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp) DateTime? lastRun,
+      @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp) DateTime? nextRun,
       List<String> skills,
-      @JsonKey(name: 'model_provider') String? modelProvider,
-      @JsonKey(name: 'model_name') String? modelName,
+      @JsonKey(name: 'provider') String? modelProvider,
+      @JsonKey(name: 'model') String? modelName,
       String? name,
       String? deliver,
       @JsonKey(name: 'created_at', fromJson: _fromTimestamp)
       DateTime? createdAt,
       @JsonKey(name: 'last_error') String? lastError,
+      @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
       bool paused});
 }
 
@@ -168,18 +172,19 @@ abstract class _$$CronJobImplCopyWith<$Res> implements $CronJobCopyWith<$Res> {
   $Res call(
       {String id,
       String prompt,
-      String schedule,
-      String? status,
-      @JsonKey(name: 'last_run', fromJson: _fromTimestamp) DateTime? lastRun,
-      @JsonKey(name: 'next_run', fromJson: _fromTimestamp) DateTime? nextRun,
+      @JsonKey(fromJson: _parseSchedule) String schedule,
+      @JsonKey(name: 'state') String? status,
+      @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp) DateTime? lastRun,
+      @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp) DateTime? nextRun,
       List<String> skills,
-      @JsonKey(name: 'model_provider') String? modelProvider,
-      @JsonKey(name: 'model_name') String? modelName,
+      @JsonKey(name: 'provider') String? modelProvider,
+      @JsonKey(name: 'model') String? modelName,
       String? name,
       String? deliver,
       @JsonKey(name: 'created_at', fromJson: _fromTimestamp)
       DateTime? createdAt,
       @JsonKey(name: 'last_error') String? lastError,
+      @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
       bool paused});
 }
 
@@ -276,17 +281,18 @@ class _$CronJobImpl implements _CronJob {
   const _$CronJobImpl(
       {required this.id,
       required this.prompt,
-      required this.schedule,
-      this.status,
-      @JsonKey(name: 'last_run', fromJson: _fromTimestamp) this.lastRun,
-      @JsonKey(name: 'next_run', fromJson: _fromTimestamp) this.nextRun,
+      @JsonKey(fromJson: _parseSchedule) required this.schedule,
+      @JsonKey(name: 'state') this.status,
+      @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp) this.lastRun,
+      @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp) this.nextRun,
       final List<String> skills = const [],
-      @JsonKey(name: 'model_provider') this.modelProvider,
-      @JsonKey(name: 'model_name') this.modelName,
+      @JsonKey(name: 'provider') this.modelProvider,
+      @JsonKey(name: 'model') this.modelName,
       this.name,
       this.deliver,
       @JsonKey(name: 'created_at', fromJson: _fromTimestamp) this.createdAt,
       @JsonKey(name: 'last_error') this.lastError,
+      @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
       this.paused = false})
       : _skills = skills;
 
@@ -298,14 +304,16 @@ class _$CronJobImpl implements _CronJob {
   @override
   final String prompt;
   @override
+  @JsonKey(fromJson: _parseSchedule)
   final String schedule;
   @override
+  @JsonKey(name: 'state')
   final String? status;
   @override
-  @JsonKey(name: 'last_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp)
   final DateTime? lastRun;
   @override
-  @JsonKey(name: 'next_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp)
   final DateTime? nextRun;
   final List<String> _skills;
   @override
@@ -317,10 +325,10 @@ class _$CronJobImpl implements _CronJob {
   }
 
   @override
-  @JsonKey(name: 'model_provider')
+  @JsonKey(name: 'provider')
   final String? modelProvider;
   @override
-  @JsonKey(name: 'model_name')
+  @JsonKey(name: 'model')
   final String? modelName;
   @override
   final String? name;
@@ -333,7 +341,7 @@ class _$CronJobImpl implements _CronJob {
   @JsonKey(name: 'last_error')
   final String? lastError;
   @override
-  @JsonKey()
+  @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
   final bool paused;
 
   @override
@@ -404,20 +412,21 @@ abstract class _CronJob implements CronJob {
   const factory _CronJob(
       {required final String id,
       required final String prompt,
-      required final String schedule,
-      final String? status,
-      @JsonKey(name: 'last_run', fromJson: _fromTimestamp)
+      @JsonKey(fromJson: _parseSchedule) required final String schedule,
+      @JsonKey(name: 'state') final String? status,
+      @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp)
       final DateTime? lastRun,
-      @JsonKey(name: 'next_run', fromJson: _fromTimestamp)
+      @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp)
       final DateTime? nextRun,
       final List<String> skills,
-      @JsonKey(name: 'model_provider') final String? modelProvider,
-      @JsonKey(name: 'model_name') final String? modelName,
+      @JsonKey(name: 'provider') final String? modelProvider,
+      @JsonKey(name: 'model') final String? modelName,
       final String? name,
       final String? deliver,
       @JsonKey(name: 'created_at', fromJson: _fromTimestamp)
       final DateTime? createdAt,
       @JsonKey(name: 'last_error') final String? lastError,
+      @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
       final bool paused}) = _$CronJobImpl;
 
   factory _CronJob.fromJson(Map<String, dynamic> json) = _$CronJobImpl.fromJson;
@@ -427,22 +436,24 @@ abstract class _CronJob implements CronJob {
   @override
   String get prompt;
   @override
+  @JsonKey(fromJson: _parseSchedule)
   String get schedule;
   @override
+  @JsonKey(name: 'state')
   String? get status;
   @override
-  @JsonKey(name: 'last_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'last_run_at', fromJson: _fromTimestamp)
   DateTime? get lastRun;
   @override
-  @JsonKey(name: 'next_run', fromJson: _fromTimestamp)
+  @JsonKey(name: 'next_run_at', fromJson: _fromTimestamp)
   DateTime? get nextRun;
   @override
   List<String> get skills;
   @override
-  @JsonKey(name: 'model_provider')
+  @JsonKey(name: 'provider')
   String? get modelProvider;
   @override
-  @JsonKey(name: 'model_name')
+  @JsonKey(name: 'model')
   String? get modelName;
   @override
   String? get name;
@@ -455,6 +466,7 @@ abstract class _CronJob implements CronJob {
   @JsonKey(name: 'last_error')
   String? get lastError;
   @override
+  @JsonKey(name: 'paused_at', fromJson: _fromPausedAt, toJson: _toPausedAt)
   bool get paused;
   @override
   @JsonKey(ignore: true)

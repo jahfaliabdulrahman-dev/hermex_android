@@ -63,7 +63,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
     });
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

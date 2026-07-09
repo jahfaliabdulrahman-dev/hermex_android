@@ -23,7 +23,11 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () => _copyToClipboard(context),
+      onLongPress: () {
+        if (message.content.isNotEmpty) {
+          _copyToClipboard(context, message.content);
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: switch (message.role) {
@@ -35,16 +39,17 @@ class MessageBubble extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: message.content));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Copied to clipboard'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-  }
+/// Copies [content] to clipboard and shows a SnackBar confirmation.
+void _copyToClipboard(BuildContext context, String content) {
+  Clipboard.setData(ClipboardData(text: content));
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Copied to clipboard'),
+      duration: Duration(seconds: 1),
+    ),
+  );
 }
 
 // ─── User Bubble ─────────────────────────────────────────────────────────
@@ -145,6 +150,26 @@ class _AgentBubble extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Copy button header — copies entire agent response at once.
+                if (message.content.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.copy, size: 14),
+                        color: HermesColors.textDisabled,
+                        onPressed: () =>
+                            _copyToClipboard(context, message.content),
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Copy',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                      ),
+                    ],
+                  ),
                 if (message.content.isNotEmpty)
                   HermesMarkdown(data: message.content),
                 if (message.isStreaming)

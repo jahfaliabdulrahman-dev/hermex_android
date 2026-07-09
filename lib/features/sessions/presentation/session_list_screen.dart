@@ -126,7 +126,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
     });
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

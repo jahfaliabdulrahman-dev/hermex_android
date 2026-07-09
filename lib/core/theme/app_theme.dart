@@ -3,16 +3,39 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'typography.dart';
 
-/// Hermex Material 3 dark theme — from 04_ui_design_system.md.
+/// Hermex Material 3 theme — from 04_ui_design_system.md.
 ///
 /// Seeds from hermesNavy (#001F5E). Uses ColorScheme.fromSeed for full palette.
-/// Only dark theme in MVP.
+/// DEC-EPIC001-THEME: Split into buildDark / buildLight so themeMode can swap.
 abstract class AppTheme {
   AppTheme._();
 
   /// Build the complete Material 3 dark theme.
-  static ThemeData build() {
-    final colorScheme = ColorScheme.fromSeed(
+  static ThemeData buildDark() {
+    final colorScheme = _buildDarkColorScheme();
+
+    return _buildBaseTheme(
+      colorScheme: colorScheme,
+      brightness: Brightness.dark,
+      scaffoldBackground: HermesColors.dark,
+    );
+  }
+
+  /// Build the complete Material 3 light theme.
+  static ThemeData buildLight() {
+    final colorScheme = _buildLightColorScheme();
+
+    return _buildBaseTheme(
+      colorScheme: colorScheme,
+      brightness: Brightness.light,
+      scaffoldBackground: colorScheme.surface,
+    );
+  }
+
+  // ─── Color Schemes ─────────────────────────────────────────────────────
+
+  static ColorScheme _buildDarkColorScheme() {
+    return ColorScheme.fromSeed(
       seedColor: HermesColors.navy,
       brightness: Brightness.dark,
       primary: HermesColors.navy,
@@ -24,55 +47,76 @@ abstract class AppTheme {
       onSurface: HermesColors.textPrimary,
       onError: HermesColors.white,
     );
+  }
+
+  static ColorScheme _buildLightColorScheme() {
+    return ColorScheme.fromSeed(
+      seedColor: HermesColors.navy,
+      brightness: Brightness.light,
+      primary: HermesColors.navy,
+      secondary: HermesColors.cyan,
+      error: HermesColors.error,
+    );
+  }
+
+  // ─── Shared Theme Structure ────────────────────────────────────────────
+
+  /// Builds the shared ThemeData structure that differs only by [colorScheme]
+  /// and [brightness]. Uses [colorScheme] properties instead of hardcoded
+  /// HermesColors where the value must swap between light/dark.
+  static ThemeData _buildBaseTheme({
+    required ColorScheme colorScheme,
+    required Brightness brightness,
+    required Color scaffoldBackground,
+  }) {
+    final textTheme = HermesTextTheme.buildTextTheme();
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: HermesColors.dark,
-      brightness: Brightness.dark,
-      textTheme: HermesTextTheme.buildTextTheme(),
+      scaffoldBackgroundColor: scaffoldBackground,
+      brightness: brightness,
+      textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: false,
         backgroundColor: colorScheme.surface,
-        foregroundColor: HermesColors.textPrimary,
-        titleTextStyle: HermesTextTheme.buildTextTheme().titleLarge?.copyWith(
-              color: HermesColors.textPrimary,
-            ),
+        foregroundColor: colorScheme.onSurface,
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          color: colorScheme.onSurface,
+        ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.surface,
         selectedItemColor: HermesColors.cyan,
-        unselectedItemColor: HermesColors.textSecondary,
+        unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.55),
         type: BottomNavigationBarType.fixed,
         elevation: 3,
-        selectedLabelStyle:
-            HermesTextTheme.buildTextTheme().labelSmall?.copyWith(
-                  color: HermesColors.cyan,
-                ),
-        unselectedLabelStyle:
-            HermesTextTheme.buildTextTheme().labelSmall?.copyWith(
-                  color: HermesColors.textSecondary,
-                ),
+        selectedLabelStyle: textTheme.labelSmall?.copyWith(
+          color: HermesColors.cyan,
+        ),
+        unselectedLabelStyle: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
       ),
       cardTheme: CardThemeData(
         elevation: 1,
-        color: HermesColors.surface,
+        color: colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: HermesColors.border, width: 0.5),
+          side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: HermesColors.dark,
+        fillColor: colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: HermesColors.border),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: HermesColors.border),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
@@ -84,9 +128,9 @@ abstract class AppTheme {
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        hintStyle: HermesTextTheme.buildTextTheme().bodyLarge?.copyWith(
-              color: HermesColors.textDisabled,
-            ),
+        hintStyle: textTheme.bodyLarge?.copyWith(
+          color: HermesColors.textDisabled,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -98,9 +142,9 @@ abstract class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: HermesTextTheme.buildTextTheme().labelLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -122,46 +166,44 @@ abstract class AppTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: colorScheme.surface,
         selectedColor: HermesColors.cyan.withValues(alpha: 0.2),
-        labelStyle: HermesTextTheme.buildTextTheme().labelMedium?.copyWith(
-              color: HermesColors.textPrimary,
-            ),
-        secondaryLabelStyle:
-            HermesTextTheme.buildTextTheme().labelMedium?.copyWith(
-              color: HermesColors.cyan,
-            ),
-        side: const BorderSide(color: HermesColors.border),
+        labelStyle: textTheme.labelMedium?.copyWith(
+          color: colorScheme.onSurface,
+        ),
+        secondaryLabelStyle: textTheme.labelMedium?.copyWith(
+          color: HermesColors.cyan,
+        ),
+        side: BorderSide(color: colorScheme.outlineVariant),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
       ),
-      dividerTheme: const DividerThemeData(
-        color: HermesColors.border,
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
         thickness: 0.5,
         space: 1,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
         ),
         // BUG-006: Explicit text styles prevent M3 dark-mode
         // inheritance failures where AlertDialog text renders invisible
         // on the dark HermesColors.surface (#161B22) background.
-        titleTextStyle: HermesTextTheme.buildTextTheme().headlineSmall?.copyWith(
-              color: HermesColors.textPrimary,
-            ),
-        contentTextStyle: HermesTextTheme.buildTextTheme().bodyMedium?.copyWith(
-              color: HermesColors.textSecondary,
-            ),
+        titleTextStyle: textTheme.headlineSmall?.copyWith(
+          color: colorScheme.onSurface,
+        ),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurface.withValues(alpha: 0.75),
+        ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: HermesColors.surface,
-        contentTextStyle:
-            HermesTextTheme.buildTextTheme().bodyMedium?.copyWith(
-                  color: HermesColors.textPrimary,
-                ),
+        backgroundColor: colorScheme.surface,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurface,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

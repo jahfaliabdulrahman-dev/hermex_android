@@ -166,7 +166,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: HermesColors.dark,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: HermesColors.border),
                 ),
@@ -256,7 +256,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     });
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

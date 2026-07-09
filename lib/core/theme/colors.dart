@@ -17,7 +17,9 @@ abstract class HermesColors {
   // ─── Text ───
   static const Color textPrimary = Color(0xFFE6EDF3);
   static const Color textSecondary = Color(0xFF8B949E);
-  static const Color textDisabled = Color(0xFF484F58);
+  // Boosted from #484F58 → #6E7681 for WCAG AA 4.5:1 contrast on dark bg (#0D1117).
+  // #484F58 was ~2.9:1 — failed AA minimum. DEC-EPIC001-THEME.
+  static const Color textDisabled = Color(0xFF6E7681);
   static const Color white = Color(0xFFFFFFFF);
 
   // ─── Semantic ───

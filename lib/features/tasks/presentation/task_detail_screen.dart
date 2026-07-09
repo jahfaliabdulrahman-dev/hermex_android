@@ -39,7 +39,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -315,7 +315,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HermesColors.dark,
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: HermesColors.border),
       ),

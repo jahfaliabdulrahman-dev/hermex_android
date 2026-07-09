@@ -51,13 +51,16 @@ class TaskRepository {
   }
 
   /// Fetch a single cron job by ID.
+  /// API wraps response in {"job": {...}} — must unwrap.
   Future<CronJob> getById(String id) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: TaskRepository.getById — id=$id ===');
     }
     try {
       final response = await _apiClient.get(ApiEndpoints.jobById(id));
-      return CronJob.fromJson(response);
+      // DEC-EPIC001-DEPCHECK: API returns {"job": {...}}, not bare job object.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -95,7 +98,9 @@ class TaskRepository {
       if (deliver != null) body['deliver'] = deliver;
 
       final response = await _apiClient.post(ApiEndpoints.jobs, data: body);
-      return CronJob.fromJson(response);
+      // DEC-EPIC001-DEPCHECK: POST returns {"job": {...}}, not bare job object.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -109,6 +114,8 @@ class TaskRepository {
 
   /// Update an existing cron job.
   /// Only sends the fields that are provided (partial update).
+  ///
+  /// DEC-EPIC001-DEPCHECK: Uses PATCH (PUT returns 405 on Hermes API Server v0.18.2).
   Future<CronJob> update({
     required String id,
     String? prompt,
@@ -135,8 +142,10 @@ class TaskRepository {
       if (paused != null) body['paused'] = paused;
 
       final response =
-          await _apiClient.put(ApiEndpoints.jobById(id), data: body);
-      return CronJob.fromJson(response);
+          await _apiClient.patch(ApiEndpoints.jobById(id), data: body);
+      // DEC-EPIC001-DEPCHECK: PATCH returns {"job": {...}}, not bare job object.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -174,7 +183,9 @@ class TaskRepository {
     try {
       final response =
           await _apiClient.post('${ApiEndpoints.jobById(id)}/run');
-      return CronJob.fromJson(response);
+      // DEC-EPIC001-DEPCHECK: POST /run returns {"job": {...}}.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
     } on DioException catch (e) {
       if (kDebugMode) {
         debugPrint(

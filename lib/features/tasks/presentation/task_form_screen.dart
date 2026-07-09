@@ -225,7 +225,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
       final asyncJob = ref.watch(taskDetailProvider(widget.id!));
       if (asyncJob.isLoading) {
         return Scaffold(
-          backgroundColor: HermesColors.dark,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -243,7 +243,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
     }
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

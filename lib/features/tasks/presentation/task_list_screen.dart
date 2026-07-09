@@ -58,7 +58,7 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: HermesColors.dark,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -205,12 +205,6 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
                 color: HermesColors.textSecondary,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _navigateToCreate,
-              icon: const Icon(Icons.add, size: 20),
-              label: Text(AppStrings.createJob),
             ),
           ],
         ),

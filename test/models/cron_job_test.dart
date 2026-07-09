@@ -9,17 +9,17 @@ void main() {
         'id': 'job-123',
         'prompt': 'Summarize today news',
         'schedule': '0 9 * * *',
-        'status': 'active',
-        'last_run': 1700000000,
-        'next_run': 1700086400,
+        'state': 'active',
+        'last_run_at': 1700000000,
+        'next_run_at': 1700086400,
         'skills': ['news-summarizer', 'translation'],
-        'model_provider': 'deepseek',
-        'model_name': 'deepseek-v4-pro',
+        'provider': 'deepseek',
+        'model': 'deepseek-v4-pro',
         'name': 'Daily News',
         'deliver': 'telegram',
         'created_at': 1699900000,
         'last_error': null,
-        'paused': false,
+        'paused_at': null,
       };
 
       final job = CronJob.fromJson(json);
@@ -43,8 +43,8 @@ void main() {
         'id': 'job-1',
         'prompt': 'Test',
         'schedule': '* * * * *',
-        'last_run': '2026-07-05T09:00:00Z',
-        'next_run': '2026-07-06T09:00:00Z',
+        'last_run_at': '2026-07-05T09:00:00Z',
+        'next_run_at': '2026-07-06T09:00:00Z',
       };
 
       final job = CronJob.fromJson(json);
@@ -79,8 +79,8 @@ void main() {
         'id': 'job-1',
         'prompt': 'Test',
         'schedule': '* * * * *',
-        'last_run': null,
-        'next_run': null,
+        'last_run_at': null,
+        'next_run_at': null,
       };
 
       final job = CronJob.fromJson(json);
@@ -94,7 +94,7 @@ void main() {
         'id': 'job-1',
         'prompt': 'Test',
         'schedule': '* * * * *',
-        'last_run': 'not-a-date',
+        'last_run_at': 'not-a-date',
       };
 
       final job = CronJob.fromJson(json);

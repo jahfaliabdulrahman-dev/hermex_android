@@ -126,6 +126,19 @@ class ApiClient {
     return response.data ?? {};
   }
 
+  /// PATCH request with JSON body.
+  /// DEC-EPIC001-DEPCHECK: Added for cron job updates (PUT returns 405).
+  Future<Map<String, dynamic>> patch(
+    String path, {
+    Map<String, dynamic>? data,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      path,
+      data: data,
+    );
+    return response.data ?? {};
+  }
+
   /// DELETE request.
   Future<Map<String, dynamic>> delete(String path) async {
     final response =
