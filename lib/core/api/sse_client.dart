@@ -86,25 +86,34 @@ class SseClient {
           response.transform(utf8.decoder).transform(const LineSplitter());
 
       String currentData = '';
+      String currentEventType = '';
 
       await for (final line in lines) {
         if (_isDisposed) break;
 
-        if (line.startsWith('data: ')) {
+        if (line.startsWith('event: ')) {
+          currentEventType = line.substring(7).trim();
+        } else if (line.startsWith('data: ')) {
           final data = line.substring(6).trim();
           if (data == '[DONE]') {
             yield const StreamEvent.done();
             currentData = '';
+            currentEventType = '';
             continue;
           }
           currentData = data;
         } else if (line.isEmpty && currentData.isNotEmpty) {
           // Empty line = end of event block. Parse and emit.
-          final event = _parseEvent(currentData);
+          if (kDebugMode && currentEventType.isNotEmpty) {
+            debugPrint(
+                '=== HERMEX DEBUG: SSE event type=$currentEventType data=$currentData ===');
+          }
+          final event = parseEvent(currentData, currentEventType);
           if (event != null) yield event;
           currentData = '';
+          currentEventType = '';
         }
-        // Other lines (event:, id:, retry:) are ignored for now.
+        // Other lines (id:, retry:) are ignored.
       }
     } on StreamException {
       rethrow;
@@ -141,7 +150,13 @@ class SseClient {
 
   // ─── SSE Parsing ───
 
-  StreamEvent? _parseEvent(String data) {
+  /// Parse a single SSE event data line into a [StreamEvent].
+  ///
+  /// [eventType] is the value of the preceding `event:` SSE header line
+  /// (e.g., "assistant.delta", "tool.progress"), used to disambiguate
+  /// Hermes Agent API event formats that share overlapping JSON keys.
+  @visibleForTesting
+  StreamEvent? parseEvent(String data, [String eventType = '']) {
     // AUD-006: Reject oversized SSE events before parsing.
     if (data.length > SecurityLimits.maxSseEventSize) {
       if (kDebugMode) {
@@ -184,12 +199,45 @@ class SseClient {
         return null;
       }
 
-      // Tool progress events
+      // Tool progress events (OpenAI format)
       if (json.containsKey('tool')) {
         return StreamEvent.toolProgress(
           toolName: json['tool'] as String? ?? 'unknown',
           status: json['status'] as String? ?? 'started',
         );
+      }
+
+      // Hermes Agent tool.progress: {"tool_name": "...", "delta": "...", ...}
+      // Check BEFORE assistant.delta because both have a 'delta' key —
+      // tool.progress events must be routed to ToolProgress, not TextDelta.
+      if (json.containsKey('tool_name')) {
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: SSE Hermes Agent tool.progress — '
+              '${json['tool_name']} ===');
+        }
+        return StreamEvent.toolProgress(
+          toolName: json['tool_name'] as String? ?? 'unknown',
+          status: json['status'] as String? ?? 'started',
+        );
+      }
+
+      // Hermes Agent assistant.delta: {"delta": "text", "message": {...}}
+      // Gated on eventType to avoid false matches with other delta-bearing
+      // events (e.g., tool.progress which also contains a 'delta' key).
+      if (eventType == 'assistant.delta' && json.containsKey('delta')) {
+        final delta = json['delta'] as String?;
+        if (delta != null && delta.isNotEmpty) {
+          if (kDebugMode) {
+            final preview = delta.length > 50
+                ? '${delta.substring(0, 50)}...'
+                : delta;
+            debugPrint(
+                '=== HERMEX DEBUG: SSE Hermes Agent textDelta — "$preview" ===');
+          }
+          return StreamEvent.textDelta(text: delta);
+        }
+        return null; // empty delta in assistant.delta — skip
       }
 
       // Unknown event format — log and skip.

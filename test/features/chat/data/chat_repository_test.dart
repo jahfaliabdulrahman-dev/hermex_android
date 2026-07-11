@@ -44,14 +44,14 @@ void main() {
 
     test('GET /api/sessions/{id}/messages response: parses messages', () {
       final json = {
-        'messages': [
+        'data': [
           {'role': 'user', 'content': 'Hello'},
           {'role': 'assistant', 'content': 'Hi there!'},
           {'role': 'tool', 'content': 'Result', 'tool_name': 'search'},
         ],
       };
 
-      final messages = json['messages'] as List<dynamic>?;
+      final messages = json['data'] as List<dynamic>?;
       expect(messages, isNotNull);
       expect(messages!.length, 3);
 
@@ -65,9 +65,9 @@ void main() {
       expect(parsed[2].toolName, 'search');
     });
 
-    test('GET /api/sessions/{id}/messages response: handles null messages', () {
+    test('GET /api/sessions/{id}/messages response: handles null data', () {
       final json = <String, dynamic>{};
-      final messages = json['messages'] as List<dynamic>?;
+      final messages = json['data'] as List<dynamic>?;
       expect(messages, isNull);
     });
   });

@@ -403,3 +403,14 @@
 - **Root Cause:** The Kanban dependency model interprets `parents: [EPIC_ID]` as "wait for EPIC to finish first." But the EPIC card itself cannot finish until its children are done. This creates a deadlock: children wait for EPIC, EPIC waits for children — neither can transition.
 - **Prevention Rule:** NEVER set `parents: [EPIC_ID]` on sub-tasks of an EPIC. EPIC cards are decomposition markers, not actual dependencies. Child tasks should either (a) have no `parents`, or (b) depend on a single sequential predecessor task within the same EPIC. The EPIC card's own state transitions are managed by the orchestrator, not the dependency graph.
 - **Linked Decision ID:** N/A (Kanban usage pattern)
+
+### LL-042: GET /api/jobs excludes disabled/paused jobs by default — requires ?include_disabled=true
+- **Date:** 2026-07-12
+- **Stage:** T3-3 Investigation (API mismatch)
+- **Files Affected:** lib/features/tasks/data/task_repository.dart, app-spec/06_api_contract.md
+- **Lesson:** The Hermes API Server's `GET /api/jobs` endpoint defaults `include_disabled` to `false`, returning only enabled/active jobs. Paused jobs (`enabled: false`, `state: "paused"`) are silently excluded. The Hermex Flutter client's `TaskRepository.getAll()` was not passing `include_disabled=true`, so the Tasks page showed zero jobs despite 4 paused jobs existing in `~/.hermes/cron/jobs.json`.
+- **Root Cause:** API contract spec (`06_api_contract.md` line 302) incorrectly stated "Returns all jobs regardless of status (active, paused, scheduled, etc.)" The actual default behavior excludes disabled jobs. The `include_disabled` query parameter was not documented in the spec, and the Flutter client did not pass it.
+- **Verification:** `curl "http://localhost:8642/api/jobs"` → `{"jobs": []}`; `curl "http://localhost:8642/api/jobs?include_disabled=true"` → returns all 4 paused jobs. `hermes cron list` (CLI) also defaults to `include_disabled=False`.
+- **Prevention Rule:** Always test API endpoints with `?include_disabled=true` when paused/disabled entities are expected. Document ALL query parameters in `06_api_contract.md`. For Flutter clients fetching entity lists that include paused items, always pass `include_disabled=true`.
+- **Fix (Hermex):** Add `'include_disabled': 'true'` to `queryParameters` in `TaskRepository.getAll()` (line 31 of `task_repository.dart`).
+- **Linked Decision ID:** DEC-T3-JOBSFILTER

@@ -83,8 +83,20 @@ class ChatRepository {
       final json = await _apiClient.get(
         ApiEndpoints.sessionMessages(sessionId),
       );
-      final messages = json['messages'] as List<dynamic>?;
-      if (messages == null) return [];
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatRepository.getSessionMessages — '
+          'response keys=${json.keys.toList()} ===');
+      }
+      final messages = json['data'] as List<dynamic>?;
+      if (messages == null) {
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatRepository.getSessionMessages — '
+            'no "data" key in response. Present keys: ${json.keys.toList()} ===');
+        }
+        return [];
+      }
 
       return messages
           .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))

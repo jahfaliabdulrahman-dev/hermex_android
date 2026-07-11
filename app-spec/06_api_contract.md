@@ -2,7 +2,7 @@
 
 > Hermes Agent API Server is OpenAI-compatible. Full spec: `hermes-agent/website/docs/user-guide/features/api-server.md`
 >
-> **Last Updated:** 2026-07-12 (added pause/resume, run, delete, PATCH endpoints; corrected GET /api/jobs response shape — DEC-T2-PAUSERESUME)
+> **Last Updated:** 2026-07-12 (added pause/resume, run, delete, PATCH endpoints; corrected GET /api/jobs response shape — DEC-T2-PAUSERESUME; added include_disabled query param — DEC-T3-JOBSFILTER)
 
 ## Key Endpoints
 
@@ -299,7 +299,7 @@ OR directly as a string (server-dependent):
 
 ## GET /api/jobs
 
-Returns a paginated list of cron jobs wrapped in a `jobs` key. Returns all jobs regardless of status (active, paused, scheduled, etc.).
+Returns a paginated list of cron jobs wrapped in a `jobs` key. By default, only **enabled** jobs are returned (include_disabled defaults to false). Pass `?include_disabled=true` to include paused/disabled jobs.
 
 ### Request
 
@@ -311,6 +311,7 @@ Authorization: Bearer ***
 | Query Param | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `per_page` | integer | no | 50 | Number of jobs per page |
+| `include_disabled` | boolean | no | false | Include paused/disabled jobs in results |
 
 No request body.
 

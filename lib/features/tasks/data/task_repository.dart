@@ -28,7 +28,7 @@ class TaskRepository {
       // Pass per_page=50 to avoid default server pagination (which may limit to 2).
       final response = await _apiClient.get(
         ApiEndpoints.jobs,
-        queryParameters: {'per_page': 50},
+        queryParameters: {'per_page': 50, 'include_disabled': 'true'},
       );
       final jobsList = response['jobs'] as List<dynamic>? ?? [];
       return jobsList
