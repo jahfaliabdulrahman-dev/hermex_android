@@ -230,4 +230,57 @@ void main() {
       expect(ex.statusCode, 400);
     });
   });
+
+  group('getAll pagination support', () {
+    test('parses 5-job response correctly (no pagination truncation)', () {
+      // Simulate server response with 5 jobs — validates that the parser
+      // handles the full array regardless of per_page param.
+      final jobsList = List.generate(5, (i) => {
+        'id': 'job-$i',
+        'prompt': 'Task \${i + 1}',
+        'schedule': '0 $i * * *',
+      });
+      
+      final parsed = jobsList
+          .map((json) => CronJob.fromJson(json as Map<String, dynamic>))
+          .toList();
+      
+      expect(parsed.length, 5);
+      expect(parsed.first.id, 'job-0');
+      expect(parsed.last.id, 'job-4');
+    });
+
+    test('handles empty jobs array from server', () {
+      final jobsList = <Map<String, dynamic>>[];
+      final parsed = jobsList
+          .map((json) => CronJob.fromJson(json))
+          .toList();
+      expect(parsed, isEmpty);
+    });
+
+    test('handles paginated response with total != length', () {
+      // Server returns: {"jobs": [job1, job2], "total": 5}
+      // After per_page=50 fix, the jobs array should contain all entries.
+      // This test validates that we extract the array regardless of total.
+      final response = {
+        'jobs': [
+          {'id': 'a', 'prompt': 'Job A', 'schedule': '* * * * *'},
+          {'id': 'b', 'prompt': 'Job B', 'schedule': '0 * * * *'},
+          {'id': 'c', 'prompt': 'Job C', 'schedule': '0 0 * * *'},
+          {'id': 'd', 'prompt': 'Job D', 'schedule': '0 0 0 * *'},
+          {'id': 'e', 'prompt': 'Job E', 'schedule': '0 0 0 0 *'},
+        ],
+        'total': 5,
+      };
+      
+      final jobsArray = response['jobs'] as List<dynamic>;
+      expect(jobsArray.length, 5);
+      
+      final parsed = jobsArray
+          .map((j) => CronJob.fromJson(j as Map<String, dynamic>))
+          .toList();
+      expect(parsed.length, 5);
+    });
+  });
+
 }

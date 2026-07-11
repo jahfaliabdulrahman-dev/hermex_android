@@ -92,6 +92,10 @@ class TaskListState {
 class TaskListNotifier extends Notifier<TaskListState> {
   TaskRepository? _repository;
 
+  /// Guards against concurrent _loadJobs() calls.
+  /// Separate from [TaskListState.isBusy] which is for per-row UI indicators.
+  bool _isLoadingJobs = false;
+
   @override
   TaskListState build() {
     // Auto-load jobs when the widget tree is ready.
@@ -155,7 +159,9 @@ class TaskListNotifier extends Notifier<TaskListState> {
     }
 
     // Prevent duplicate loads.
-    if (state.status == TaskLoadStatus.loading || state.isBusy) {
+    // Uses private _isLoadingJobs flag — state.isBusy is for per-row UI indicators
+    // and must not block internal refresh calls from mutation methods.
+    if (state.status == TaskLoadStatus.loading || _isLoadingJobs) {
       if (kDebugMode) {
         debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier._loadJobs — blocked: already loading ===');
@@ -172,6 +178,7 @@ class TaskListNotifier extends Notifier<TaskListState> {
       return;
     }
 
+    _isLoadingJobs = true;
     state = state.copyWith(
       status: TaskLoadStatus.loading,
       errorMessage: null,
@@ -180,11 +187,13 @@ class TaskListNotifier extends Notifier<TaskListState> {
 
     try {
       final jobs = await repo.getAll();
+      _isLoadingJobs = false;
       state = state.copyWith(
         status: TaskLoadStatus.success,
         jobs: jobs,
       );
     } catch (e) {
+      _isLoadingJobs = false;
       if (kDebugMode) {
         debugPrint(
           '=== HERMEX DEBUG: TaskListNotifier._loadJobs — error: $e ===');

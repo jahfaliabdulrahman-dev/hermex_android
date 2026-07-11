@@ -25,7 +25,11 @@ class TaskRepository {
       debugPrint('=== HERMEX DEBUG: TaskRepository.getAll ===');
     }
     try {
-      final response = await _apiClient.get(ApiEndpoints.jobs);
+      // Pass per_page=50 to avoid default server pagination (which may limit to 2).
+      final response = await _apiClient.get(
+        ApiEndpoints.jobs,
+        queryParameters: {'per_page': 50},
+      );
       final jobsList = response['jobs'] as List<dynamic>? ?? [];
       return jobsList
           .map((json) {
