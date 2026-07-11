@@ -306,7 +306,10 @@ class ChatNotifier extends Notifier<ChatState> {
           model: state.selectedModelId!,
         );
       } else {
-        final history = _buildHistory();
+        // REG-1: Exclude the just-appended user message from history.
+        // It is passed separately as the 'message' parameter and
+        // must not be duplicated in history.
+        final history = _buildHistory(excludeLastUserMessage: true);
         stream = _repository!.streamChatCompletion(
           message: trimmed,
           model: state.selectedModelId!,
@@ -554,11 +557,27 @@ class ChatNotifier extends Notifier<ChatState> {
 
   // ─── Internal: Helpers ─────────────────────────────────────────────────
 
-  /// Build message history as a list of JSON maps for the API.
-  /// Excludes the currently-streaming message and limits to last 20.
-  List<Map<String, dynamic>> _buildHistory() {
-    return state.messages
-        .where((m) => !m.isStreaming && m.role != 'tool' && m.role != 'system')
+  /// Build chat history for API requests.
+  ///
+  /// When [excludeLastUserMessage] is true, the last user message in state
+  /// is excluded from history. This is used by the non-session path where
+  /// the current user message is passed separately as the 'message' parameter
+  /// and must not be duplicated in history (REG-1).
+  List<Map<String, dynamic>> _buildHistory({
+    bool excludeLastUserMessage = false,
+  }) {
+    var messages = state.messages
+        .where((m) => !m.isStreaming && m.role != 'tool' && m.role != 'system');
+
+    if (excludeLastUserMessage) {
+      final list = messages.toList();
+      if (list.isNotEmpty && list.last.role == 'user') {
+        list.removeLast();
+      }
+      messages = list;
+    }
+
+    return messages
         .map((m) => {
               'role': m.role,
               'content': m.content,
