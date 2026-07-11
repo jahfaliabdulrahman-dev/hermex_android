@@ -17,11 +17,13 @@ class _FakeHttpAdapter implements HttpClientAdapter {
   final int statusCode;
   final String statusMessage;
   final Object? responseBody;
+  final Duration delay;
 
   _FakeHttpAdapter({
     required this.statusCode,
     this.statusMessage = 'OK',
     this.responseBody,
+    this.delay = Duration.zero,
   });
 
   @override
@@ -30,6 +32,10 @@ class _FakeHttpAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    if (delay > Duration.zero) {
+      await Future<void>.delayed(delay);
+    }
+
     final bodyBytes = utf8.encode(
       responseBody is String
           ? responseBody as String
