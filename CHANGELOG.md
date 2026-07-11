@@ -2,7 +2,26 @@
 
 > All notable changes to Hermex Android are documented here.
 
-## [0.1.0-rc4] — 2026-07-11
+## [0.1.0-rc5] — 2026-07-11
+
+### Fixed
+
+- **REG-1: Chat duplicate message on non-session history** — Fixed bug where sending a message without an active session created a duplicate user message in the API request body, causing Hermes API to reject with "Invalid argument: Contains invalid characters." The state mutation order was corrected: `_buildHistory()` now runs BEFORE `state.copyWith()` adds the new message. (LL-029 rule codified via LL-038)
+- **REG-2: Light theme tokens not wired** — `AppTheme.buildLight()` was defined with full color tokens but never connected to the widget tree via `MaterialApp.themeMode`. Light mode now renders correct colors (cyanAdapted `#0077A3`, light surface, text, and outline tokens). Added `onSurfaceVariant` token to both dark and light color schemes. (hotfix b6445df, feat 4998d31)
+- **REG-3: ApiException.toString() server body leak** — `ApiException.toString()` exposed raw server response body in debug logs and error messages, risking internal server data leak to UI. Fixed by implementing safe string representation. (fd608c9, 5ae2e66)
+- **REG-4: _sanitizeError() removed causing server body leak** — The `_sanitizeError()` method was inadvertently removed during a refactor, causing raw server error body to be displayed in UI error toasts. Restored with test coverage. (d255d74)
+
+### Removed
+
+- **RC4 takedown** — RC4 release was pulled due to REG-2 (light theme unreachable), REG-3 (API leak), and REG-4 (server body leak). Users are advised to update to RC5.
+
+### Technical
+
+- `flutter analyze` — 0 errors (3 issues: 1 const-eval in chat_input.dart, 1 unused param in test, 1 const constructor lint — non-blocking)
+- `flutter test` — 484/484 passing
+- Baseline commit: `4998d31`
+
+## [0.1.0-rc4]
 
 ### Added
 

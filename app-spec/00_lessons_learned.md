@@ -361,3 +361,43 @@
 - **Root Cause:** The branch contained orphaned WIP commits from a prior worker that did a force-push or rebase cleanup without removing the stale commit. No branch hygiene rule prevented stale/incomplete commits from accumulating on shared branches.
 - **Prevention Rule:** Before starting work on a shared branch, run `git log --oneline -5` and verify the HEAD commit matches the expected baseline. If stale WIP commits are present, either (a) `git reset --hard` to the last clean commit, or (b) cherry-pick only completed fixes and abandon the WIP commit. Document the baseline commit ID in the task body.
 - **Linked Decision ID:** N/A (branch hygiene)
+
+---
+
+## 2026-07-11 — RC5 Regression Fixes & Governance
+
+### LL-038: Incomplete fix marked done — theme tokens defined but not wired
+- **Date:** 2026-07-11
+- **Stage:** RC5 Regression Fixes
+- **Files Affected:** `lib/core/theme/`, `app-spec/04_ui_design_system.md`
+- **Lesson:** Theme color tokens for light mode were defined in `HermesColors` constants and `04_ui_design_system.md` §1.5, but `AppTheme.buildLight()` was never wired into the widget tree — making the entire light theme unreachable despite all declarations being marked complete.
+- **Root Cause:** The prior agent defined tokens and spec sections as "done" without verifying the end-to-end wiring: `ThemeData` → `MaterialApp.themeMode` → `ThemeMode.light`. No test verified that swapping to light theme actually renders light colors.
+- **Prevention Rule:** A spec token definition is NOT "done" until the widget tree consumes it. Define a test that toggles `ThemeMode.light` and asserts at least one visible element uses a light-mode color. Document wire-up as a separate AC in the feature task.
+- **Linked Decision ID:** DEC-045
+
+### LL-039: Release published before gates passed — build gate bypass
+- **Date:** 2026-07-11
+- **Stage:** RC5 Post-Mortem
+- **Files Affected:** `CHANGELOG.md`, Release process, Kanban release tasks
+- **Lesson:** The RC4 release was published (CHANGELOG written, APK built, branch pushed) before all DEC-045 spec sync gates had passed. The build gate was bypassed, leading to an RC4 takedown and forcing an RC5 regression release.
+- **Root Cause:** No hard gate prevented `flutter build apk` from executing when the spec sync gate was still RED. The Kanban pipeline allowed the RELEASE task to claim readiness without awaiting the stage-gate signal.
+- **Prevention Rule:** The RELEASE task MUST check DEC-045_GATE status before running `flutter build apk`. If the gate is RED, the build is blocked. Add a pre-build verification step to the DevOps release workflow.
+- **Linked Decision ID:** DEC-045
+
+### LL-040: Gate tasks marked done without actual validation
+- **Date:** 2026-07-11
+- **Stage:** RC5 Post-Mortem
+- **Files Affected:** Kanban task descriptions, verification task bodies
+- **Lesson:** Gate tasks (verification, QA, audit) were marked "done" on the Kanban board without actual validation — the worker ticked the completion checkbox without running the specified checks or producing verifiable evidence.
+- **Root Cause:** No enforcement mechanism required gate tasks to output verifiable evidence (e.g., test logs, diff output, health check results) before transitioning to done. The Kanban board had no "results required" column rule.
+- **Prevention Rule:** Gate tasks MUST include a "Results / Evidence" field in their body that MUST be populated with verifiable output (test run log, screenshot, diff) before the task can be completed. Automated guard: a gate task with empty evidence field cannot transition to "done."
+- **Linked Decision ID:** DEC-045
+
+### LL-041: EPIC child tasks with `parents: [EPIC_ID]` cause dispatch deadlock
+- **Date:** 2026-07-11
+- **Stage:** RC5 Coordination
+- **Files Affected:** Kanban dispatch logic, EPIC task definitions
+- **Lesson:** Creating EPIC child tasks with `parents: [EPIC_ID]` caused a dispatch deadlock — the EPIC card could not reach "done" until ALL child tasks completed, but the child tasks had the EPIC as a parent dependency, creating a circular dependency that stopped the Kanban pipeline entirely.
+- **Root Cause:** The Kanban dependency model interprets `parents: [EPIC_ID]` as "wait for EPIC to finish first." But the EPIC card itself cannot finish until its children are done. This creates a deadlock: children wait for EPIC, EPIC waits for children — neither can transition.
+- **Prevention Rule:** NEVER set `parents: [EPIC_ID]` on sub-tasks of an EPIC. EPIC cards are decomposition markers, not actual dependencies. Child tasks should either (a) have no `parents`, or (b) depend on a single sequential predecessor task within the same EPIC. The EPIC card's own state transitions are managed by the orchestrator, not the dependency graph.
+- **Linked Decision ID:** N/A (Kanban usage pattern)
