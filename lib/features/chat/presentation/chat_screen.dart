@@ -88,7 +88,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
         0, // reversed list — bottom is at 0
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
@@ -122,7 +122,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           // New chat button.
           IconButton(
-            icon: const Icon(Icons.add_comment_outlined),
+            icon: Icon(Icons.add_comment_outlined),
             tooltip: 'New Chat',
             onPressed: () {
               _textController.clear();
@@ -134,7 +134,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               });
             },
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
         ],
       ),
       body: Column(
@@ -163,8 +163,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       floatingActionButton: _showScrollFab
           ? FloatingActionButton.small(
               onPressed: _scrollToBottom,
-              backgroundColor: HermesColors.surface,
-              child: const Icon(Icons.arrow_downward, color: HermesColors.cyan),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              child: Icon(Icons.arrow_downward, color: HermesColors.cyan),
             )
           : null,
     );
@@ -226,14 +226,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildMessageList(ChatState state) {
     // Loading history.
     if (state.isLoadingHistory) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: HermesColors.cyan),
       );
     }
 
     // Loading models (initial state).
     if (!state.isInitialized) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: HermesColors.cyan),
       );
     }
@@ -249,14 +249,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               size: 64,
               color: HermesColors.textDisabled.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Start a conversation with Hermes',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (state.availableModels.isNotEmpty)
               Text(
                 'Using ${state.selectedModelId ?? "default model"}',
@@ -298,8 +298,8 @@ class _ErrorBanner extends StatelessWidget {
       color: HermesColors.error.withValues(alpha: 0.15),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: HermesColors.error, size: 18),
-          const SizedBox(width: 8),
+          Icon(Icons.error_outline, color: HermesColors.error, size: 18),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
@@ -314,7 +314,7 @@ class _ErrorBanner extends StatelessWidget {
             onTap: () {
               // Clear error via provider — handled by chat provider.
             },
-            child: const Icon(Icons.close, color: HermesColors.error, size: 18),
+            child: Icon(Icons.close, color: HermesColors.error, size: 18),
           ),
         ],
       ),
@@ -327,10 +327,10 @@ class _LoadingInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: HermesColors.surface,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          top: BorderSide(color: HermesColors.border, width: 0.5),
+          top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
         ),
       ),
       padding: EdgeInsets.only(
@@ -339,7 +339,7 @@ class _LoadingInput extends StatelessWidget {
         top: 12,
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
-      child: const Row(
+      child: Row(
         children: [
           SizedBox(
             width: 16,
@@ -352,7 +352,7 @@ class _LoadingInput extends StatelessWidget {
           SizedBox(width: 12),
           Text(
             'Connecting to server...',
-            style: TextStyle(color: HermesColors.textSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),

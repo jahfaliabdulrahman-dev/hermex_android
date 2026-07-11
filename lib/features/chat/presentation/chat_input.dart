@@ -13,7 +13,7 @@ class ChatInput extends StatelessWidget {
  final bool isStreaming;
  final VoidCallback onSend;
 
- ChatInput({
+ const ChatInput({
  super.key,
  required this.controller,
  required this.isStreaming,

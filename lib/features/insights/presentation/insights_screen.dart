@@ -34,34 +34,34 @@ class InsightsScreen extends ConsumerWidget {
         title: Text(
           AppStrings.insights,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: HermesColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: insightsAsync.when(
-        loading: () => const Center(
+        loading: () => Center(
           child: CircularProgressIndicator(color: HermesColors.cyan),
         ),
-        error: (error, stack) => _buildErrorState(error.toString(), theme, ref),
-        data: (data) => _buildContent(data, theme, ref),
+        error: (error, stack) => _buildErrorState(context, error.toString(), theme, ref),
+        data: (data) => _buildContent(data, theme, ref, context),
       ),
     );
   }
 
-  Widget _buildContent(InsightsData data, ThemeData theme, WidgetRef ref) {
+  Widget _buildContent(InsightsData data, ThemeData theme, WidgetRef ref, BuildContext context) {
     // Check if data is essentially empty (all zeros).
     final isEmpty = data.totalSessions == 0 &&
         data.totalMessages == 0 &&
         data.totalTokens == 0;
 
     if (isEmpty) {
-      return _buildEmptyState(theme);
+      return _buildEmptyState(context, theme);
     }
 
     return RefreshIndicator(
@@ -72,20 +72,20 @@ class InsightsScreen extends ConsumerWidget {
         children: [
           // ─── Primary Stats Grid ───
           _buildSectionHeader(AppStrings.insights, theme),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildStatsGrid(data, theme),
 
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // ─── Secondary Stats ───
           _buildSectionHeader('Activity', theme),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _buildSecondaryStats(data, theme),
 
           // ─── Last Synced ───
           if (data.lastSynced != null) ...[
-            const SizedBox(height: 32),
-            _buildLastSynced(data, theme),
+            SizedBox(height: 32),
+            _buildLastSynced(context, data, theme),
           ],
         ],
       ),
@@ -113,7 +113,7 @@ class InsightsScreen extends ConsumerWidget {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
       childAspectRatio: 1.3,
@@ -157,7 +157,7 @@ class InsightsScreen extends ConsumerWidget {
             color: HermesColors.info,
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Expanded(
           child: _StatCard(
             icon: Icons.extension_outlined,
@@ -170,18 +170,18 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLastSynced(InsightsData data, ThemeData theme) {
+  Widget _buildLastSynced(BuildContext context, InsightsData data, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: HermesColors.border, width: 0.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 0.5),
       ),
       child: Row(
         children: [
           Icon(Icons.sync, size: 16, color: HermesColors.textDisabled),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             '${AppStrings.lastSynced}: ${_formatDateTime(data.lastSynced!)}',
             style: theme.textTheme.labelSmall?.copyWith(
@@ -195,7 +195,7 @@ class InsightsScreen extends ConsumerWidget {
 
   // ─── States ───
 
-  Widget _buildEmptyState(ThemeData theme) {
+  Widget _buildEmptyState(BuildContext context, ThemeData theme) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -207,19 +207,19 @@ class InsightsScreen extends ConsumerWidget {
               size: 64,
               color: HermesColors.textDisabled,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               AppStrings.noInsightsAvailable,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               AppStrings.startUsingAgentForData,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -229,19 +229,19 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(String error, ThemeData theme, WidgetRef ref) {
+  Widget _buildErrorState(BuildContext context, String error, ThemeData theme, WidgetRef ref) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 48,
               color: HermesColors.error,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadInsights,
               style: theme.textTheme.titleMedium?.copyWith(
@@ -249,20 +249,20 @@ class InsightsScreen extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               error,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: () => ref.invalidate(insightsProvider),
-              icon: const Icon(Icons.refresh, size: 18),
+              icon: Icon(Icons.refresh, size: 18),
               label: Text(AppStrings.retry),
             ),
           ],
@@ -304,10 +304,10 @@ class _StatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: HermesColors.border, width: 0.5),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -316,21 +316,21 @@ class _StatCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Icon(icon, color: color, size: 24),
-            const Spacer(),
+            Spacer(),
             Text(
               value,
               style: theme.textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

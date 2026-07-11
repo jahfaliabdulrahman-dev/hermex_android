@@ -50,7 +50,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         await ref.read(sessionsNotifierProvider.notifier).deleteSession(id);
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session deleted')),
+        SnackBar(content: Text('Session deleted')),
       );
     }
   }
@@ -111,7 +111,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
           SnackBar(
             content: Text(next.errorMessage!),
             backgroundColor: HermesColors.error,
-            duration: const Duration(seconds: 4),
+            duration: Duration(seconds: 4),
           ),
         );
       }
@@ -133,7 +133,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         title: Text(
           AppStrings.sessions,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
         ),
@@ -144,7 +144,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
               uiState.showArchived ? Icons.archive : Icons.archive_outlined,
               color: uiState.showArchived
                   ? HermesColors.cyan
-                  : HermesColors.textSecondary,
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             tooltip: uiState.showArchived
                 ? 'Show Active'
@@ -184,8 +184,8 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _handleCreateSession,
-              icon: const Icon(Icons.add),
-              label: const Text('New Chat'),
+              icon: Icon(Icons.add),
+              label: Text('New Chat'),
             ),
     );
   }
@@ -200,16 +200,16 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         onChanged: (value) {
           ref.read(sessionsNotifierProvider.notifier).setSearchQuery(value);
         },
-        style: const TextStyle(color: HermesColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: AppStrings.searchSessions,
-          hintStyle: const TextStyle(color: HermesColors.textDisabled),
+          hintStyle: TextStyle(color: HermesColors.textDisabled),
           prefixIcon:
-              const Icon(Icons.search, color: HermesColors.textSecondary),
+              Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
-                  color: HermesColors.textSecondary,
+                  icon: Icon(Icons.clear, size: 18),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   onPressed: () {
                     _searchController.clear();
                     ref
@@ -219,20 +219,20 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                 )
               : null,
           filled: true,
-          fillColor: HermesColors.surface,
+          fillColor: Theme.of(context).colorScheme.surface,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+            borderSide: BorderSide(color: HermesColors.cyan, width: 2),
           ),
         ),
       ),
@@ -246,11 +246,11 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
       color: HermesColors.warning.withValues(alpha: 0.15),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off, color: HermesColors.warning, size: 16),
-          const SizedBox(width: 8),
+          Icon(Icons.cloud_off, color: HermesColors.warning, size: 16),
+          SizedBox(width: 8),
           Text(
             AppStrings.offlineCachedData,
-            style: const TextStyle(
+            style: TextStyle(
               color: HermesColors.warning,
               fontSize: 12,
             ),
@@ -292,7 +292,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Card(
-            color: HermesColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -303,17 +303,17 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                     height: 16,
                     width: 180,
                     decoration: BoxDecoration(
-                      color: HermesColors.border,
+                      color: Theme.of(context).colorScheme.outline,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   // Subtitle skeleton.
                   Container(
                     height: 12,
                     width: 120,
                     decoration: BoxDecoration(
-                      color: HermesColors.border.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -355,17 +355,17 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
               size: 64,
               color: HermesColors.textDisabled,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               uiState.showArchived
                   ? 'No Archived Sessions'
                   : AppStrings.noSessionsYet,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -373,7 +373,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             if (actionLabel != null)
               ElevatedButton.icon(
                 onPressed: () {
@@ -407,12 +407,12 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.cloud_off,
               size: 64,
               color: HermesColors.error,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadSessions,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -420,23 +420,23 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               message,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
                 ref.invalidate(sessionListProvider);
               },
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text(AppStrings.retry),
+              icon: Icon(Icons.refresh, size: 18),
+              label: Text(AppStrings.retry),
             ),
           ],
         ),
@@ -450,9 +450,9 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: HermesColors.surface,
-        title: const Text(AppStrings.deleteSession),
-        content: const Text(AppStrings.deleteSessionConfirm),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(AppStrings.deleteSession),
+        content: Text(AppStrings.deleteSessionConfirm),
         actions: [
           TextButton(
             onPressed: () {
@@ -461,7 +461,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                   .dismissDeleteConfirmation();
               Navigator.of(ctx).pop();
             },
-            child: const Text(AppStrings.cancel),
+            child: Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -471,7 +471,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
             style: TextButton.styleFrom(
               foregroundColor: HermesColors.error,
             ),
-            child: const Text(AppStrings.delete),
+            child: Text(AppStrings.delete),
           ),
         ],
       ),
@@ -517,7 +517,7 @@ class _SessionCard extends ConsumerWidget {
             color: HermesColors.error.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: HermesColors.white),
+          child: Icon(Icons.delete, color: HermesColors.white),
         ),
         confirmDismiss: (direction) async {
           ref
@@ -527,13 +527,13 @@ class _SessionCard extends ConsumerWidget {
         },
         child: Card(
           margin: EdgeInsets.zero,
-          color: HermesColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
               color: session.isPinned
                   ? HermesColors.cyan.withValues(alpha: 0.3)
-                  : HermesColors.border,
+                  : Theme.of(context).colorScheme.outline,
             ),
           ),
           child: InkWell(
@@ -549,7 +549,7 @@ class _SessionCard extends ConsumerWidget {
                       width: 8,
                       height: 8,
                       margin: const EdgeInsets.only(right: 10),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: HermesColors.success,
                         shape: BoxShape.circle,
                       ),
@@ -564,7 +564,7 @@ class _SessionCard extends ConsumerWidget {
                         Row(
                           children: [
                             if (session.isPinned)
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(right: 4),
                                 child: Icon(
                                   Icons.push_pin,
@@ -573,7 +573,7 @@ class _SessionCard extends ConsumerWidget {
                                 ),
                               ),
                             if (session.isArchived)
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.only(right: 4),
                                 child: Icon(
                                   Icons.archive,
@@ -585,7 +585,7 @@ class _SessionCard extends ConsumerWidget {
                               child: Text(
                                 displayTitle,
                                 style: theme.textTheme.titleSmall?.copyWith(
-                                  color: HermesColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.w600,
                                 ),
                                 maxLines: 1,
@@ -594,7 +594,7 @@ class _SessionCard extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         // Subtitle row.
                         Row(
                           children: [
@@ -604,25 +604,25 @@ class _SessionCard extends ConsumerWidget {
                                 size: 12,
                                 color: HermesColors.textDisabled,
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 session.modelName!,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: HermesColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                             ],
                             Icon(
                               Icons.chat_bubble_outline,
                               size: 12,
                               color: HermesColors.textDisabled,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4),
                             Text(
                               '${session.messageCount}',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: HermesColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -642,28 +642,28 @@ class _SessionCard extends ConsumerWidget {
                             color: HermesColors.textDisabled,
                           ),
                         ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       PopupMenuButton<String>(
                         padding: EdgeInsets.zero,
                         iconSize: 18,
-                        color: HermesColors.surface,
-                        icon: const Icon(
+                        color: Theme.of(context).colorScheme.surface,
+                        icon: Icon(
                           Icons.more_vert,
-                          color: HermesColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         onSelected: (action) {
                           _handleAction(action, session, ref);
                         },
                         itemBuilder: (_) => [
                           if (!uiState.isOffline) ...[
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'rename',
                               child: ListTile(
                                 leading: Icon(Icons.edit,
                                     size: 18, color: HermesColors.cyan),
                                 title: Text('Rename',
                                     style:
-                                        TextStyle(color: HermesColors.textPrimary)),
+                                        TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
@@ -680,8 +680,8 @@ class _SessionCard extends ConsumerWidget {
                                 ),
                                 title: Text(
                                   session.isPinned ? 'Unpin' : 'Pin',
-                                  style: const TextStyle(
-                                      color: HermesColors.textPrimary),
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface),
                                 ),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -703,30 +703,30 @@ class _SessionCard extends ConsumerWidget {
                                   session.isArchived
                                       ? 'Unarchive'
                                       : 'Archive',
-                                  style: const TextStyle(
-                                      color: HermesColors.textPrimary),
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface),
                                 ),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'fork',
                               child: ListTile(
                                 leading: Icon(Icons.call_split,
                                     size: 18, color: HermesColors.info),
                                 title: Text('Fork',
                                     style:
-                                        TextStyle(color: HermesColors.textPrimary)),
+                                        TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             ),
                           ],
-                          const PopupMenuDivider(),
+                          PopupMenuDivider(),
                           PopupMenuItem(
                             value: 'delete',
-                            child: const ListTile(
+                            child: ListTile(
                               leading: Icon(Icons.delete,
                                   size: 18, color: HermesColors.error),
                               title: Text('Delete',
