@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/colors.dart';
 
@@ -19,7 +18,8 @@ class HermesMarkdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final codeStyle = GoogleFonts.jetBrainsMono(
+    final codeStyle = const TextStyle(
+      fontFamily: 'JetBrainsMono',
       fontSize: 13,
       height: 20 / 13,
       color: HermesColors.textPrimary,
