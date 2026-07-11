@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/route_paths.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../features/connection/providers/connection_provider.dart';
 import '../../../models/server_config.dart';
 import '../providers/settings_provider.dart';
@@ -43,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
         title: Text(
           AppStrings.settings,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -89,7 +90,7 @@ class SettingsScreen extends ConsumerWidget {
 
           // ─── Danger Zone ───
           _buildSectionHeader('Danger Zone', Icons.warning_amber_outlined, theme,
-              color: HermesColors.error),
+              color: Theme.of(context).colorScheme.error),
           const SizedBox(height: 12),
           _buildDangerZone(context, ref, theme),
 
@@ -112,12 +113,12 @@ class SettingsScreen extends ConsumerWidget {
       {Color? color}) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: color ?? HermesColors.cyan),
+        Icon(icon, size: 20, color: color ?? Theme.of(context).colorScheme.secondary),
         const SizedBox(width: 8),
         Text(
           title,
           style: theme.textTheme.titleSmall?.copyWith(
-            color: color ?? HermesColors.cyan,
+            color: color ?? Theme.of(context).colorScheme.secondary,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -133,12 +134,12 @@ class SettingsScreen extends ConsumerWidget {
       return _buildCard(
         child: Column(
           children: [
-            Icon(Icons.dns_outlined, color: HermesColors.textDisabled, size: 32),
+            Icon(Icons.dns_outlined, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 32),
             const SizedBox(height: 8),
             Text(
               AppStrings.noSavedServers,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 12),
@@ -163,13 +164,13 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _handleServerTap(ref, server, isActive),
             );
           }),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           TextButton.icon(
             onPressed: () => context.push(RoutePaths.servers),
             icon: const Icon(Icons.edit_outlined, size: 18),
             label: Text('Manage Servers'),
             style: TextButton.styleFrom(
-              foregroundColor: HermesColors.cyan,
+              foregroundColor: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ],
@@ -200,9 +201,9 @@ class SettingsScreen extends ConsumerWidget {
               value: mode,
               title: Text(
                 mode.displayName,
-                style: TextStyle(color: HermesColors.textPrimary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
-              activeColor: HermesColors.cyan,
+              activeColor: Theme.of(context).colorScheme.secondary,
               dense: true,
               contentPadding: EdgeInsets.zero,
             );
@@ -221,22 +222,22 @@ class SettingsScreen extends ConsumerWidget {
     return _buildCard(
       child: TextFormField(
         controller: controller,
-        style: TextStyle(color: HermesColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: 'e.g., deepseek-v4-pro',
-          hintStyle: TextStyle(color: HermesColors.textDisabled),
-          prefixIcon: const Icon(Icons.smart_toy, color: HermesColors.cyan),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+          prefixIcon: Icon(Icons.smart_toy, color: Theme.of(context).colorScheme.secondary),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -256,13 +257,13 @@ class SettingsScreen extends ConsumerWidget {
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: CircleAvatar(
-          backgroundColor: HermesColors.cyan.withValues(alpha: 0.2),
-          child: const Icon(Icons.person, color: HermesColors.cyan),
+          backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+          child: Icon(Icons.person, color: Theme.of(context).colorScheme.secondary),
         ),
         title: Text(
           connectionState.activeServer?.name ?? 'Not connected',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         subtitle: Text(
@@ -270,7 +271,7 @@ class SettingsScreen extends ConsumerWidget {
               ? connectionState.activeServer!.url
               : 'No active server',
           style: theme.textTheme.labelSmall?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -286,58 +287,58 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.psychology_outlined,
-                color: HermesColors.cyan),
+                color: Theme.of(context).colorScheme.secondary),
             title: Text(
               AppStrings.skills,
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               AppStrings.skillsSubtitle,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () => context.push(RoutePaths.skills),
           ),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           if (FeatureFlags.memoryEnabled) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.memory_outlined,
-                  color: HermesColors.cyan),
+                  color: Theme.of(context).colorScheme.secondary),
               title: Text(
                 AppStrings.memory,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: HermesColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               subtitle: Text(
                 AppStrings.memorySubtitle,
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               onTap: () => context.push(RoutePaths.memory),
             ),
-            const Divider(color: HermesColors.border, height: 1),
+            Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           ],
           if (FeatureFlags.insightsEnabled) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.insights_outlined,
-                  color: HermesColors.cyan),
+                  color: Theme.of(context).colorScheme.secondary),
               title: Text(
                 AppStrings.insights,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: HermesColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               subtitle: Text(
                 AppStrings.insightsSubtitle,
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               onTap: () => context.push(RoutePaths.insights),
@@ -352,58 +353,58 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildDangerZone(BuildContext context, WidgetRef ref, ThemeData theme) {
     return _buildCard(
-      borderColor: HermesColors.error.withValues(alpha: 0.3),
+      borderColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
       child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.logout, color: HermesColors.cyan),
+            leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.secondary),
             title: Text(
               AppStrings.disconnectExit,
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.cyan,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
             subtitle: Text(
               'Return to connection screen. Server configs are kept.',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () => _showDisconnectConfirmation(context, ref),
           ),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.delete_forever, color: HermesColors.error),
+            leading: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.error),
             title: Text(
               'Delete All Local Data',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
             subtitle: Text(
               'Remove all servers, preferences, and cached data.',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () => _showDeleteConfirmation(context, ref),
           ),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.restart_alt, color: HermesColors.warning),
+            leading: Icon(Icons.restart_alt, color: HermesThemeTokens.of(context).warning),
             title: Text(
               'Reset to Defaults',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.warning,
+                color: HermesThemeTokens.of(context).warning,
               ),
             ),
             subtitle: Text(
               'Reset preferences without deleting server configs.',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () => _showResetConfirmation(context, ref),
@@ -417,17 +418,17 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           AppStrings.settingsDangerZoneDisconnectTitle,
           style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         content: Text(
           AppStrings.settingsDangerZoneDisconnectMessage,
           style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         actions: [
@@ -443,8 +444,8 @@ class SettingsScreen extends ConsumerWidget {
               context.go(RoutePaths.connection);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: HermesColors.cyan,
-              foregroundColor: HermesColors.dark,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Theme.of(context).colorScheme.onSecondary,
             ),
             child: Text(AppStrings.settingsDangerZoneDisconnectAction),
           ),
@@ -457,17 +458,17 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           AppStrings.settingsDangerZoneDeleteTitle,
           style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         content: Text(
           AppStrings.settingsDangerZoneDeleteMessage,
           style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         actions: [
@@ -481,7 +482,7 @@ class SettingsScreen extends ConsumerWidget {
               ref.read(settingsProvider.notifier).deleteAllData();
             },
             style: FilledButton.styleFrom(
-              backgroundColor: HermesColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: Text(AppStrings.settingsDangerZoneDeleteAction),
           ),
@@ -494,17 +495,17 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           AppStrings.settingsDangerZoneResetTitle,
           style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         content: Text(
           AppStrings.settingsDangerZoneResetMessage,
           style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         actions: [
@@ -520,8 +521,8 @@ class SettingsScreen extends ConsumerWidget {
               ref.read(settingsProvider.notifier).setDefaultServerId(null);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: HermesColors.warning,
-              foregroundColor: HermesColors.dark,
+              backgroundColor: HermesThemeTokens.of(context).warning,
+              foregroundColor: Theme.of(context).colorScheme.onSecondary,
             ),
             child: Text(AppStrings.settingsDangerZoneResetAction),
           ),
@@ -538,21 +539,21 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.info_outline, color: HermesColors.cyan),
+            leading: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.secondary),
             title: Text(
               AppStrings.version,
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               '0.1.0 (build 1)',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.copy, size: 18, color: HermesColors.textSecondary),
+              icon: Icon(Icons.copy, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
               onPressed: () {
                 Clipboard.setData(const ClipboardData(text: '0.1.0'));
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -561,38 +562,38 @@ class SettingsScreen extends ConsumerWidget {
               },
             ),
           ),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.description_outlined, color: HermesColors.cyan),
+            leading: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.secondary),
             title: Text(
               AppStrings.license,
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               'MIT License',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () => context.push(RoutePaths.license),
           ),
-          const Divider(color: HermesColors.border, height: 1),
+          Divider(color: Theme.of(context).colorScheme.outline, height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.code, color: HermesColors.cyan.withValues(alpha: 0.7)),
+            leading: Icon(Icons.code, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7)),
             title: Text(
               'GitHub',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               'github.com/jahfaliabdulrahman-dev/hermex_android',
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -608,10 +609,10 @@ class SettingsScreen extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: borderColor ?? HermesColors.border,
+          color: borderColor ?? Theme.of(context).colorScheme.outline,
           width: 0.5,
         ),
       ),
@@ -640,33 +641,33 @@ class _ServerTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: Icon(
         isActive ? Icons.check_circle : Icons.circle_outlined,
-        color: isActive ? HermesColors.success : HermesColors.textDisabled,
+        color: isActive ? HermesThemeTokens.of(context).success : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
         size: 22,
       ),
       title: Text(
         server.name,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
       subtitle: Text(
         server.url,
         style: theme.textTheme.labelSmall?.copyWith(
-          color: HermesColors.textSecondary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
       trailing: isActive
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: HermesColors.success.withValues(alpha: 0.2),
+                color: HermesThemeTokens.of(context).success.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 'Active',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: HermesColors.success,
+                  color: HermesThemeTokens.of(context).success,
                 ),
               ),
             )

@@ -26,9 +26,9 @@ class ChatInput extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: const Border(
-          top: BorderSide(color: HermesColors.border, width: 0.5),
+          top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
         ),
       ),
       padding: EdgeInsets.only(
@@ -57,13 +57,13 @@ class ChatInput extends StatelessWidget {
                       (context as Element).markNeedsBuild(),
                   onSubmitted: canSend ? (_) => onSend() : null,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: HermesColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
                     hintStyle:
                         Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: HermesColors.textDisabled,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                             ),
                     filled: true,
                     fillColor: Theme.of(context).colorScheme.surface,
@@ -74,19 +74,19 @@ class ChatInput extends StatelessWidget {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: const BorderSide(
-                        color: HermesColors.border,
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: const BorderSide(
-                        color: HermesColors.border,
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: const BorderSide(
-                        color: HermesColors.cyan,
+                        color: Theme.of(context).colorScheme.secondary,
                         width: 1.5,
                       ),
                     ),
@@ -102,13 +102,13 @@ class ChatInput extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: HermesColors.error,
+                      color: Theme.of(context).colorScheme.error,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.stop,
                       size: 18,
-                      color: HermesColors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   onPressed: onSend, // onSend triggers stop during streaming.
@@ -120,15 +120,15 @@ class ChatInput extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: canSend ? HermesColors.cyan : HermesColors.textDisabled,
+                      color: canSend ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.arrow_upward,
                       size: 20,
                       color: canSend
-                          ? HermesColors.dark
-                          : HermesColors.textSecondary,
+                          ? Theme.of(context).colorScheme.onSecondary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   onPressed: canSend ? onSend : null,

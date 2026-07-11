@@ -17,6 +17,8 @@ class ChatState {
   final List<ChatMessage> messages;
   final String? selectedModelId;
   final String? sessionId;
+  final String? sessionTitle;
+  final String? sessionModelName;
   final bool isStreaming;
   final String? errorMessage;
   final List<ModelInfo> availableModels;
@@ -28,6 +30,8 @@ class ChatState {
     this.messages = const [],
     this.selectedModelId,
     this.sessionId,
+    this.sessionTitle,
+    this.sessionModelName,
     this.isStreaming = false,
     this.errorMessage,
     this.availableModels = const [],
@@ -42,6 +46,10 @@ class ChatState {
     bool clearSelectedModel = false,
     String? sessionId,
     bool clearSession = false,
+    String? sessionTitle,
+    bool clearSessionTitle = false,
+    String? sessionModelName,
+    bool clearSessionModelName = false,
     bool? isStreaming,
     String? errorMessage,
     bool clearError = false,
@@ -56,6 +64,12 @@ class ChatState {
             ? null
             : (selectedModelId ?? this.selectedModelId),
         sessionId: clearSession ? null : (sessionId ?? this.sessionId),
+        sessionTitle: clearSessionTitle
+            ? null
+            : (sessionTitle ?? this.sessionTitle),
+        sessionModelName: clearSessionModelName
+            ? null
+            : (sessionModelName ?? this.sessionModelName),
         isStreaming: isStreaming ?? this.isStreaming,
         errorMessage:
             clearError ? null : (errorMessage ?? this.errorMessage),
@@ -250,10 +264,10 @@ class ChatNotifier extends Notifier<ChatState> {
         '=== HERMEX DEBUG: ChatNotifier.sendMessage — model=${state.selectedModelId} ===');
     }
 
-    // Build message history BEFORE adding current user message to state.
-    // This prevents the current message from appearing twice in the API
-    // request (once from history, once from the explicit 'message' parameter).
-    final history = _buildHistory();
+    if (kDebugMode) {
+      debugPrint(
+        '=== HERMEX DEBUG: ChatNotifier.sendMessage — model=${state.selectedModelId}, session=${state.sessionId} ===');
+    }
 
     // 1. Append user message + placeholder agent message to UI.
     final userMessage = ChatMessage(
@@ -276,13 +290,29 @@ class ChatNotifier extends Notifier<ChatState> {
       clearError: true,
     );
 
-    // 3. Connect to SSE stream.
+    // 3. Connect to SSE stream — session-aware routing.
     try {
-      final stream = _repository!.streamChatCompletion(
-        message: trimmed,
-        model: state.selectedModelId!,
-        history: history,
-      );
+      final Stream<StreamEvent> stream;
+
+      if (state.sessionId != null) {
+        // FIX: Wire SSE streaming to the correct session endpoint.
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatNotifier.sendMessage — using session endpoint: ${state.sessionId} ===');
+        }
+        stream = _repository!.streamSessionChat(
+          sessionId: state.sessionId!,
+          message: trimmed,
+          model: state.selectedModelId!,
+        );
+      } else {
+        final history = _buildHistory();
+        stream = _repository!.streamChatCompletion(
+          message: trimmed,
+          model: state.selectedModelId!,
+          history: history,
+        );
+      }
 
       _streamSubscription = stream.listen(
         (event) => _handleStreamEvent(event, state.messages.length - 1),
@@ -347,17 +377,23 @@ class ChatNotifier extends Notifier<ChatState> {
   // ─── Session History ───────────────────────────────────────────────────
 
   /// Load chat history for a session.
-  Future<void> loadHistory(String sessionId) async {
+  Future<void> loadHistory(
+    String sessionId, {
+    String? title,
+    String? modelName,
+  }) async {
     if (_repository == null) return;
 
     if (kDebugMode) {
       debugPrint(
-        '=== HERMEX DEBUG: ChatNotifier.loadHistory — session=$sessionId ===');
+        '=== HERMEX DEBUG: ChatNotifier.loadHistory — session=$sessionId, title=$title, model=$modelName ===');
     }
 
     state = state.copyWith(
       isLoadingHistory: true,
       sessionId: sessionId,
+      sessionTitle: title,
+      sessionModelName: modelName,
       clearError: true,
     );
 
@@ -381,7 +417,11 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Clear the current session association.
   void clearSession() {
-    state = state.copyWith(clearSession: true);
+    state = state.copyWith(
+      clearSession: true,
+      clearSessionTitle: true,
+      clearSessionModelName: true,
+    );
   }
 
   /// Start a completely new chat — clear messages, session, and reinitialize.

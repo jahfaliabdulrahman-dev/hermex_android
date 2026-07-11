@@ -33,7 +33,7 @@ class ServerListScreen extends ConsumerWidget {
         title: Text(
           AppStrings.savedServers,
           style: theme.textTheme.titleLarge?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -55,7 +55,7 @@ class ServerListScreen extends ConsumerWidget {
     // Loading state.
     if (state.isBusy) {
       return const Center(
-        child: CircularProgressIndicator(color: HermesColors.cyan),
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
       );
     }
 
@@ -66,7 +66,7 @@ class ServerListScreen extends ConsumerWidget {
 
     // Server list.
     return RefreshIndicator(
-      color: HermesColors.cyan,
+      color: Theme.of(context).colorScheme.secondary,
       onRefresh: () => ref.read(connectionProvider.notifier).refreshServers(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -84,7 +84,7 @@ class ServerListScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(right: 20),
               margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
-                color: HermesColors.error.withValues(alpha: 0.8),
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.delete_outline, color: Colors.white),
@@ -110,13 +110,13 @@ class ServerListScreen extends ConsumerWidget {
             Icon(
               Icons.dns_outlined,
               size: 72,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             const SizedBox(height: 20),
             Text(
               AppStrings.noSavedServers,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -124,7 +124,7 @@ class ServerListScreen extends ConsumerWidget {
             Text(
               AppStrings.addYourFirstServer,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -134,8 +134,8 @@ class ServerListScreen extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: Text(AppStrings.addServer),
               style: FilledButton.styleFrom(
-                backgroundColor: HermesColors.cyan,
-                foregroundColor: HermesColors.dark,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
@@ -166,29 +166,29 @@ class ServerListScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           'Delete ${server.name}?',
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           'This will remove the server configuration and its API key. '
           'This action cannot be undone.',
-          style: TextStyle(color: HermesColors.textSecondary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               AppStrings.cancel,
-              style: TextStyle(color: HermesColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
               AppStrings.delete,
-              style: TextStyle(color: HermesColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],
@@ -221,13 +221,13 @@ class _ServerCard extends StatelessWidget {
 
     return Card(
       color: isActive
-          ? HermesColors.cyan.withValues(alpha: 0.1)
-          : HermesColors.surface,
+          ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+          : Theme.of(context).colorScheme.surface,
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isActive ? HermesColors.cyan : HermesColors.border,
+          color: isActive ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outline,
           width: isActive ? 1.5 : 0.5,
         ),
       ),
@@ -244,13 +244,13 @@ class _ServerCard extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? HermesColors.cyan.withValues(alpha: 0.2)
-                      : HermesColors.border.withValues(alpha: 0.3),
+                      ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2)
+                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   isActive ? Icons.check_circle : Icons.dns_outlined,
-                  color: isActive ? HermesColors.cyan : HermesColors.textSecondary,
+                  color: isActive ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 22,
                 ),
               ),
@@ -265,7 +265,7 @@ class _ServerCard extends StatelessWidget {
                     Text(
                       server.name,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: HermesColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -275,7 +275,7 @@ class _ServerCard extends StatelessWidget {
                     Text(
                       server.url,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: HermesColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontFamily: 'monospace',
                       ),
                       maxLines: 1,
@@ -286,7 +286,7 @@ class _ServerCard extends StatelessWidget {
                       Text(
                         _formatLastConnected(server.lastConnected!),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: HermesColors.textDisabled,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                           fontSize: 11,
                         ),
                       ),
@@ -303,13 +303,13 @@ class _ServerCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: HermesColors.cyan.withValues(alpha: 0.15),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     AppStrings.connected,
                     style: TextStyle(
-                      color: HermesColors.cyan,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -319,7 +319,7 @@ class _ServerCard extends StatelessWidget {
               const SizedBox(width: 4),
               Icon(
                 Icons.chevron_right,
-                color: HermesColors.textDisabled,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 size: 20,
               ),
             ],

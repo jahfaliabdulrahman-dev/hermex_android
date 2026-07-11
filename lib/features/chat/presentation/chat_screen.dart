@@ -136,8 +136,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       floatingActionButton: _showScrollFab
           ? FloatingActionButton.small(
               onPressed: _scrollToBottom,
-              backgroundColor: HermesColors.surface,
-              child: const Icon(Icons.arrow_downward, color: HermesColors.cyan),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              child: Icon(Icons.arrow_downward, color: Theme.of(context).colorScheme.secondary),
             )
           : null,
     );
@@ -148,14 +148,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Loading history.
     if (state.isLoadingHistory) {
       return const Center(
-        child: CircularProgressIndicator(color: HermesColors.cyan),
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
       );
     }
 
     // Loading models (initial state).
     if (!state.isInitialized) {
       return const Center(
-        child: CircularProgressIndicator(color: HermesColors.cyan),
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
       );
     }
 
@@ -168,13 +168,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Icon(
               Icons.chat_bubble_outline,
               size: 64,
-              color: HermesColors.textDisabled.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38).withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               'Start a conversation with Hermes',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             const SizedBox(height: 8),
@@ -182,7 +182,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Text(
                 'Using ${state.selectedModelId ?? "default model"}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: HermesColors.textDisabled,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
               ),
           ],
@@ -216,16 +216,16 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: HermesColors.error.withValues(alpha: 0.15),
+      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: HermesColors.error, size: 18),
+          Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: HermesColors.error,
+                    color: Theme.of(context).colorScheme.error,
                   ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -235,7 +235,7 @@ class _ErrorBanner extends StatelessWidget {
             onTap: () {
               // Clear error via provider — handled by chat provider.
             },
-            child: const Icon(Icons.close, color: HermesColors.error, size: 18),
+            child: Icon(Icons.close, color: Theme.of(context).colorScheme.error, size: 18),
           ),
         ],
       ),
@@ -249,9 +249,9 @@ class _LoadingInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          top: BorderSide(color: HermesColors.border, width: 0.5),
+          top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
         ),
       ),
       padding: EdgeInsets.only(
@@ -266,14 +266,14 @@ class _LoadingInput extends StatelessWidget {
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
-              color: HermesColors.cyan,
+              color: Theme.of(context).colorScheme.secondary,
               strokeWidth: 2,
             ),
           ),
           SizedBox(width: 12),
           Text(
             'Connecting to server...',
-            style: TextStyle(color: HermesColors.textSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),

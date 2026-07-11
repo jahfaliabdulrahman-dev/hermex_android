@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/route_paths.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../data/server_repository.dart';
 import '../providers/connection_provider.dart';
 
@@ -149,10 +150,10 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          backgroundColor: HermesColors.surface,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: const Text(
             AppStrings.confirmServerTitle,
-            style: TextStyle(color: HermesColors.textPrimary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -160,7 +161,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
             children: [
               const Text(
                 AppStrings.confirmServerMessage,
-                style: TextStyle(color: HermesColors.textSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 12),
               Container(
@@ -168,7 +169,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: HermesColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +177,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                     const Text(
                       AppStrings.urlLabel,
                       style: TextStyle(
-                        color: HermesColors.textDisabled,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -185,7 +186,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                     Text(
                       normalizedUrl,
                       style: const TextStyle(
-                        color: HermesColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontFamily: 'monospace',
                         fontSize: 13,
                       ),
@@ -200,14 +201,14 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
               onPressed: () => Navigator.of(ctx).pop(false),
               child: const Text(
                 AppStrings.cancel,
-                style: TextStyle(color: HermesColors.textSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: FilledButton.styleFrom(
-                backgroundColor: HermesColors.cyan,
-                foregroundColor: HermesColors.dark,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
               ),
               child: const Text(AppStrings.confirmConnect),
             ),
@@ -263,7 +264,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         title: Text(
           AppStrings.connectToHermes,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -333,13 +334,13 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         Icon(
           Icons.cloud_outlined,
           size: 64,
-          color: HermesColors.cyan.withValues(alpha: 0.7),
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
         ),
         const SizedBox(height: 12),
         Text(
           AppStrings.appTagline,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
@@ -356,7 +357,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         Text(
           AppStrings.serverUrl,
           style: theme.textTheme.labelLarge?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
@@ -365,31 +366,31 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           enabled: !isDisabled,
           keyboardType: TextInputType.url,
           autocorrect: false,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: 'http://192.168.1.100:8642',
-            hintStyle: TextStyle(color: HermesColors.textDisabled),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
             prefixIcon: Icon(
               Icons.dns_outlined,
-              color: HermesColors.cyan,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             filled: true,
-            fillColor: HermesColors.surface,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.error),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
             ),
           ),
           validator: _validateUrl,
@@ -407,7 +408,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         Text(
           AppStrings.apiKey,
           style: theme.textTheme.labelLarge?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
@@ -416,18 +417,18 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           enabled: !isDisabled,
           obscureText: _obscureApiKey,
           autocorrect: false,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: 'sk-...',
-            hintStyle: TextStyle(color: HermesColors.textDisabled),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
             prefixIcon: Icon(
               Icons.vpn_key_outlined,
-              color: HermesColors.cyan,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureApiKey ? Icons.visibility_off : Icons.visibility,
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               onPressed: () {
                 setState(() {
@@ -436,22 +437,22 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
               },
             ),
             filled: true,
-            fillColor: HermesColors.surface,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.error),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
             ),
           ),
           validator: _validateApiKey,
@@ -467,7 +468,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         Text(
           AppStrings.serverLabel,
           style: theme.textTheme.labelLarge?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
@@ -475,27 +476,27 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           controller: _labelController,
           keyboardType: TextInputType.text,
           autocorrect: false,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: 'Home Server',
-            hintStyle: TextStyle(color: HermesColors.textDisabled),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
             prefixIcon: Icon(
               Icons.label_outline,
-              color: HermesColors.cyan,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             filled: true,
-            fillColor: HermesColors.surface,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
             ),
           ),
         ),
@@ -507,21 +508,21 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HermesColors.info.withValues(alpha: 0.1),
+        color: HermesThemeTokens.of(context).info.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: HermesColors.info.withValues(alpha: 0.3),
+          color: HermesThemeTokens.of(context).info.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
         children: [
-          Icon(Icons.wifi, color: HermesColors.info, size: 20),
+          Icon(Icons.wifi, color: HermesThemeTokens.of(context).info, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Local network detected. HTTP is allowed on local networks.',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.info,
+                color: HermesThemeTokens.of(context).info,
               ),
             ),
           ),
@@ -538,10 +539,10 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: HermesColors.error.withValues(alpha: 0.1),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: HermesColors.error.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -549,13 +550,13 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.error_outline, color: HermesColors.error, size: 20),
+              Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   _errorTitle(state.errorMessage, isAuthError),
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: HermesColors.error,
+                    color: Theme.of(context).colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -567,7 +568,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
             Text(
               state.errorMessage!,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -598,7 +599,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: HermesColors.dark,
+                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
               )
             : const Icon(Icons.power_settings_new),
@@ -610,8 +611,8 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           ),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: HermesColors.cyan,
-          foregroundColor: HermesColors.dark,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Theme.of(context).colorScheme.onSecondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -628,14 +629,14 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
       icon: Icon(
         Icons.storage_outlined,
         size: 18,
-        color: hasServers ? HermesColors.cyan : HermesColors.textDisabled,
+        color: hasServers ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
       ),
       label: Text(
         hasServers
             ? '${AppStrings.savedServers} (${state.servers.length})'
             : AppStrings.noSavedServers,
         style: TextStyle(
-          color: hasServers ? HermesColors.cyan : HermesColors.textDisabled,
+          color: hasServers ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
         ),
       ),
     );

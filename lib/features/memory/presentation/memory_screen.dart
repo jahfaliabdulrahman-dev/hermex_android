@@ -57,13 +57,13 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
         title: Text(
           AppStrings.memory,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: HermesColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -108,14 +108,14 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: TextField(
         controller: _searchController,
-        style: TextStyle(color: HermesColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: '${AppStrings.search} memories...',
-          hintStyle: TextStyle(color: HermesColors.textDisabled),
-          prefixIcon: const Icon(Icons.search, color: HermesColors.cyan),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.secondary),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: HermesColors.textSecondary),
+                  icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   onPressed: () {
                     _searchController.clear();
                     setState(() => _searchQuery = '');
@@ -123,18 +123,18 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
                 )
               : null,
           filled: true,
-          fillColor: HermesColors.surface,
+          fillColor: Theme.of(context).colorScheme.surface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
           ),
         ),
         onChanged: (value) {
@@ -146,7 +146,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
   Widget _buildMemoryList(List<MemoryEntry> entries, ThemeData theme) {
     return RefreshIndicator(
-      color: HermesColors.cyan,
+      color: Theme.of(context).colorScheme.secondary,
       onRefresh: () => ref.refresh(memoryListProvider.future),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -163,7 +163,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
 
   Widget _buildLoadingState() {
     return const Center(
-      child: CircularProgressIndicator(color: HermesColors.cyan),
+      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
     );
   }
 
@@ -177,13 +177,13 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
             Icon(
               Icons.psychology_outlined,
               size: 64,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.noMemoriesStored,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -191,7 +191,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
             Text(
               AppStrings.agentLearnsOverTime,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -211,13 +211,13 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
             Icon(
               Icons.search_off,
               size: 48,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             const SizedBox(height: 16),
             Text(
               'No memories match "$_searchQuery"',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -237,13 +237,13 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
             const Icon(
               Icons.error_outline,
               size: 48,
-              color: HermesColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadMemory,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -251,7 +251,7 @@ class _MemoryScreenState extends ConsumerState<MemoryScreen> {
             Text(
               error,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -281,11 +281,11 @@ class _MemoryCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: HermesColors.border, width: 0.5),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -296,7 +296,7 @@ class _MemoryCard extends StatelessWidget {
             Text(
               entry.title,
               style: theme.textTheme.titleSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
               maxLines: 2,
@@ -310,7 +310,7 @@ class _MemoryCard extends StatelessWidget {
               Text(
                 entry.description!,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
@@ -325,13 +325,13 @@ class _MemoryCard extends StatelessWidget {
                   Icon(
                     Icons.access_time,
                     size: 14,
-                    color: HermesColors.textDisabled,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     DateFormatter.relativeTime(entry.createdAt!),
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: HermesColors.textDisabled,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
                   ),
                 ],

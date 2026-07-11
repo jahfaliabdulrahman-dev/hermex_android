@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/route_paths.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../models/cron_job.dart';
 import '../providers/task_provider.dart';
@@ -65,7 +66,7 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
         title: Text(
           AppStrings.cronJobs,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -75,8 +76,8 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
         onPressed: _navigateToCreate,
         icon: const Icon(Icons.add),
         label: Text(AppStrings.createJob),
-        backgroundColor: HermesColors.cyan,
-        foregroundColor: HermesColors.dark,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.onSecondary,
       ),
     );
   }
@@ -107,13 +108,13 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
           Icon(
             Icons.schedule_outlined,
             size: 64,
-            color: HermesColors.textSecondary.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
             AppStrings.cronJobs,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: HermesColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -143,13 +144,13 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: HermesColors.error.withValues(alpha: 0.7),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadJobs,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -158,7 +159,7 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
               Text(
                 state.errorMessage!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 3,
@@ -189,20 +190,20 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
             Icon(
               Icons.schedule_send,
               size: 80,
-              color: HermesColors.cyan.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.noCronJobs,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               AppStrings.createFirstCronJob,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -216,8 +217,8 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
 
   Widget _buildJobList(TaskListState state, ThemeData theme) {
     return RefreshIndicator(
-      color: HermesColors.cyan,
-      backgroundColor: HermesColors.surface,
+      color: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       onRefresh: () => ref.read(taskListProvider.notifier).refreshJobs(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -251,27 +252,27 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           AppStrings.deleteJob,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           AppStrings.deleteJobConfirm,
-          style: TextStyle(color: HermesColors.textSecondary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               AppStrings.cancel,
-              style: TextStyle(color: HermesColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: HermesColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: Text(AppStrings.delete),
           ),
@@ -329,7 +330,7 @@ class _JobCard extends StatelessWidget {
                     child: Text(
                       job.name ?? job.prompt,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: HermesColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -347,7 +348,7 @@ class _JobCard extends StatelessWidget {
                 Text(
                   job.prompt,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -362,13 +363,13 @@ class _JobCard extends StatelessWidget {
                   Icon(
                     Icons.schedule,
                     size: 14,
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     DateFormatter.scheduleDescription(job.schedule),
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: HermesColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const Spacer(),
@@ -376,13 +377,13 @@ class _JobCard extends StatelessWidget {
                     Icon(
                       Icons.history,
                       size: 14,
-                      color: HermesColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       DateFormatter.timeSince(job.lastRun),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: HermesColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -398,13 +399,13 @@ class _JobCard extends StatelessWidget {
                     Icon(
                       Icons.arrow_forward,
                       size: 14,
-                      color: HermesColors.textDisabled,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       DateFormatter.nextRunLabel(job.nextRun),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: HermesColors.textDisabled,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
                     ),
                   ],
@@ -422,27 +423,27 @@ class _JobCard extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: HermesColors.cyan,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     )
                   else ...[
                     _ActionChip(
                       icon: Icons.play_arrow,
                       label: AppStrings.runNow,
-                      color: HermesColors.success,
+                      color: HermesThemeTokens.of(context).success,
                       onTap: isBusy ? null : onRunNow,
                     ),
                     const SizedBox(width: 8),
                     _ActionChip(
                       icon: job.paused ? Icons.play_arrow : Icons.pause,
                       label: job.paused ? AppStrings.resume : AppStrings.pause,
-                      color: HermesColors.warning,
+                      color: HermesThemeTokens.of(context).warning,
                       onTap: isBusy ? null : onTogglePause,
                     ),
                     const SizedBox(width: 8),
                     _ActionChip(
                       icon: Icons.delete_outline,
-                      color: HermesColors.error,
+                      color: Theme.of(context).colorScheme.error,
                       onTap: isBusy ? null : onDelete,
                     ),
                   ],
@@ -503,7 +504,7 @@ class _StatusBadge extends StatelessWidget {
 
   (String, Color, Color) _statusInfo() {
     if (job.paused) {
-      return ('Paused', HermesColors.warning, HermesColors.warning);
+      return ('Paused', HermesThemeTokens.of(context).warning, HermesThemeTokens.of(context).warning);
     }
 
     final status = job.status?.toLowerCase() ?? 'active';
@@ -511,16 +512,16 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case 'active':
       case 'running':
-        return ('Active', HermesColors.success, HermesColors.success);
+        return ('Active', HermesThemeTokens.of(context).success, HermesThemeTokens.of(context).success);
       case 'error':
       case 'failed':
-        return ('Error', HermesColors.error, HermesColors.error);
+        return ('Error', Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.error);
       case 'paused':
-        return ('Paused', HermesColors.warning, HermesColors.warning);
+        return ('Paused', HermesThemeTokens.of(context).warning, HermesThemeTokens.of(context).warning);
       case 'completed':
-        return ('Done', HermesColors.info, HermesColors.info);
+        return ('Done', HermesThemeTokens.of(context).info, HermesThemeTokens.of(context).info);
       default:
-        return ('Idle', HermesColors.textSecondary, HermesColors.textSecondary);
+        return ('Idle', Theme.of(context).colorScheme.onSurfaceVariant, Theme.of(context).colorScheme.onSurfaceVariant);
     }
   }
 }
@@ -581,7 +582,7 @@ class _JobCardSkeleton extends StatelessWidget {
               height: 16,
               width: 200,
               decoration: BoxDecoration(
-                color: HermesColors.border,
+                color: Theme.of(context).colorScheme.outline,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -591,7 +592,7 @@ class _JobCardSkeleton extends StatelessWidget {
               height: 12,
               width: 150,
               decoration: BoxDecoration(
-                color: HermesColors.border.withValues(alpha: 0.5),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -606,7 +607,7 @@ class _JobCardSkeleton extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: HermesColors.border.withValues(alpha: 0.3),
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),

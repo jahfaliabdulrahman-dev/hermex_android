@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../models/skill.dart';
 import '../providers/skills_provider.dart';
 
@@ -56,7 +57,7 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
         title: Text(
           AppStrings.skills,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -99,15 +100,15 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
         onChanged: (value) {
           ref.read(skillsNotifierProvider.notifier).setSearchQuery(value);
         },
-        style: TextStyle(color: HermesColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: AppStrings.searchSkills,
-          hintStyle: TextStyle(color: HermesColors.textDisabled),
-          prefixIcon: Icon(Icons.search, color: HermesColors.textSecondary),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
           suffixIcon: screenState.searchQuery.isNotEmpty
               ? IconButton(
                   icon:
-                      Icon(Icons.clear, color: HermesColors.textSecondary),
+                      Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   onPressed: () {
                     _searchController.clear();
                     ref
@@ -117,19 +118,19 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
                 )
               : null,
           filled: true,
-          fillColor: HermesColors.surface,
+          fillColor: Theme.of(context).colorScheme.surface,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: HermesColors.border),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
           ),
         ),
       ),
@@ -178,15 +179,15 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => onTap(),
-        selectedColor: HermesColors.cyan,
-        checkmarkColor: HermesColors.dark,
+        selectedColor: Theme.of(context).colorScheme.secondary,
+        checkmarkColor: Theme.of(context).colorScheme.onSecondary,
         labelStyle: TextStyle(
-          color: isSelected ? HermesColors.dark : HermesColors.textPrimary,
+          color: isSelected ? Theme.of(context).colorScheme.onSecondary : Theme.of(context).colorScheme.onSurface,
           fontSize: 13,
         ),
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         side: BorderSide(
-          color: isSelected ? HermesColors.cyan : HermesColors.border,
+          color: isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.outline,
         ),
       ),
     );
@@ -233,12 +234,12 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(color: HermesColors.cyan),
+          CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
           const SizedBox(height: 16),
           Text(
             AppStrings.loading,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: HermesColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -253,12 +254,12 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off, color: HermesColors.error, size: 48),
+            Icon(Icons.cloud_off, color: Theme.of(context).colorScheme.error, size: 48),
             const SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadSkills,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -266,7 +267,7 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
             Text(
               error.toString(),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -278,8 +279,8 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
               icon: const Icon(Icons.refresh, size: 18),
               label: Text(AppStrings.retry),
               style: FilledButton.styleFrom(
-                backgroundColor: HermesColors.cyan,
-                foregroundColor: HermesColors.dark,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
@@ -297,14 +298,14 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
           children: [
             Icon(
               Icons.extension_outlined,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               size: 48,
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.noSkillsInstalled,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -312,7 +313,7 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
             Text(
               AppStrings.installSkillsOnServer,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textDisabled,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               ),
               textAlign: TextAlign.center,
             ),
@@ -329,12 +330,12 @@ class _SkillsScreenState extends ConsumerState<SkillsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, color: HermesColors.textDisabled, size: 48),
+            Icon(Icons.search_off, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 48),
             const SizedBox(height: 16),
             Text(
               'No skills match your search.',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -377,11 +378,11 @@ class _SkillCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: HermesColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: InkWell(
         onTap: onTap,
@@ -404,13 +405,13 @@ class _SkillCard extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: HermesColors.cyan,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           )
                         : Switch(
                             value: skill.enabled,
                             onChanged: (_) => onToggle(),
-                            activeTrackColor: HermesColors.cyan,
+                            activeTrackColor: Theme.of(context).colorScheme.secondary,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                           ),
@@ -421,7 +422,7 @@ class _SkillCard extends StatelessWidget {
                     child: Text(
                       skill.name,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: HermesColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -434,7 +435,7 @@ class _SkillCard extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.expand_more,
-                      color: HermesColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -450,17 +451,17 @@ class _SkillCard extends StatelessWidget {
                     if (skill.category != null)
                       _Badge(
                         label: skill.category!,
-                        color: HermesColors.cyan,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     if (skill.sourceReputation != null)
                       _Badge(
                         label: skill.sourceReputation!,
-                        color: HermesColors.info,
+                        color: HermesThemeTokens.of(context).info,
                       ),
                     if (skill.snippetCount > 0)
                       _Badge(
                         label: '${skill.snippetCount} snippets',
-                        color: HermesColors.success,
+                        color: HermesThemeTokens.of(context).success,
                       ),
                   ],
                 ),
@@ -478,7 +479,7 @@ class _SkillCard extends StatelessWidget {
                         Text(
                           skill.description,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: HermesColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       if (skill.benchmarkScore > 0) ...[
@@ -486,13 +487,13 @@ class _SkillCard extends StatelessWidget {
                         Row(
                           children: [
                             Icon(Icons.speed,
-                                size: 14, color: HermesColors.warning),
+                                size: 14, color: HermesThemeTokens.of(context).warning),
                             const SizedBox(width: 4),
                             Text(
                               'Benchmark: ${skill.benchmarkScore}/100',
                               style:
                                   theme.textTheme.bodySmall?.copyWith(
-                                color: HermesColors.warning,
+                                color: HermesThemeTokens.of(context).warning,
                               ),
                             ),
                           ],
@@ -513,7 +514,7 @@ class _SkillCard extends StatelessWidget {
                 Text(
                   skill.description,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

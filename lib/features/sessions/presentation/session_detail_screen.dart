@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/route_paths.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../models/session_summary.dart';
 import '../providers/session_provider.dart';
@@ -39,7 +40,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
-            backgroundColor: HermesColors.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -69,7 +70,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -130,8 +131,8 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
               icon: const Icon(Icons.chat_bubble),
               label: const Text(AppStrings.openChat),
               style: FilledButton.styleFrom(
-                backgroundColor: HermesColors.cyan,
-                foregroundColor: HermesColors.dark,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -152,12 +153,12 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
     final displayTitle = session.title ?? 'Untitled';
 
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color:
-              isActive ? HermesColors.success.withValues(alpha: 0.3) : HermesColors.border,
+              isActive ? HermesThemeTokens.of(context).success.withValues(alpha: 0.3) : Theme.of(context).colorScheme.outline,
         ),
       ),
       child: Padding(
@@ -173,7 +174,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                     width: 12,
                     height: 12,
                     decoration: const BoxDecoration(
-                      color: HermesColors.success,
+                      color: HermesThemeTokens.of(context).success,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -192,7 +193,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                           child: Text(
                             displayTitle,
                             style: theme.textTheme.headlineSmall?.copyWith(
-                              color: HermesColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
@@ -203,7 +204,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                         Icon(
                           Icons.edit,
                           size: 16,
-                          color: HermesColors.textDisabled,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                         ),
                       ],
                     ),
@@ -217,7 +218,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
               Text(
                 'Active',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: HermesColors.success,
+                  color: HermesThemeTokens.of(context).success,
                 ),
               ),
             ],
@@ -227,7 +228,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
               Text(
                 session.status!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -253,11 +254,11 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                 const Spacer(),
                 // Pin indicator.
                 if (session.isPinned)
-                  const Icon(Icons.push_pin, color: HermesColors.cyan, size: 18),
+                  Icon(Icons.push_pin, color: Theme.of(context).colorScheme.secondary, size: 18),
                 const SizedBox(width: 4),
                 // Archive indicator.
                 if (session.isArchived)
-                  const Icon(Icons.archive, color: HermesColors.warning, size: 18),
+                  Icon(Icons.archive, color: HermesThemeTokens.of(context).warning, size: 18),
               ],
             ),
           ],
@@ -270,12 +271,12 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: HermesColors.textSecondary),
+        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(width: 4),
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -296,7 +297,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: _ActionButton(
             icon: session.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
             label: session.isPinned ? 'Unpin' : 'Pin',
-            color: HermesColors.cyan,
+            color: Theme.of(context).colorScheme.secondary,
             enabled: !isMutating && !uiState.isOffline,
             onPressed: () {
               ref
@@ -310,7 +311,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: _ActionButton(
             icon: session.isArchived ? Icons.unarchive : Icons.archive,
             label: session.isArchived ? 'Unarchive' : 'Archive',
-            color: HermesColors.warning,
+            color: HermesThemeTokens.of(context).warning,
             enabled: !isMutating && !uiState.isOffline,
             onPressed: () {
               ref
@@ -324,7 +325,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: _ActionButton(
             icon: Icons.call_split,
             label: 'Fork',
-            color: HermesColors.info,
+            color: HermesThemeTokens.of(context).info,
             enabled: !isMutating && !uiState.isOffline,
             onPressed: () {
               ref
@@ -338,7 +339,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: _ActionButton(
             icon: Icons.delete_outline,
             label: 'Delete',
-            color: HermesColors.error,
+            color: Theme.of(context).colorScheme.error,
             enabled: !isMutating && !uiState.isOffline,
             onPressed: () {
               ref
@@ -355,10 +356,10 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
 
   Widget _buildDetailsSection(SessionSummary session, ThemeData theme) {
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: HermesColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -368,7 +369,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
             Text(
               'Details',
               style: theme.textTheme.titleSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -416,7 +417,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: HermesColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -424,7 +425,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
           child: Text(
             value,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: HermesColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -436,10 +437,10 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
 
   Widget _buildMessagePreview(SessionSummary session, ThemeData theme) {
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: HermesColors.border),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -449,7 +450,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
             Text(
               'Messages',
               style: theme.textTheme.titleSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -460,7 +461,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                 child: Text(
                   'Empty session — no messages yet.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: HermesColors.textDisabled,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -470,7 +471,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
                 '${session.messageCount} messages in this session.\n'
                 'Open in Chat to view full conversation.',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: HermesColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
           ],
@@ -484,7 +485,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
   Widget _buildLoadingState(ThemeData theme) {
     return const Center(
       child: CircularProgressIndicator(
-        color: HermesColors.cyan,
+        color: Theme.of(context).colorScheme.secondary,
       ),
     );
   }
@@ -499,13 +500,13 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
             const Icon(
               Icons.error_outline,
               size: 64,
-              color: HermesColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.sessionNotFound,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -513,7 +514,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
             Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 4,
@@ -562,7 +563,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          style: const TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: const InputDecoration(
             hintText: 'Enter new title',
           ),
@@ -623,7 +624,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
               });
             },
             style: TextButton.styleFrom(
-              foregroundColor: HermesColors.error,
+              foregroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text(AppStrings.delete),
           ),
@@ -656,9 +657,9 @@ class _ActionButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: enabled ? onPressed : null,
       style: OutlinedButton.styleFrom(
-        foregroundColor: enabled ? color : HermesColors.textDisabled,
+        foregroundColor: enabled ? color : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
         side: BorderSide(
-          color: enabled ? color.withValues(alpha: 0.5) : HermesColors.border,
+          color: enabled ? color.withValues(alpha: 0.5) : Theme.of(context).colorScheme.outline,
         ),
         padding: const EdgeInsets.symmetric(vertical: 10),
         shape: RoundedRectangleBorder(

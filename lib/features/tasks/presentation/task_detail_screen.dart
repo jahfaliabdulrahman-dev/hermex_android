@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/route_paths.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../models/cron_job.dart';
 import '../providers/task_provider.dart';
@@ -45,20 +46,20 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () => context.pop(),
         ),
         title: Text(
           AppStrings.jobDetails,
           style: theme.textTheme.titleMedium?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
           // Edit button
           if (asyncJob.hasValue && asyncJob.value != null)
             IconButton(
-              icon: Icon(Icons.edit_outlined, color: HermesColors.cyan),
+              icon: Icon(Icons.edit_outlined, color: Theme.of(context).colorScheme.secondary),
               tooltip: AppStrings.editJob,
               onPressed: () => _navigateToEdit(widget.id),
             ),
@@ -80,27 +81,27 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: HermesColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           AppStrings.deleteJob,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           AppStrings.deleteJobConfirm,
-          style: TextStyle(color: HermesColors.textSecondary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               AppStrings.cancel,
-              style: TextStyle(color: HermesColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: HermesColors.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: Text(AppStrings.delete),
           ),
@@ -124,7 +125,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Job triggered successfully.'),
-          backgroundColor: HermesColors.success,
+          backgroundColor: HermesThemeTokens.of(context).success,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -244,7 +245,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
               Text(
                 job.name ?? 'Untitled Job',
                 style: theme.textTheme.headlineSmall?.copyWith(
-                  color: HermesColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -253,7 +254,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                 Text(
                   'Created ${DateFormatter.relativeTime(job.createdAt!)}',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: HermesColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
             ],
@@ -269,23 +270,23 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     String label;
 
     if (job.paused) {
-      color = HermesColors.warning;
+      color = HermesThemeTokens.of(context).warning;
       label = 'Paused';
     } else {
       final status = job.status?.toLowerCase() ?? 'active';
       switch (status) {
         case 'active':
         case 'running':
-          color = HermesColors.success;
+          color = HermesThemeTokens.of(context).success;
           label = 'Active';
           break;
         case 'error':
         case 'failed':
-          color = HermesColors.error;
+          color = Theme.of(context).colorScheme.error;
           label = 'Error';
           break;
         default:
-          color = HermesColors.info;
+          color = HermesThemeTokens.of(context).info;
           label = status[0].toUpperCase() + status.substring(1);
       }
     }
@@ -317,12 +318,12 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: HermesColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: SelectableText(
         job.prompt,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           fontFamily: 'monospace',
           height: 1.5,
         ),
@@ -440,21 +441,21 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HermesColors.error.withValues(alpha: 0.1),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: HermesColors.error.withValues(alpha: 0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.error_outline, size: 16, color: HermesColors.error),
+              Icon(Icons.error_outline, size: 16, color: Theme.of(context).colorScheme.error),
               const SizedBox(width: 8),
               Text(
                 'Last Error',
                 style: theme.textTheme.labelLarge?.copyWith(
-                  color: HermesColors.error,
+                  color: Theme.of(context).colorScheme.error,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -464,7 +465,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
           SelectableText(
             job.lastError!,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: HermesColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontFamily: 'monospace',
             ),
           ),
@@ -484,19 +485,19 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: HermesColors.textSecondary),
+        Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: HermesColors.textDisabled,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),
         Expanded(
           child: Text(
             value,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: HermesColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -517,12 +518,12 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       children: [
         Row(
           children: [
-            Icon(icon, size: 18, color: HermesColors.cyan),
+            Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
             const SizedBox(width: 8),
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -554,14 +555,14 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: HermesColors.dark,
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 )
               : const Icon(Icons.play_arrow),
           label: Text(isRunNow ? 'Running...' : AppStrings.runNow),
           style: FilledButton.styleFrom(
-            backgroundColor: HermesColors.success,
-            foregroundColor: HermesColors.dark,
+            backgroundColor: HermesThemeTokens.of(context).success,
+            foregroundColor: Theme.of(context).colorScheme.onSecondary,
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
         ),
@@ -574,8 +575,8 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
           icon: Icon(job.paused ? Icons.play_arrow : Icons.pause),
           label: Text(job.paused ? AppStrings.resume : AppStrings.pause),
           style: OutlinedButton.styleFrom(
-            foregroundColor: HermesColors.warning,
-            side: BorderSide(color: HermesColors.warning),
+            foregroundColor: HermesThemeTokens.of(context).warning,
+            side: BorderSide(color: HermesThemeTokens.of(context).warning),
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
         ),
@@ -588,8 +589,8 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
           icon: const Icon(Icons.delete_outline),
           label: Text(AppStrings.deleteJob),
           style: OutlinedButton.styleFrom(
-            foregroundColor: HermesColors.error,
-            side: BorderSide(color: HermesColors.error.withValues(alpha: 0.5)),
+            foregroundColor: Theme.of(context).colorScheme.error,
+            side: BorderSide(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5)),
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
         ),
@@ -601,7 +602,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
 
   Widget _buildLoadingSkeleton(ThemeData theme) {
     return const Center(
-      child: CircularProgressIndicator(color: HermesColors.cyan),
+      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
     );
   }
 
@@ -617,13 +618,13 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: HermesColors.error.withValues(alpha: 0.7),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.jobNotFound,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -631,7 +632,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
             Text(
               error.toString(),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -649,7 +650,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
               onPressed: () => context.pop(),
               child: Text(
                 AppStrings.goBack,
-                style: TextStyle(color: HermesColors.cyan),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ],
@@ -670,13 +671,13 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: HermesColors.textSecondary.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.jobNotFound,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -684,7 +685,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
               onPressed: () => context.pop(),
               child: Text(
                 AppStrings.goBack,
-                style: TextStyle(color: HermesColors.cyan),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../models/workspace_entry.dart';
 import '../providers/workspace_provider.dart';
 
@@ -40,14 +41,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         title: Text(
           AppStrings.workspace,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: HermesColors.textSecondary),
+            icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant),
             onPressed: () {
               final path = ref.read(workspaceBrowserProvider).currentPath;
               ref.invalidate(directoryContentsProvider(path));
@@ -78,9 +79,9 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: HermesColors.border),
+          bottom: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
       ),
       child: SingleChildScrollView(
@@ -106,7 +107,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                   Icon(
                     Icons.chevron_right,
                     size: 16,
-                    color: HermesColors.textDisabled,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                   ),
                   _BreadcrumbChip(
                     label: state.pathSegments[index],
@@ -194,21 +195,21 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: HermesColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   state.selectedFilePath!,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: HermesColors.cyan,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: HermesColors.textSecondary),
+                icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 onPressed: () {
                   ref
                       .read(workspaceBrowserProvider.notifier)
@@ -237,7 +238,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       child: SelectableText(
         content,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           fontFamily: 'monospace',
           fontSize: 13,
         ),
@@ -257,14 +258,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           children: [
             Icon(
               isBinary ? Icons.insert_drive_file_outlined : Icons.error_outline,
-              color: isBinary ? HermesColors.warning : HermesColors.error,
+              color: isBinary ? HermesThemeTokens.of(context).warning : Theme.of(context).colorScheme.error,
               size: 48,
             ),
             const SizedBox(height: 16),
             Text(
               isBinary ? AppStrings.cannotPreviewFileType : AppStrings.failedToLoadDirectory,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: isBinary ? HermesColors.warning : HermesColors.error,
+                color: isBinary ? HermesThemeTokens.of(context).warning : Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -272,7 +273,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
             Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -288,7 +289,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
   Widget _buildLoadingState(ThemeData theme) {
     return const Center(
-      child: CircularProgressIndicator(color: HermesColors.cyan),
+      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
     );
   }
 
@@ -299,12 +300,12 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off, color: HermesColors.error, size: 48),
+            Icon(Icons.cloud_off, color: Theme.of(context).colorScheme.error, size: 48),
             const SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadDirectory,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -312,7 +313,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
             Text(
               error.toString(),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -326,8 +327,8 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
               icon: const Icon(Icons.refresh, size: 18),
               label: Text(AppStrings.retry),
               style: FilledButton.styleFrom(
-                backgroundColor: HermesColors.cyan,
-                foregroundColor: HermesColors.dark,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
@@ -345,14 +346,14 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           children: [
             Icon(
               Icons.folder_open,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               size: 48,
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.emptyDirectory,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -386,7 +387,7 @@ class _BreadcrumbChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? HermesColors.cyan : HermesColors.textSecondary,
+            color: isActive ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 13,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -406,10 +407,10 @@ class _ParentFolderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.arrow_upward, color: HermesColors.cyan),
+      leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.secondary),
       title: Text(
         '..',
-        style: TextStyle(color: HermesColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
       onTap: onTap,
     );
@@ -432,12 +433,12 @@ class _FileEntryTile extends StatelessWidget {
     return ListTile(
       leading: Icon(
         isDirectory ? Icons.folder : Icons.insert_drive_file_outlined,
-        color: isDirectory ? HermesColors.warning : HermesColors.textSecondary,
+        color: isDirectory ? HermesThemeTokens.of(context).warning : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       title: Text(
         entry.name,
         style: theme.textTheme.bodyLarge?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -448,7 +449,7 @@ class _FileEntryTile extends StatelessWidget {
             Text(
               _formatSize(entry.size),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textDisabled,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               ),
             ),
             const SizedBox(width: 12),
@@ -458,7 +459,7 @@ class _FileEntryTile extends StatelessWidget {
               child: Text(
                 entry.modifiedAt!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: HermesColors.textDisabled,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -469,14 +470,14 @@ class _FileEntryTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(
-                color: HermesColors.warning.withValues(alpha: 0.15),
+                color: HermesThemeTokens.of(context).warning.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 'binary',
                 style: TextStyle(
                   fontSize: 10,
-                  color: HermesColors.warning,
+                  color: HermesThemeTokens.of(context).warning,
                 ),
               ),
             ),
@@ -484,7 +485,7 @@ class _FileEntryTile extends StatelessWidget {
         ],
       ),
       trailing: isDirectory
-          ? Icon(Icons.chevron_right, color: HermesColors.textDisabled)
+          ? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38))
           : null,
       onTap: onTap,
     );

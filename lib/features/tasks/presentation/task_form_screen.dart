@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../providers/task_provider.dart';
 
 /// Task form screen — create or edit a cron job.
@@ -182,7 +183,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isEditMode ? 'Job updated successfully.' : 'Job created successfully.'),
-            backgroundColor: HermesColors.success,
+            backgroundColor: HermesThemeTokens.of(context).success,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -191,7 +192,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isEditMode ? 'Failed to update job.' : 'Failed to create job.'),
-            backgroundColor: HermesColors.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -231,12 +232,12 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              color: HermesColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => context.pop(),
             ),
           ),
           body: const Center(
-            child: CircularProgressIndicator(color: HermesColors.cyan),
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
           ),
         );
       }
@@ -249,13 +250,13 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () => context.pop(),
         ),
         title: Text(
           _isEditMode ? AppStrings.editJob : AppStrings.createJob,
           style: theme.textTheme.titleMedium?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -371,7 +372,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: HermesColors.dark,
+                            color: Theme.of(context).colorScheme.onSecondary,
                           ),
                         )
                       : Icon(_isEditMode ? Icons.save : Icons.add),
@@ -385,8 +386,8 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
                     ),
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: HermesColors.cyan,
-                    foregroundColor: HermesColors.dark,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -420,7 +421,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
         Text(
           label,
           style: theme.textTheme.labelLarge?.copyWith(
-            color: HermesColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
@@ -431,31 +432,31 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
           minLines: maxLines > 1 ? 3 : 1,
           keyboardType: maxLines > 1 ? TextInputType.multiline : TextInputType.text,
           autocorrect: false,
-          style: TextStyle(color: HermesColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: HermesColors.textDisabled),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
             prefixIcon: Padding(
               padding: EdgeInsets.only(bottom: maxLines > 1 ? 80 : 0),
-              child: Icon(icon, color: HermesColors.cyan),
+              child: Icon(icon, color: Theme.of(context).colorScheme.secondary),
             ),
             filled: true,
-            fillColor: HermesColors.surface,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: HermesColors.border),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: HermesColors.error),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
             ),
           ),
           validator: validator,
@@ -477,16 +478,16 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
             style: const TextStyle(fontSize: 12),
           ),
           onPressed: _isSubmitting ? null : () => _applyPreset(preset.cron),
-          backgroundColor: HermesColors.surface,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           side: BorderSide(
             color: _scheduleController.text == preset.cron
-                ? HermesColors.cyan
-                : HermesColors.border,
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.outline,
           ),
           labelStyle: TextStyle(
             color: _scheduleController.text == preset.cron
-                ? HermesColors.cyan
-                : HermesColors.textSecondary,
+                ? Theme.of(context).colorScheme.secondary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         );
       }).toList(),
@@ -503,22 +504,22 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: HermesColors.error.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: HermesColors.error.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
             children: [
               const Icon(Icons.error_outline,
-                  size: 16, color: HermesColors.error),
+                  size: 16, color: Theme.of(context).colorScheme.error),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   state.errorMessage!,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: HermesColors.error,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

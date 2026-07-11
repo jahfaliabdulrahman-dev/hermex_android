@@ -22,7 +22,7 @@ class HermesMarkdown extends StatelessWidget {
       fontFamily: 'JetBrainsMono',
       fontSize: 13,
       height: 20 / 13,
-      color: HermesColors.textPrimary,
+      color: Theme.of(context).colorScheme.onSurface,
     );
 
     return MarkdownBody(
@@ -30,28 +30,28 @@ class HermesMarkdown extends StatelessWidget {
       selectable: selectable,
       styleSheet: MarkdownStyleSheet(
         p: theme.textTheme.bodyLarge?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
           height: 1.6,
         ),
         h1: theme.textTheme.headlineLarge?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         h2: theme.textTheme.headlineMedium?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         h3: theme.textTheme.headlineSmall?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         a: theme.textTheme.bodyLarge?.copyWith(
-          color: HermesColors.cyan,
+          color: Theme.of(context).colorScheme.secondary,
           decoration: TextDecoration.underline,
         ),
         code: codeStyle,
         codeblockDecoration: BoxDecoration(
-          color: HermesColors.codeBlockBg,
+          color: HermesThemeTokens.of(context).codeBlockBg,
           border: const Border(
             left: BorderSide(
-              color: HermesColors.codeBlockBorder,
+              color: HermesThemeTokens.of(context).codeBlockBorder,
               width: 3,
             ),
           ),
@@ -59,10 +59,10 @@ class HermesMarkdown extends StatelessWidget {
         ),
         codeblockPadding: const EdgeInsets.all(12),
         blockquoteDecoration: BoxDecoration(
-          color: HermesColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           border: const Border(
             left: BorderSide(
-              color: HermesColors.border,
+              color: Theme.of(context).colorScheme.outline,
               width: 3,
             ),
           ),
@@ -72,20 +72,20 @@ class HermesMarkdown extends StatelessWidget {
           vertical: 8,
         ),
         listBullet: theme.textTheme.bodyLarge?.copyWith(
-          color: HermesColors.cyan,
+          color: Theme.of(context).colorScheme.secondary,
         ),
         tableHead: theme.textTheme.labelLarge?.copyWith(
-          color: HermesColors.white,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
         tableBody: theme.textTheme.bodyMedium?.copyWith(
-          color: HermesColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
-        tableBorder: TableBorder.all(color: HermesColors.border),
+        tableBorder: TableBorder.all(color: Theme.of(context).colorScheme.outline),
         tableColumnWidth: const FlexColumnWidth(),
         tableCellsPadding: const EdgeInsets.all(8),
         horizontalRuleDecoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: HermesColors.border),
+            top: BorderSide(color: Theme.of(context).colorScheme.outline),
           ),
         ),
       ),

@@ -48,4 +48,22 @@ abstract class RoutePaths {
 
   /// Build a task detail path with the given [id].
   static String taskById(String id) => '/tasks/$id';
+
+  /// Build a chat path with session context — carries [id], optional [title],
+  /// and optional [modelName] as query parameters so the ChatScreen can load
+  /// history and display context in the AppBar.
+  static String chatWithSession({
+    required String id,
+    String? title,
+    String? modelName,
+  }) {
+    final params = <String>['session=$id'];
+    if (title != null && title.isNotEmpty) {
+      params.add('title=${Uri.encodeComponent(title)}');
+    }
+    if (modelName != null && modelName.isNotEmpty) {
+      params.add('model=${Uri.encodeComponent(modelName)}');
+    }
+    return '/chat?${params.join('&')}';
+  }
 }

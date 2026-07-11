@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../core/utils/markdown_renderer.dart';
 import '../../../models/chat_message.dart';
 
@@ -72,7 +73,7 @@ class _UserBubble extends StatelessWidget {
             margin: const EdgeInsets.only(left: 64),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: HermesColors.userBubble,
+              color: HermesThemeTokens.of(context).userBubble,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -86,7 +87,7 @@ class _UserBubble extends StatelessWidget {
                 SelectableText(
                   message.content,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: HermesColors.userBubbleText,
+                        color: HermesThemeTokens.of(context).userBubbleText,
                       ),
                 ),
                 const SizedBox(height: 4),
@@ -118,11 +119,11 @@ class _AgentBubble extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4, right: 8),
           child: CircleAvatar(
             radius: 14,
-            backgroundColor: HermesColors.navy,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: Text(
               'H',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: HermesColors.cyan,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
                   ),
             ),
@@ -135,7 +136,7 @@ class _AgentBubble extends StatelessWidget {
             margin: const EdgeInsets.only(right: 64),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: HermesColors.agentBubble,
+              color: HermesThemeTokens.of(context).agentBubble,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(4),
                 topRight: Radius.circular(16),
@@ -143,7 +144,7 @@ class _AgentBubble extends StatelessWidget {
                 bottomRight: Radius.circular(16),
               ),
               border: Border.all(
-                color: HermesColors.border,
+                color: Theme.of(context).colorScheme.outline,
                 width: 0.5,
               ),
             ),
@@ -157,7 +158,7 @@ class _AgentBubble extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.copy, size: 14),
-                        color: HermesColors.textDisabled,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                         onPressed: () =>
                             _copyToClipboard(context, message.content),
                         visualDensity: VisualDensity.compact,
@@ -181,7 +182,7 @@ class _AgentBubble extends StatelessWidget {
                   Text(
                     '(empty response)',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: HermesColors.textDisabled,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                           fontStyle: FontStyle.italic,
                         ),
                   ),
@@ -213,10 +214,10 @@ class _ToolBubble extends StatelessWidget {
           margin: const EdgeInsets.only(left: 48, right: 48),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: HermesColors.surface.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: HermesColors.border.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -226,14 +227,14 @@ class _ToolBubble extends StatelessWidget {
               Icon(
                 Icons.build_outlined,
                 size: 14,
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   message.content,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: HermesColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -245,13 +246,13 @@ class _ToolBubble extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: HermesColors.navy.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     message.toolName!,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: HermesColors.cyan,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 10,
                         ),
                   ),
@@ -283,7 +284,7 @@ class _SystemBubble extends StatelessWidget {
           message.content,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: HermesColors.textDisabled,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 fontStyle: FontStyle.italic,
               ),
         ),
@@ -306,7 +307,7 @@ class _TimestampLabel extends StatelessWidget {
     return Text(
       DateFormat('HH:mm').format(timestamp!),
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: HermesColors.textDisabled,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             fontSize: 10,
           ),
     );
@@ -384,7 +385,7 @@ class _Dot extends StatelessWidget {
         width: 6,
         height: 6,
         decoration: const BoxDecoration(
-          color: HermesColors.cyan,
+          color: Theme.of(context).colorScheme.secondary,
           shape: BoxShape.circle,
         ),
       ),

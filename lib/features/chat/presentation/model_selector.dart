@@ -28,7 +28,7 @@ class ModelSelector extends StatelessWidget {
   }) {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: HermesColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -55,7 +55,7 @@ class ModelSelector extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: HermesColors.border,
+                  color: Theme.of(context).colorScheme.outline,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -68,7 +68,7 @@ class ModelSelector extends StatelessWidget {
               child: Text(
                 'Select Model',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: HermesColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ),
@@ -82,7 +82,7 @@ class ModelSelector extends StatelessWidget {
                   child: Text(
                     'No models available.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: HermesColors.textDisabled,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                         ),
                   ),
                 ),
@@ -94,7 +94,7 @@ class ModelSelector extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   itemCount: models.length,
                   separatorBuilder: (context, index) =>
-                      const Divider(height: 1, color: HermesColors.border),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outline),
                   itemBuilder: (context, index) {
                     final model = models[index];
                     final isSelected = model.id == selectedModelId;
@@ -105,15 +105,15 @@ class ModelSelector extends StatelessWidget {
                             ? Icons.check_circle
                             : Icons.circle_outlined,
                         color:
-                            isSelected ? HermesColors.cyan : HermesColors.textDisabled,
+                            isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                         size: 20,
                       ),
                       title: Text(
                         model.id,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: isSelected
-                                  ? HermesColors.cyan
-                                  : HermesColors.textPrimary,
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).colorScheme.onSurface,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.normal,
@@ -126,7 +126,7 @@ class ModelSelector extends StatelessWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color: HermesColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                             )
                           : null,

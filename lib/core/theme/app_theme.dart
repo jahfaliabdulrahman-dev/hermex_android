@@ -1,218 +1,124 @@
 import 'package:flutter/material.dart';
-
 import 'colors.dart';
+import 'hermes_theme_tokens.dart';
 import 'typography.dart';
 
-/// Hermex Material 3 theme — from 04_ui_design_system.md.
-///
-/// Seeds from hermesNavy (#001F5E). Uses ColorScheme.fromSeed for full palette.
-/// DEC-EPIC001-THEME: Split into buildDark / buildLight so themeMode can swap.
 abstract class AppTheme {
   AppTheme._();
 
-  /// Build the complete Material 3 dark theme.
   static ThemeData buildDark() {
-    final colorScheme = _buildDarkColorScheme();
-
-    return _buildBaseTheme(
-      colorScheme: colorScheme,
-      brightness: Brightness.dark,
-      scaffoldBackground: HermesColors.dark,
-    );
+    final cs = _buildDarkColorScheme();
+    return _buildBase(cs, Brightness.dark, HermesColors.dark, HermesThemeTokens.dark());
   }
 
-  /// Build the complete Material 3 light theme.
   static ThemeData buildLight() {
-    final colorScheme = _buildLightColorScheme();
-
-    return _buildBaseTheme(
-      colorScheme: colorScheme,
-      brightness: Brightness.light,
-      scaffoldBackground: colorScheme.surface,
-    );
+    final cs = _buildLightColorScheme();
+    return _buildBase(cs, Brightness.light, cs.surface, HermesThemeTokens.light());
   }
 
-  // ─── Color Schemes ─────────────────────────────────────────────────────
+  static ColorScheme _buildDarkColorScheme() => ColorScheme.fromSeed(
+    seedColor: HermesColors.navy, brightness: Brightness.dark,
+    primary: HermesColors.navy, secondary: HermesColors.cyan,
+    surface: HermesColors.surface, error: HermesColors.error,
+    onPrimary: HermesColors.white, onSecondary: HermesColors.dark,
+    onSurface: HermesColors.textPrimary, onError: HermesColors.white,
+    surfaceContainerHighest: HermesColors.dark, outline: HermesColors.border,
+  );
 
-  static ColorScheme _buildDarkColorScheme() {
-    return ColorScheme.fromSeed(
-      seedColor: HermesColors.navy,
-      brightness: Brightness.dark,
-      primary: HermesColors.navy,
-      secondary: HermesColors.cyan,
-      surface: HermesColors.surface,
-      error: HermesColors.error,
-      onPrimary: HermesColors.white,
-      onSecondary: HermesColors.dark,
-      onSurface: HermesColors.textPrimary,
-      onError: HermesColors.white,
-    );
-  }
+  static ColorScheme _buildLightColorScheme() => ColorScheme.fromSeed(
+    seedColor: HermesColors.navy, brightness: Brightness.light,
+    primary: HermesColors.navy, onPrimary: HermesColors.white,
+    primaryContainer: const Color(0xFFD6E2FF),
+    onPrimaryContainer: const Color(0xFF001B4E),
+    secondary: HermesColors.lightSecondary,
+    onSecondary: HermesColors.lightOnSecondary,
+    secondaryContainer: HermesColors.lightSecondaryContainer,
+    onSecondaryContainer: HermesColors.lightOnSecondaryContainer,
+    tertiary: const Color(0xFF006B5E), onTertiary: HermesColors.white,
+    tertiaryContainer: const Color(0xFF7FF8E2),
+    onTertiaryContainer: const Color(0xFF00201B),
+    surface: HermesColors.lightSurface, onSurface: HermesColors.lightOnSurface,
+    surfaceContainerHigh: HermesColors.lightSurfaceVariant,
+    surfaceContainerHighest: const Color(0xFFE8E8EE),
+    onSurfaceVariant: HermesColors.lightOnSurfaceVariant,
+    error: HermesColors.lightError, onError: HermesColors.lightOnError,
+    errorContainer: HermesColors.lightErrorContainer,
+    onErrorContainer: HermesColors.lightOnErrorContainer,
+    outline: HermesColors.lightOutline,
+    outlineVariant: const Color(0xFFC4C6D0),
+    shadow: Colors.black.withValues(alpha: 0.1),
+    scrim: Colors.black.withValues(alpha: 0.3),
+  );
 
-  static ColorScheme _buildLightColorScheme() {
-    return ColorScheme.fromSeed(
-      seedColor: HermesColors.navy,
-      brightness: Brightness.light,
-      primary: HermesColors.navy,
-      secondary: HermesColors.cyan,
-      error: HermesColors.error,
-    );
-  }
-
-  // ─── Shared Theme Structure ────────────────────────────────────────────
-
-  /// Builds the shared ThemeData structure that differs only by [colorScheme]
-  /// and [brightness]. Uses [colorScheme] properties instead of hardcoded
-  /// HermesColors where the value must swap between light/dark.
-  static ThemeData _buildBaseTheme({
-    required ColorScheme colorScheme,
-    required Brightness brightness,
-    required Color scaffoldBackground,
-  }) {
-    final textTheme = HermesTextTheme.buildTextTheme();
-
+  static ThemeData _buildBase(ColorScheme cs, Brightness brightness,
+      Color scaffoldBg, HermesThemeTokens tokens) {
+    final tt = HermesTextTheme.buildTextTheme();
+    final hint = cs.onSurface.withValues(alpha: 0.38);
     return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: scaffoldBackground,
-      brightness: brightness,
-      textTheme: textTheme,
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        centerTitle: false,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
-          color: colorScheme.onSurface,
-        ),
-      ),
+      useMaterial3: true, colorScheme: cs,
+      scaffoldBackgroundColor: scaffoldBg, brightness: brightness,
+      textTheme: tt,
+      appBarTheme: AppBarTheme(elevation: 0, centerTitle: false,
+        backgroundColor: cs.surface, foregroundColor: cs.onSurface,
+        titleTextStyle: tt.titleLarge?.copyWith(color: cs.onSurface)),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: colorScheme.surface,
-        selectedItemColor: HermesColors.cyan,
-        unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.55),
-        type: BottomNavigationBarType.fixed,
-        elevation: 3,
-        selectedLabelStyle: textTheme.labelSmall?.copyWith(
-          color: HermesColors.cyan,
-        ),
-        unselectedLabelStyle: textTheme.labelSmall?.copyWith(
-          color: colorScheme.onSurface.withValues(alpha: 0.55),
-        ),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 1,
-        color: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: HermesColors.error),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        hintStyle: textTheme.bodyLarge?.copyWith(
-          color: HermesColors.textDisabled,
-        ),
-      ),
+        backgroundColor: cs.surface, selectedItemColor: cs.secondary,
+        unselectedItemColor: cs.onSurfaceVariant,
+        type: BottomNavigationBarType.fixed, elevation: 3,
+        selectedLabelStyle: tt.labelSmall?.copyWith(color: cs.secondary),
+        unselectedLabelStyle: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+      cardTheme: CardThemeData(elevation: 1, color: cs.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: cs.outlineVariant, width: 0.5))),
+      inputDecorationTheme: InputDecorationTheme(filled: true,
+        fillColor: cs.surface,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: cs.outlineVariant)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: cs.outlineVariant)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: cs.secondary, width: 2)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: cs.error)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        hintStyle: tt.bodyLarge?.copyWith(color: hint)),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: HermesColors.cyan,
-          foregroundColor: HermesColors.dark,
-          disabledBackgroundColor: HermesColors.textDisabled,
-          disabledForegroundColor: HermesColors.dark,
+        style: ElevatedButton.styleFrom(backgroundColor: cs.secondary,
+          foregroundColor: cs.onSecondary,
+          disabledBackgroundColor: cs.onSurface.withValues(alpha: 0.12),
+          disabledForegroundColor: hint,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600))),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: HermesColors.cyan,
-          side: const BorderSide(color: HermesColors.cyan),
+        style: OutlinedButton.styleFrom(foregroundColor: cs.secondary,
+          side: BorderSide(color: cs.secondary),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        elevation: 6,
-        backgroundColor: HermesColors.cyan,
-        foregroundColor: HermesColors.dark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: colorScheme.surface,
-        selectedColor: HermesColors.cyan.withValues(alpha: 0.2),
-        labelStyle: textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurface,
-        ),
-        secondaryLabelStyle: textTheme.labelMedium?.copyWith(
-          color: HermesColors.cyan,
-        ),
-        side: BorderSide(color: colorScheme.outlineVariant),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-      ),
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: 0.5,
-        space: 1,
-      ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
-        // BUG-006: Explicit text styles prevent M3 dark-mode
-        // inheritance failures where AlertDialog text renders invisible
-        // on the dark HermesColors.surface (#161B22) background.
-        titleTextStyle: textTheme.headlineSmall?.copyWith(
-          color: colorScheme.onSurface,
-        ),
-        contentTextStyle: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface.withValues(alpha: 0.75),
-        ),
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.surface,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-        ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)))),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(elevation: 6,
+        backgroundColor: cs.secondary, foregroundColor: cs.onSecondary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)))),
+      chipTheme: ChipThemeData(backgroundColor: cs.surface,
+        selectedColor: cs.secondary.withValues(alpha: 0.2),
+        labelStyle: tt.labelMedium?.copyWith(color: cs.onSurface),
+        secondaryLabelStyle: tt.labelMedium?.copyWith(color: cs.secondary),
+        side: BorderSide(color: cs.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+      dividerTheme: DividerThemeData(color: cs.outlineVariant,
+        thickness: 0.5, space: 1),
+      dialogTheme: DialogThemeData(backgroundColor: cs.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        titleTextStyle: tt.headlineSmall?.copyWith(color: cs.onSurface),
+        contentTextStyle: tt.bodyMedium?.copyWith(
+          color: cs.onSurface.withValues(alpha: 0.75))),
+      snackBarTheme: SnackBarThemeData(backgroundColor: cs.inverseSurface,
+        contentTextStyle: tt.bodyMedium?.copyWith(color: cs.onInverseSurface),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: HermesColors.cyan,
-        linearTrackColor: HermesColors.border,
-      ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: cs.secondary, linearTrackColor: cs.outlineVariant),
+      extensions: [tokens],
     );
   }
 }

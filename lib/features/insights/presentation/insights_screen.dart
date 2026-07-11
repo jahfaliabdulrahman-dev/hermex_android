@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/hermes_theme_tokens.dart';
 import '../../../models/insights_data.dart';
 import '../providers/insights_provider.dart';
 
@@ -34,19 +35,19 @@ class InsightsScreen extends ConsumerWidget {
         title: Text(
           AppStrings.insights,
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: HermesColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: HermesColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: insightsAsync.when(
         loading: () => const Center(
-          child: CircularProgressIndicator(color: HermesColors.cyan),
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
         ),
         error: (error, stack) => _buildErrorState(error.toString(), theme, ref),
         data: (data) => _buildContent(data, theme, ref),
@@ -65,7 +66,7 @@ class InsightsScreen extends ConsumerWidget {
     }
 
     return RefreshIndicator(
-      color: HermesColors.cyan,
+      color: Theme.of(context).colorScheme.secondary,
       onRefresh: () => ref.refresh(insightsProvider.future),
       child: ListView(
         padding: const EdgeInsets.all(16),
@@ -100,7 +101,7 @@ class InsightsScreen extends ConsumerWidget {
       child: Text(
         title,
         style: theme.textTheme.titleSmall?.copyWith(
-          color: HermesColors.cyan,
+          color: Theme.of(context).colorScheme.secondary,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -122,25 +123,25 @@ class InsightsScreen extends ConsumerWidget {
           icon: Icons.forum_outlined,
           label: 'Sessions',
           value: data.totalSessions.toString(),
-          color: HermesColors.cyan,
+          color: Theme.of(context).colorScheme.secondary,
         ),
         _StatCard(
           icon: Icons.message_outlined,
           label: 'Messages',
           value: _formatCount(data.totalMessages),
-          color: HermesColors.info,
+          color: HermesThemeTokens.of(context).info,
         ),
         _StatCard(
           icon: Icons.token_outlined,
           label: 'Tokens',
           value: data.formattedTokens,
-          color: HermesColors.warning,
+          color: HermesThemeTokens.of(context).warning,
         ),
         _StatCard(
           icon: Icons.timer_outlined,
           label: 'Active Time',
           value: data.formattedActiveTime,
-          color: HermesColors.success,
+          color: HermesThemeTokens.of(context).success,
         ),
       ],
     );
@@ -154,7 +155,7 @@ class InsightsScreen extends ConsumerWidget {
             icon: Icons.schedule_outlined,
             label: 'Cron Jobs Run',
             value: data.cronJobsRun.toString(),
-            color: HermesColors.info,
+            color: HermesThemeTokens.of(context).info,
           ),
         ),
         const SizedBox(width: 12),
@@ -163,7 +164,7 @@ class InsightsScreen extends ConsumerWidget {
             icon: Icons.extension_outlined,
             label: 'Skills',
             value: data.skillsCount.toString(),
-            color: HermesColors.success,
+            color: HermesThemeTokens.of(context).success,
           ),
         ),
       ],
@@ -174,18 +175,18 @@ class InsightsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HermesColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: HermesColors.border, width: 0.5),
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 0.5),
       ),
       child: Row(
         children: [
-          Icon(Icons.sync, size: 16, color: HermesColors.textDisabled),
+          Icon(Icons.sync, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
           const SizedBox(width: 8),
           Text(
             '${AppStrings.lastSynced}: ${_formatDateTime(data.lastSynced!)}',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
           ),
         ],
@@ -205,13 +206,13 @@ class InsightsScreen extends ConsumerWidget {
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: HermesColors.textDisabled,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.noInsightsAvailable,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -219,7 +220,7 @@ class InsightsScreen extends ConsumerWidget {
             Text(
               AppStrings.startUsingAgentForData,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -239,13 +240,13 @@ class InsightsScreen extends ConsumerWidget {
             const Icon(
               Icons.error_outline,
               size: 48,
-              color: HermesColors.error,
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 16),
             Text(
               AppStrings.failedToLoadInsights,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: HermesColors.error,
+                color: Theme.of(context).colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),
@@ -253,7 +254,7 @@ class InsightsScreen extends ConsumerWidget {
             Text(
               error,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
@@ -304,10 +305,10 @@ class _StatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      color: HermesColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: HermesColors.border, width: 0.5),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline, width: 0.5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -320,7 +321,7 @@ class _StatCard extends StatelessWidget {
             Text(
               value,
               style: theme.textTheme.headlineSmall?.copyWith(
-                color: HermesColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
@@ -330,7 +331,7 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: HermesColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
