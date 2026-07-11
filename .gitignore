@@ -12,3 +12,6 @@ __pycache__/
 *.jks
 *.keystore
 key.properties
+audit-report-*.md
+app-spec/HUNT_REPORT_*.md
+bench_orchestration_prompt.md
