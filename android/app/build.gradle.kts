@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -16,6 +19,7 @@ android {
     }
 
     kotlinOptions {
+        @Suppress("DEPRECATION")
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
@@ -23,14 +27,20 @@ android {
     // Reads from android/key.properties (NOT committed to git)
     // CI/CD uses environment variables via GitHub Secrets
     val keystorePropertiesFile = rootProject.file("key.properties")
-    val keystoreProperties = java.util.Properties()
+    val keystoreProperties = Properties()
     if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("KEYSTORE_FILE") ?: keystoreProperties.getProperty("storeFile") ?: "../hermex-release.jks")
+            val envKeystoreFile = System.getenv("KEYSTORE_FILE")
+            val propKeystoreFile = keystoreProperties.getProperty("storeFile")
+            storeFile = file(
+                if (!envKeystoreFile.isNullOrEmpty()) envKeystoreFile
+                else if (!propKeystoreFile.isNullOrEmpty()) propKeystoreFile
+                else "../hermex-release.jks"
+            )
             storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
             keyAlias = keystoreProperties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS") ?: ""
             keyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD") ?: ""
