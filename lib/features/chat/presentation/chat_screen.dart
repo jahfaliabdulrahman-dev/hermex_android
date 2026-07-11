@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/colors.dart';
 import '../providers/chat_provider.dart';
@@ -27,6 +28,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _showScrollFab = false;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -34,7 +36,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Initialize chat after first frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(chatProvider.notifier).initialize();
+      _initChat();
     });
 
     // Listen for scroll position to show/hide FAB.
@@ -47,6 +49,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Initialize the chat: connect to server, then optionally load a session.
+  Future<void> _initChat() async {
+    if (_initialized) return;
+    _initialized = true;
+
+    final notifier = ref.read(chatProvider.notifier);
+    await notifier.initialize();
+
+    if (!mounted) return;
+    final uri = GoRouterState.of(context).uri;
+    final sessionId = uri.queryParameters['session'];
+    if (sessionId != null && sessionId.isNotEmpty) {
+      final title = uri.queryParameters['title'];
+      final modelName = uri.queryParameters['model'];
+      await notifier.loadHistory(
+        sessionId,
+        title: title,
+        modelName: modelName,
+      );
+    }
   }
 
   void _onScroll() {
@@ -94,9 +118,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          state.sessionId != null ? 'Chat' : 'Hermes Chat',
-        ),
+        title: _buildAppBarTitle(state),
         actions: [
           // New chat button.
           IconButton(
@@ -104,7 +126,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: 'New Chat',
             onPressed: () {
               _textController.clear();
+              _initialized = false;
               ref.read(chatProvider.notifier).startNewChat();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _initialized = false;
+                _initChat();
+              });
             },
           ),
           const SizedBox(width: 4),
@@ -140,6 +167,58 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: const Icon(Icons.arrow_downward, color: HermesColors.cyan),
             )
           : null,
+    );
+  }
+
+  /// Build the AppBar title with session context.
+  Widget _buildAppBarTitle(ChatState state) {
+    final hasSession = state.sessionId != null;
+    final title = state.sessionTitle;
+
+    if (hasSession && title != null && title.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (state.sessionModelName != null &&
+              state.sessionModelName!.isNotEmpty)
+            Text(
+              state.sessionModelName!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+        ],
+      );
+    }
+
+    if (hasSession) {
+      return Text(
+        'Chat',
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+      );
+    }
+
+    return Text(
+      'Hermes Chat',
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
     );
   }
 
