@@ -1,6 +1,6 @@
 # 19 — Traceability Matrix
 
-> Last Updated: 2026-07-06
+> Last Updated: 2026-07-11
 > Maps every feature (F-001 to F-008) across all spec files, implementation, and tests.
 > **Router Wired column populated by T2-R (t_ecd75ad7):** ChatScreen, WorkspaceScreen, SkillsScreen wired to GoRouter in app_router.dart. See LL-017.
 

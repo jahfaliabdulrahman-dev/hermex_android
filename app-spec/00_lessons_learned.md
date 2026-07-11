@@ -159,10 +159,12 @@
 | Architecture patterns | 5 (Notifier/AutoDispose, isBusy guard, route ordering, nullable repos, provider invalidation) |
 | Implementation pitfalls | 3 (Flutter symbol conflicts, async API key, duplicate files) |
 | Spec gaps found | 3 (API contract, security coverage, duplicate endpoints) |
-| Process & governance gaps | 3 (Big Bang QA, missing git push, workspace verification) |
+| Process & governance gaps | 8 (Big Bang QA, missing git push, workspace verification, premature EPIC closure, test threshold mismatch, incomplete fix marked done, release gate bypass, no validation) |
 | Operational bug recovery | 3 (LL-022 Silent API Key Redaction, LL-023 Fake Connection State, LL-024–LL-029 Android) |
 | Governance failures | 1 (LL-030 Orchestrator Direct Code Execution) |
-| **Total lessons** | **28 (LL-001 through LL-030)** |
+| Branch hygiene | 1 (LL-033 Stale WIP artifacts) |
+| Kanban usage pattern | 1 (LL-041 EPIC dispatch deadlock) |
+| **Total lessons** | **35 (LL-001 through LL-041)** |
 
 ---
 
