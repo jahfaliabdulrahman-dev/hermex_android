@@ -1,7 +1,7 @@
 # 04 — UI Design System: Hermex Android
 
 > Complete Material 3 design tokens, screen layouts, component specs, and RTL rules.
-> Updated: 2026-07-11 | Author: flutter-ui-ux-designer / flutter-documentation-steward
+> Updated: 2026-07-11 | Author: flutter-state-engineer / flutter-ui-ux-designer
 
 ---
 

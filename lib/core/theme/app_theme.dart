@@ -41,6 +41,7 @@ abstract class AppTheme {
       primary: HermesColors.navy,
       secondary: HermesColors.cyan,
       surface: HermesColors.surface,
+      outline: HermesColors.border,
       error: HermesColors.error,
       onPrimary: HermesColors.white,
       onSecondary: HermesColors.dark,
@@ -54,8 +55,14 @@ abstract class AppTheme {
       seedColor: HermesColors.navy,
       brightness: Brightness.light,
       primary: HermesColors.navy,
-      secondary: HermesColors.cyan,
+      onPrimary: HermesColors.lightOnPrimary,
+      secondary: HermesColors.lightSecondary,
+      onSecondary: HermesColors.lightOnSecondary,
+      surface: HermesColors.lightSurface,
+      onSurface: HermesColors.lightOnSurface,
+      outline: HermesColors.lightOutline,
       error: HermesColors.error,
+      onError: HermesColors.white,
     );
   }
 
@@ -64,12 +71,23 @@ abstract class AppTheme {
   /// Builds the shared ThemeData structure that differs only by [colorScheme]
   /// and [brightness]. Uses [colorScheme] properties instead of hardcoded
   /// HermesColors where the value must swap between light/dark.
+  ///
+  /// DEC-EPIC001-THEME: All hardcoded accent colors now switch on brightness
+  /// so light theme gets WCAG-AA-adapted tokens instead of dark-theme cyan.
   static ThemeData _buildBaseTheme({
     required ColorScheme colorScheme,
     required Brightness brightness,
     required Color scaffoldBackground,
   }) {
     final textTheme = HermesTextTheme.buildTextTheme();
+    final bool isLight = brightness == Brightness.light;
+    final Color accentColor =
+        isLight ? HermesColors.lightSecondary : HermesColors.cyan;
+    final Color onAccentColor =
+        isLight ? HermesColors.lightOnSecondary : HermesColors.dark;
+    final Color hintColor = isLight
+        ? HermesColors.lightOnSurfaceVariant
+        : HermesColors.textDisabled;
 
     return ThemeData(
       useMaterial3: true,
@@ -88,12 +106,12 @@ abstract class AppTheme {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.surface,
-        selectedItemColor: HermesColors.cyan,
+        selectedItemColor: accentColor,
         unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.55),
         type: BottomNavigationBarType.fixed,
         elevation: 3,
         selectedLabelStyle: textTheme.labelSmall?.copyWith(
-          color: HermesColors.cyan,
+          color: accentColor,
         ),
         unselectedLabelStyle: textTheme.labelSmall?.copyWith(
           color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -120,7 +138,7 @@ abstract class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
-          borderSide: const BorderSide(color: HermesColors.cyan, width: 2),
+          borderSide: BorderSide(color: accentColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(4),
@@ -129,15 +147,16 @@ abstract class AppTheme {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         hintStyle: textTheme.bodyLarge?.copyWith(
-          color: HermesColors.textDisabled,
+          color: hintColor,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: HermesColors.cyan,
-          foregroundColor: HermesColors.dark,
-          disabledBackgroundColor: HermesColors.textDisabled,
-          disabledForegroundColor: HermesColors.dark,
+          backgroundColor: accentColor,
+          foregroundColor: onAccentColor,
+          disabledBackgroundColor: colorScheme.onSurface.withValues(alpha: 0.12),
+          disabledForegroundColor:
+              colorScheme.onSurface.withValues(alpha: 0.38),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -149,30 +168,30 @@ abstract class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: HermesColors.cyan,
-          side: const BorderSide(color: HermesColors.cyan),
+          foregroundColor: accentColor,
+          side: BorderSide(color: accentColor),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 6,
-        backgroundColor: HermesColors.cyan,
-        foregroundColor: HermesColors.dark,
-        shape: RoundedRectangleBorder(
+        backgroundColor: accentColor,
+        foregroundColor: onAccentColor,
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: colorScheme.surface,
-        selectedColor: HermesColors.cyan.withValues(alpha: 0.2),
+        selectedColor: colorScheme.secondaryContainer,
         labelStyle: textTheme.labelMedium?.copyWith(
           color: colorScheme.onSurface,
         ),
         secondaryLabelStyle: textTheme.labelMedium?.copyWith(
-          color: HermesColors.cyan,
+          color: accentColor,
         ),
         side: BorderSide(color: colorScheme.outlineVariant),
         shape: RoundedRectangleBorder(
@@ -209,9 +228,9 @@ abstract class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: HermesColors.cyan,
-        linearTrackColor: HermesColors.border,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: accentColor,
+        linearTrackColor: colorScheme.outline,
       ),
     );
   }

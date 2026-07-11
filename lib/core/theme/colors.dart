@@ -35,4 +35,16 @@ abstract class HermesColors {
   static const Color agentBubbleText = Color(0xFFE6EDF3); // textPrimary
   static const Color codeBlockBg = Color(0xFF0D1117); // dark
   static const Color codeBlockBorder = Color(0xFF30363D); // border
+
+  // ─── Light-Mode Palette — 04_ui_design_system.md §1.5 ───
+  // DEC-EPIC001-THEME: Light tokens for dual-theme support.
+  static const Color lightBg = Color(0xFFFFFFFF);
+  static const Color lightSurface = Color(0xFFF0F6FC);
+  static const Color lightOnSurface = Color(0xFF1F2328);
+  static const Color lightOnSurfaceVariant = Color(0xFF656D76);
+  static const Color lightSecondary = Color(0xFF0077A3);
+  // #0077A3 is cyanAdapted — #32C2FF adapted for WCAG AA 4.5:1 on light bg.
+  static const Color lightOnSecondary = Color(0xFFFFFFFF);
+  static const Color lightOutline = Color(0xFFD0D7DE);
+  static const Color lightOnPrimary = Color(0xFFFFFFFF); // white on navy
 }
