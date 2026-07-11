@@ -46,6 +46,7 @@ abstract class AppTheme {
       onPrimary: HermesColors.white,
       onSecondary: HermesColors.dark,
       onSurface: HermesColors.textPrimary,
+      onSurfaceVariant: HermesColors.textSecondary,
       onError: HermesColors.white,
     );
   }
@@ -60,6 +61,7 @@ abstract class AppTheme {
       onSecondary: HermesColors.lightOnSecondary,
       surface: HermesColors.lightSurface,
       onSurface: HermesColors.lightOnSurface,
+      onSurfaceVariant: HermesColors.lightOnSurfaceVariant,
       outline: HermesColors.lightOutline,
       error: HermesColors.error,
       onError: HermesColors.white,
