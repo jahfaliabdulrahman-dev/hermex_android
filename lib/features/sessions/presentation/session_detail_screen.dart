@@ -125,7 +125,11 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
  height: 52,
  child: FilledButton.icon(
  onPressed: () {
- context.go(RoutePaths.chat);
+   context.go(RoutePaths.chatWithSession(
+     id: session.id,
+     title: session.title,
+     modelName: session.modelName,
+   ));
  },
  icon: Icon(Icons.chat_bubble),
  label: Text(AppStrings.openChat),

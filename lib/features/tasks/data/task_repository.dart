@@ -143,7 +143,12 @@ class TaskRepository {
       if (modelProvider != null) body['model_provider'] = modelProvider;
       if (modelName != null) body['model_name'] = modelName;
       if (deliver != null) body['deliver'] = deliver;
-      if (paused != null) body['paused'] = paused;
+      // DEC-EPIC001-DEPCHECK: API uses paused_at (DateTime?), not paused (bool).
+      // Paused → paused_at = now; not paused → paused_at = null.
+      if (paused != null) {
+        body['paused_at'] =
+            paused ? DateTime.now().toIso8601String() : null;
+      }
 
       final response =
           await _apiClient.patch(ApiEndpoints.jobById(id), data: body);

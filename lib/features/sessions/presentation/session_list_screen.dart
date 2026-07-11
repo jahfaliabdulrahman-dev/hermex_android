@@ -55,8 +55,12 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
     }
   }
 
-  void _handleSessionTap(String id) {
-    context.go(RoutePaths.sessionById(id));
+  void _handleSessionTap(SessionSummary session) {
+    context.go(RoutePaths.chatWithSession(
+      id: session.id,
+      title: session.title,
+      modelName: session.modelName,
+    ));
   }
 
   // ─── Filtering ───
@@ -274,7 +278,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
           final session = sessions[index];
           return _SessionCard(
             session: session,
-            onTap: () => _handleSessionTap(session.id),
+            onTap: () => _handleSessionTap(session),
             onDelete: () => _handleDeleteSession(session.id),
           );
         },
