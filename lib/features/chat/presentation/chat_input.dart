@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/colors.dart';
 
-/// Chat input bar — multi-line text field, send button, and attachment placeholder.
+/// Chat input bar — multi-line text field and send button.
 ///
 /// Supports:
 /// - Multi-line text input with auto-expand up to 6 lines
 /// - Send button (disabled when input is empty or streaming)
-/// - Attachment button (placeholder for future)
 /// - RTL support for Arabic text input
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
@@ -41,25 +40,7 @@ class ChatInput extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ─── Row: attachment placeholder ───
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Row(
-              children: [
-                const Spacer(),
-                // Attachment button (placeholder).
-                IconButton(
-                  icon: const Icon(Icons.attach_file_outlined, size: 20),
-                  color: HermesColors.textDisabled,
-                  onPressed: null, // Future feature.
-                  tooltip: 'Attach file',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // ─── Row 2: Text input + send/stop ───
+          // ─── Text input + send/stop ───
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
