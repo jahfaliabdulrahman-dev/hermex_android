@@ -1,7 +1,7 @@
 # 00 — Lessons Learned
 
 > Initiated: 2026-07-04
-> Last Updated: 2026-07-07
+> Last Updated: 2026-07-11
 > Project: hermex_android
 > Version: 1.5.0
 
@@ -330,3 +330,34 @@
 - **Prevention Rule (PERMANENT — GOV-001):** The Lead Architect shall NEVER write application code. This profile's role is orchestration, approval, conflict resolution, architectural integrity, traceability, and final technical governance (§1 SOUL identity). Code changes flow through: Kanban task → specialized agent → QA → audit → deployment. The orchestrator verifies, never implements.
 - **Governance Impact:** Added to `00_swarm_operating_playbook.md` §Governance as immutable rule GOV-001. This rule is PERMANENT and shall not be waived for speed, urgency, or user request.
 - **Linked Decision ID:** N/A (sovereign governance — user directive)
+
+---
+
+## 2026-07-11 — RC4 Documentation & Release Prep
+
+### LL-031: Premature EPIC Closure — Parent completed while child tasks still running
+- **Date:** 2026-07-11
+- **Stage:** RC4 Coordination
+- **Files Affected:** Kanban task `t_31a0453e`
+- **Lesson:** An EPIC-level orchestrator task (`t_31a0453e`) was marked "done" while its dispatched child tasks were still running. Downstream workers that depended on the EPIC's output were misled into starting work on stale or incomplete preconditions.
+- **Root Cause:** The orchestrator's completion gate only checked whether it had dispatched all child tasks — not whether all children had completed successfully. The kanban dependency model relies on explicit parent→child linkages, but the orchestrator's own state transition had no "all children resolved" verification.
+- **Prevention Rule:** An orchestrator task MUST NOT transition to "done" until every child task it created has itself reached a terminal state (done/blocked/cancelled). Add a pre-completion gate that queries child task states and blocks completion if any remain running.
+- **Linked Decision ID:** N/A (process gap)
+
+### LL-032: Test Threshold Mismatch — Declared 469 vs actual 452
+- **Date:** 2026-07-11
+- **Stage:** RC4 Verification
+- **Files Affected:** Various test files, `00_lessons_learned.md`, Kanban task descriptions
+- **Lesson:** A stated "469 tests passing" was inherited from a prior session's environment. The actual count was 452 in the current workspace (before RC4 fixes). Publishing an incorrect threshold created confusion during verification gates: reviewers expected 469 but got 452, triggering unnecessary investigation into "missing" tests.
+- **Root Cause:** The test count was recorded as a prose constant in task bodies and summaries without re-verifying at handoff. The count drifted between environments (different feature branches, partial checkouts, cached build artifacts) but was never re-computed from `flutter test` at the start of each worker session.
+- **Prevention Rule:** Every task that mentions a test count MUST run `flutter test` at the start of the session to establish the true baseline. Never reuse a test count from a parent task, summary, or prior session without re-verification.
+- **Linked Decision ID:** N/A (process gap)
+
+### LL-033: Theme Crisis False Alarm — Stale Workspace Artifacts
+- **Date:** 2026-07-11
+- **Stage:** RC4 Theme Verification
+- **Files Affected:** `lib/core/theme/`
+- **Lesson:** A WIP commit (`0a2c5e6`) on the `epic/rc4-polish` branch contained 32 analyzer errors and 9 test failures from a failed theme migration attempt. A worker inspecting the branch saw these artifact errors and raised a "theme crisis" alarm. The actual clean state was at `8aec1db` (0 errors, 484/484 pass) — the WIP commit was an abandoned save point from a different agent session, not the current working state.
+- **Root Cause:** The branch contained orphaned WIP commits from a prior worker that did a force-push or rebase cleanup without removing the stale commit. No branch hygiene rule prevented stale/incomplete commits from accumulating on shared branches.
+- **Prevention Rule:** Before starting work on a shared branch, run `git log --oneline -5` and verify the HEAD commit matches the expected baseline. If stale WIP commits are present, either (a) `git reset --hard` to the last clean commit, or (b) cherry-pick only completed fixes and abandon the WIP commit. Document the baseline commit ID in the task body.
+- **Linked Decision ID:** N/A (branch hygiene)

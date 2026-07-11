@@ -1,7 +1,7 @@
 # 04 — UI Design System: Hermex Android
 
 > Complete Material 3 design tokens, screen layouts, component specs, and RTL rules.
-> Updated: 2026-07-05 | Author: flutter-ui-ux-designer
+> Updated: 2026-07-11 | Author: flutter-ui-ux-designer / flutter-documentation-steward
 
 ---
 
@@ -46,6 +46,20 @@
 All tokens follow pattern: `hermes{Purpose}` (PascalCase for Dart constants).
 Never use raw hex values in widget code.
 Generated via `material_color_utilities` to produce full `ColorScheme` from `hermesNavy` seed.
+
+### §1.5 Light-Mode Color Palette
+
+| Token Name | Hex | Notes |
+|---|---|---|
+| `hermesLightBg` | `#FFFFFF` | Page background (light theme) |
+| `hermesLightSurface` | `#F0F6FC` | Card/surface background (light theme) |
+| `hermesLightBorder` | `#D0D7DE` | Separators, borders, text field outlines (light) |
+| `hermesLightTextPrimary` | `#1F2328` | Primary text on light surfaces |
+| `hermesLightTextSecondary` | `#656D76` | Secondary/muted text on light surfaces |
+| `hermesLightTextDisabled` | `#8C959F` | Disabled text on light surfaces |
+| `hermesCyanAdapted` | `#0077A3` | Cyan on light bg — adapted from `#32C2FF` for WCAG AA |
+
+**Cyan Adaption Rule:** On light backgrounds, the cyan accent (`#32C2FF`) is replaced with `#0077A3` to meet WCAG AA 4.5:1 contrast ratio against white/light surfaces. `#32C2FF` on white has ~2.5:1 contrast (fails AA). `#0077A3` on white has ~4.6:1 (passes AA). This swap applies to: buttons, FABs, links, selected tab labels, and any interactive element using the cyan accent. (DEC-EPIC001-THEME)
 
 ---
 

@@ -2,7 +2,7 @@
 
 > Hermes Agent API Server is OpenAI-compatible. Full spec: `hermes-agent/website/docs/user-guide/features/api-server.md`
 >
-> **Last Updated:** 2026-07-06 (added /v1/memory, /v1/insights, /v1/workspace — per LL-010)
+> **Last Updated:** 2026-07-11 (added /api/jobs pagination doc)
 
 ## Key Endpoints
 
@@ -289,6 +289,63 @@ OR directly as a string (server-dependent):
 - Monospace font for file preview
 - Selectable text for copy-paste
 - Close button to dismiss preview
+
+---
+
+## GET /api/jobs
+
+Returns a paginated list of cron jobs.
+
+### Request
+
+```
+GET /api/jobs
+Authorization: Bearer ***
+```
+
+| Query Param | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `per_page` | integer | no | 50 | Number of jobs per page |
+
+No request body.
+
+### Response
+
+**200 OK** — Returns a JSON array of job objects:
+
+```json
+[
+  {
+    "id": "job_abc123",
+    "name": "Daily Backup",
+    "schedule": "0 9 * * *",
+    "status": "active",
+    "created_at": "2026-07-01T08:00:00Z"
+  }
+]
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| id | string | yes | Unique job identifier |
+| name | string | yes | Human-readable job name |
+| schedule | string | yes | Cron expression |
+| status | string | yes | `active` or `paused` |
+
+**Error responses:**
+
+| Status | Condition |
+|---|---|
+| 401 | Missing or invalid bearer token |
+| 500 | Server error |
+
+### Client Behavior (Hermex)
+
+- `taskProvider` (Notifier) fetches on screen mount
+- Returns empty list when no server connected
+- "Paused" state shown with `pause_circle` icon
+- Pull-to-refresh supported
+- Jobs default to sorting by creation date (newest first)
 
 ---
 
