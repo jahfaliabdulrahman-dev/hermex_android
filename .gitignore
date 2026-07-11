@@ -7,3 +7,8 @@ local.properties
 *.lock
 .kotlin/
 __pycache__/
+
+# ─── C-4: Never commit keystore or signing credentials ───
+*.jks
+*.keystore
+key.properties
