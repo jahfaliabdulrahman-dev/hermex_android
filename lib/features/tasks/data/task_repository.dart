@@ -205,19 +205,49 @@ class TaskRepository {
   }
 
   /// Pause a cron job.
+  /// Uses POST /api/jobs/:id/pause — PATCH with {"paused": true} returns 400
+  /// ("No valid fields to update") on Hermes API Server v0.18.2.
+  /// DEC-T2-PAUSERESUME: Pause/resume are action endpoints, not field updates.
   Future<CronJob> pause(String id) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: TaskRepository.pause — id=$id ===');
     }
-    return update(id: id, paused: true);
+    try {
+      final response =
+          await _apiClient.post('${ApiEndpoints.jobById(id)}/pause');
+      // DEC-EPIC001-DEPCHECK: POST /pause returns {"job": {...}}.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: TaskRepository.pause DioException — ${e.type}: ${e.message} ===');
+      }
+      throw _classifyError(e);
+    }
   }
 
   /// Resume a paused cron job.
+  /// Uses POST /api/jobs/:id/resume — PATCH with {"paused": false} returns 400
+  /// ("No valid fields to update") on Hermes API Server v0.18.2.
+  /// DEC-T2-PAUSERESUME: Pause/resume are action endpoints, not field updates.
   Future<CronJob> resume(String id) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: TaskRepository.resume — id=$id ===');
     }
-    return update(id: id, paused: false);
+    try {
+      final response =
+          await _apiClient.post('${ApiEndpoints.jobById(id)}/resume');
+      // DEC-EPIC001-DEPCHECK: POST /resume returns {"job": {...}}.
+      final jobData = response['job'] as Map<String, dynamic>;
+      return CronJob.fromJson(jobData);
+    } on DioException catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: TaskRepository.resume DioException — ${e.type}: ${e.message} ===');
+      }
+      throw _classifyError(e);
+    }
   }
 
   // ─── Error Classification ───

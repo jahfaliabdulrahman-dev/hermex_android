@@ -2,7 +2,7 @@
 
 > Hermes Agent API Server is OpenAI-compatible. Full spec: `hermes-agent/website/docs/user-guide/features/api-server.md`
 >
-> **Last Updated:** 2026-07-11 (added /api/jobs pagination doc)
+> **Last Updated:** 2026-07-12 (added pause/resume, run, delete, PATCH endpoints; corrected GET /api/jobs response shape — DEC-T2-PAUSERESUME)
 
 ## Key Endpoints
 
@@ -14,8 +14,13 @@
 | GET | /v1/models | Available models |
 | GET | /api/sessions | Session list |
 | POST | /api/sessions/{id}/chat/stream | SSE streaming turn |
-| GET | /api/jobs | Cron job list |
-| POST | /api/jobs | Create job |
+| GET | /api/jobs | Cron job list (wrapped in `jobs` key) |
+| POST | /api/jobs | Create cron job |
+| PATCH | /api/jobs/{id} | Update cron job (name, prompt, schedule, enabled, skills, etc.) |
+| POST | /api/jobs/{id}/pause | Pause a cron job |
+| POST | /api/jobs/{id}/resume | Resume a paused cron job |
+| POST | /api/jobs/{id}/run | Trigger immediate run |
+| DELETE | /api/jobs/{id} | Delete a cron job |
 | GET | /v1/skills | Skills list |
 | GET | /v1/capabilities | Feature detection |
 | GET | /v1/memory | Agent memory entries (read-only) |
@@ -294,7 +299,7 @@ OR directly as a string (server-dependent):
 
 ## GET /api/jobs
 
-Returns a paginated list of cron jobs.
+Returns a paginated list of cron jobs wrapped in a `jobs` key. Returns all jobs regardless of status (active, paused, scheduled, etc.).
 
 ### Request
 
@@ -311,26 +316,49 @@ No request body.
 
 ### Response
 
-**200 OK** — Returns a JSON array of job objects:
+**200 OK** — Returns a JSON object with a `jobs` array:
 
 ```json
-[
-  {
-    "id": "job_abc123",
-    "name": "Daily Backup",
-    "schedule": "0 9 * * *",
-    "status": "active",
-    "created_at": "2026-07-01T08:00:00Z"
-  }
-]
+{
+  "jobs": [
+    {
+      "id": "6b6068d51806",
+      "name": "Daily Backup",
+      "prompt": "Run backup",
+      "schedule": {"kind": "cron", "expr": "0 9 * * *", "display": "0 9 * * *"},
+      "state": "scheduled",
+      "enabled": true,
+      "paused_at": null,
+      "last_run_at": null,
+      "next_run_at": "2026-07-12T04:00:00+03:00",
+      "created_at": "2026-07-12T00:32:56.603533+03:00",
+      "last_error": null,
+      "skills": [],
+      "provider": null,
+      "model": null,
+      "deliver": "local"
+    }
+  ]
+}
 ```
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | id | string | yes | Unique job identifier |
 | name | string | yes | Human-readable job name |
-| schedule | string | yes | Cron expression |
-| status | string | yes | `active` or `paused` |
+| prompt | string | yes | The job's prompt/task to execute |
+| schedule | object/string | yes | Schedule spec: `{"kind":"cron","expr":"...","display":"..."}` or `{"kind":"interval","minutes":N,"display":"..."}` |
+| state | string | yes | Job state: `scheduled`, `paused`, `running`, etc. |
+| enabled | boolean | yes | Whether the job is enabled |
+| paused_at | ISO 8601 \| null | yes | Non-null when paused; null when not paused |
+| last_run_at | ISO 8601 \| null | no | Timestamp of last execution |
+| next_run_at | ISO 8601 \| null | no | Timestamp of next scheduled run |
+| created_at | ISO 8601 | yes | Creation timestamp |
+| last_error | string \| null | no | Last error message if any |
+| skills | string[] | yes | List of skill names (empty array if none) |
+| provider | string \| null | no | Model provider override |
+| model | string \| null | no | Model name override |
+| deliver | string | yes | Delivery target (default: `"local"`) |
 
 **Error responses:**
 
@@ -346,6 +374,136 @@ No request body.
 - "Paused" state shown with `pause_circle` icon
 - Pull-to-refresh supported
 - Jobs default to sorting by creation date (newest first)
+
+---
+
+## POST /api/jobs
+
+Creates a new cron job.
+
+### Request
+
+```
+POST /api/jobs
+Authorization: Bearer ***
+Content-Type: application/json
+
+{"prompt": "Daily summary", "schedule": "0 9 * * *", "name": "Morning Brief"}
+```
+
+| Body Field | Type | Required | Description |
+|---|---|---|---|
+| prompt | string | yes | The task for the agent to execute |
+| schedule | string | yes | Cron expression (e.g. `"0 9 * * *"`) or interval (e.g. `"30m"`) |
+| name | string | no | Human-readable name |
+| skills | string[] | no | Skill names to load |
+| model_provider | string | no | Model provider |
+| model_name | string | no | Model name |
+| deliver | string | no | Delivery target |
+
+### Response
+
+**200 OK** — Returns `{"job": {...}}` with the created job (server-assigned ID).
+
+---
+
+## PATCH /api/jobs/{id}
+
+Partially updates a cron job. Only sends the fields to change.
+
+**IMPORTANT:** The `paused` field is NOT accepted — use the action endpoints below for pause/resume.
+
+### Accepted Fields
+
+| Field | Type | Description |
+|---|---|---|
+| name | string | Rename the job |
+| prompt | string | Update the task prompt |
+| schedule | string | Update the cron expression |
+| skills | string[] | Update skill list |
+| enabled | boolean | Enable/disable (does NOT set paused_at) |
+| model_provider | string | Model provider |
+| model_name | string | Model name |
+| deliver | string | Delivery target |
+
+### Response
+
+**200 OK** — Returns `{"job": {...}}` with the updated job.
+**400** — `{"error": "No valid fields to update"}` when sending unsupported fields.
+
+---
+
+## POST /api/jobs/{id}/pause
+
+Pauses a cron job (DEC-T2-PAUSERESUME).
+
+### Request
+
+```
+POST /api/jobs/{id}/pause
+Authorization: Bearer ***
+```
+
+No request body.
+
+### Response
+
+**200 OK** — Returns `{"job": {...}}` with `state: "paused"`, `enabled: false`, `paused_at` set.
+
+---
+
+## POST /api/jobs/{id}/resume
+
+Resumes a paused cron job (DEC-T2-PAUSERESUME).
+
+### Request
+
+```
+POST /api/jobs/{id}/resume
+Authorization: Bearer ***
+```
+
+No request body.
+
+### Response
+
+**200 OK** — Returns `{"job": {...}}` with `state: "scheduled"`, `enabled: true`, `paused_at: null`.
+
+---
+
+## POST /api/jobs/{id}/run
+
+Triggers an immediate execution of a cron job.
+
+### Request
+
+```
+POST /api/jobs/{id}/run
+Authorization: Bearer ***
+```
+
+No request body.
+
+### Response
+
+**200 OK** — Returns `{"job": {...}}` with updated job state.
+
+---
+
+## DELETE /api/jobs/{id}
+
+Deletes a cron job.
+
+### Request
+
+```
+DELETE /api/jobs/{id}
+Authorization: Bearer ***
+```
+
+### Response
+
+**200 OK** — `{"ok": true}`
 
 ---
 
