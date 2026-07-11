@@ -1,5 +1,8 @@
 /// Typed exceptions for API operations.
 /// Catches and categorizes all failure modes from the Hermes Agent API Server.
+///
+/// SECURITY: [toString()] must NEVER expose [responseBody] or raw server data.
+/// Use [toDebugString()] for debug logging (debug-mode only).
 abstract class ApiException implements Exception {
   final String message;
   final int? statusCode;
@@ -7,9 +10,29 @@ abstract class ApiException implements Exception {
 
   const ApiException(this.message, {this.statusCode, this.responseBody});
 
+  /// User-safe representation. Returns only status code — never raw server data.
+  /// UI error handlers should display this, not [message] or [responseBody].
   @override
-  String toString() =>
-      'ApiException: $message (status: $statusCode, body: $responseBody)';
+  String toString() {
+    final code = statusCode;
+    if (code != null) {
+      return 'Request failed (status: $code)';
+    }
+    return 'Request failed (no response)';
+  }
+
+  /// Full diagnostic string for debug logging only.
+  /// INCLUDES [message] and [responseBody] — NEVER display to user.
+  String toDebugString() {
+    final buf = StringBuffer('$runtimeType: $message');
+    if (statusCode != null) {
+      buf.write(' (status: $statusCode)');
+    }
+    if (responseBody != null && responseBody!.isNotEmpty) {
+      buf.write(' body: $responseBody');
+    }
+    return buf.toString();
+  }
 }
 
 /// Server unreachable — DNS failure, timeout, network error.
@@ -53,6 +76,10 @@ class PayloadTooLargeException extends ApiException {
 
   @override
   String toString() =>
+      'Request failed (payload too large)';
+
+  @override
+  String toDebugString() =>
       'PayloadTooLargeException: $message (max: $maxAllowedBytes, actual: $actualBytes)';
 }
 
