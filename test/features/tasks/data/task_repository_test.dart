@@ -207,8 +207,11 @@ void main() {
       final ex = ConnectionException('timeout', statusCode: null);
       expect(ex.message, 'timeout');
       expect(ex.statusCode, isNull);
-      expect(ex.toString(), contains('timeout'));
-      expect(ex.toString(), contains('ApiException'));
+      // toString() must NOT leak internal details to UI.
+      expect(ex.toString(), contains('Request failed'));
+      // toDebugString() includes full details for debug logging only.
+      expect(ex.toDebugString(), contains('timeout'));
+      expect(ex.toDebugString(), contains('ConnectionException'));
     });
 
     test('AuthException has correct properties', () {

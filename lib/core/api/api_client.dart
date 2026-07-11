@@ -61,7 +61,7 @@ class ApiClient {
         final exception = _classifyError(error);
         if (kDebugMode) {
           debugPrint(
-              '=== HERMEX DEBUG: ApiClient error — ${exception.runtimeType}: ${exception.message} ===');
+              '=== HERMEX DEBUG: ApiClient error — ${exception.toDebugString()} ===');
         }
         handler.next(error);
       },

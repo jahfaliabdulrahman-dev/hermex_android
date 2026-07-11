@@ -26,16 +26,23 @@ void main() {
       expect(ex, isA<ApiException>());
     });
 
-    test('toString includes max and actual', () {
+    test('toString returns user-safe message, toDebugString includes details', () {
       final ex = PayloadTooLargeException(
         maxAllowedBytes: 500,
         actualBytes: 1000,
       );
 
+      // toString() must NOT leak internal details to UI.
       final str = ex.toString();
-      expect(str, contains('PayloadTooLargeException'));
-      expect(str, contains('500'));
-      expect(str, contains('1000'));
+      expect(str, contains('Request failed'));
+      expect(str, isNot(contains('500')));
+      expect(str, isNot(contains('1000')));
+
+      // toDebugString() includes full details for debug logging only.
+      final debug = ex.toDebugString();
+      expect(debug, contains('PayloadTooLargeException'));
+      expect(debug, contains('500'));
+      expect(debug, contains('1000'));
     });
   });
 
