@@ -13,7 +13,6 @@ import 'message_bubble.dart';
 /// Layout:
 /// - AppBar with session title and "New Chat" action
 /// - Scrollable message list (ListView.builder, reverse) with auto-scroll
-/// - "Scroll to bottom" FAB when user scrolls up
 /// - ChatInput bar at the bottom
 /// - Empty state when no messages
 ///
@@ -28,15 +27,11 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
-  bool _showScrollFab = false;
   String? _lastSessionId;
 
   @override
   void initState() {
     super.initState();
-
-    // Listen for scroll position to show/hide FAB.
-    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -48,7 +43,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void dispose() {
     _textController.dispose();
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -78,16 +72,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final title = uri.queryParameters['title'];
     final modelName = uri.queryParameters['model'];
     await notifier.loadHistory(sessionId, title: title, modelName: modelName);
-  }
-
-  void _onScroll() {
-    final showFab = _scrollController.hasClients &&
-        _scrollController.position.pixels <
-            _scrollController.position.maxScrollExtent - 200;
-
-    if (showFab != _showScrollFab) {
-      setState(() => _showScrollFab = showFab);
-    }
   }
 
   /// Auto-scroll to the bottom after a new message is added.
@@ -122,6 +106,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(chatProvider);
+
+    // F2-b: Auto-scroll to bottom when new messages arrive (replaces removed FAB).
+    ref.listen(chatProvider, (prev, next) {
+      if (prev != null && next.messages.length > prev.messages.length) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -164,15 +155,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
         ],
       ),
-
-      // ─── Scroll to Bottom FAB ───
-      floatingActionButton: _showScrollFab
-          ? FloatingActionButton.small(
-              onPressed: _scrollToBottom,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              child: Icon(Icons.arrow_downward, color: HermesColors.cyan),
-            )
-          : null,
     );
   }
 
