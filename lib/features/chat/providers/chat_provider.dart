@@ -130,8 +130,15 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final authManager = AuthManager(secureStorage: SecureStorage());
-      final config = await authManager.getActiveServerConfig();
-      final apiKey = await authManager.getApiKey();
+      // F1-b: Add timeout to prevent infinite hang on auth calls.
+      // If the secure storage or config read blocks forever, the spinner
+      // never goes away — this timeout ensures a clean error state.
+      final config = await authManager
+          .getActiveServerConfig()
+          .timeout(const Duration(seconds: 10));
+      final apiKey = await authManager
+          .getApiKey()
+          .timeout(const Duration(seconds: 10));
 
       if (config == null || apiKey == null) {
         state = state.copyWith(

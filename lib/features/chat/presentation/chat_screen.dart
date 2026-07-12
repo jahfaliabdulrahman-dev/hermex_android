@@ -151,14 +151,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           if (state.errorMessage != null) _ErrorBanner(message: state.errorMessage!),
 
           // ─── Chat Input ───
-          if (state.isInitialized)
+          // F1-b: Show loading input only while actively loading models.
+          // Once initialized (or on failure), always show the real ChatInput
+          // so the user is never stuck behind "Connecting to server..." spinner.
+          if (state.isLoadingModels)
+            _LoadingInput()
+          else
             ChatInput(
               controller: _textController,
               isStreaming: state.isStreaming,
               onSend: _handleSend,
-            )
-          else
-            _LoadingInput(),
+            ),
         ],
       ),
 
@@ -236,8 +239,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
     }
 
-    // Loading models (initial state).
-    if (!state.isInitialized) {
+    // F1-b: Show spinner only while actively loading models — not just
+    // because isInitialized is false. This prevents the infinite-spin
+    // cold-start bug where initialize() hangs on auth calls.
+    if (state.isLoadingModels) {
       return Center(
         child: CircularProgressIndicator(color: HermesColors.cyan),
       );
