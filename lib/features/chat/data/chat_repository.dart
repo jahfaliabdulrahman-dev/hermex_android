@@ -88,17 +88,14 @@ class ChatRepository {
           '=== HERMEX DEBUG: ChatRepository.getSessionMessages — '
           'response keys=${json.keys.toList()} ===');
       }
-      final messages = json['data'] as List<dynamic>?;
-      if (messages == null) {
-        if (kDebugMode) {
-          debugPrint(
-            '=== HERMEX DEBUG: ChatRepository.getSessionMessages — '
-            'no "data" key in response. Present keys: ${json.keys.toList()} ===');
-        }
-        return [];
+      final dataList = json['data'] as List<dynamic>?;
+      if (dataList == null) {
+        final keys = json.keys.join(', ');
+        throw ClientException(
+          'Unexpected API response shape. Expected "data" key, got: [$keys]');
       }
 
-      return messages
+      return dataList
           .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
           .toList();
     } on ApiException {

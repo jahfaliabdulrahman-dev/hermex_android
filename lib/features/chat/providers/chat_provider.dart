@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/sse_client.dart';
 import '../../../core/auth/auth_manager.dart';
 import '../../../core/storage/secure_storage.dart';
@@ -422,6 +423,25 @@ class ChatNotifier extends Notifier<ChatState> {
       state = state.copyWith(
         messages: messages,
         isLoadingHistory: false,
+      );
+    } on AuthException {
+      state = state.copyWith(
+        isLoadingHistory: false,
+        errorMessage: 'Authentication failed. Check API key.',
+      );
+    } on ConnectionException {
+      state = state.copyWith(
+        isLoadingHistory: false,
+        errorMessage: 'Server unreachable. Check connection.',
+      );
+    } on ClientException catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatNotifier.loadHistory ClientException — ${e.message} ===');
+      }
+      state = state.copyWith(
+        isLoadingHistory: false,
+        errorMessage: e.message,
       );
     } catch (e) {
       if (kDebugMode) {

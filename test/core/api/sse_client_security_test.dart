@@ -33,8 +33,8 @@ void main() {
       expect(normalData.length, lessThanOrEqualTo(SecurityLimits.maxSseEventSize));
     });
 
-    test('maxSseEventSize constant is 1MB', () {
-      expect(SecurityLimits.maxSseEventSize, 1 * 1024 * 1024);
+    test('maxSseEventSize constant is 5MB', () {
+      expect(SecurityLimits.maxSseEventSize, 5 * 1024 * 1024);
     });
 
     test('maxJsonResponseSize constant is 10MB', () {

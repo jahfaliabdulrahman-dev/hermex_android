@@ -7,8 +7,8 @@ abstract class SecurityLimits {
 
   /// Maximum size in bytes for a single SSE event before parsing.
   /// Events exceeding this are rejected with an error event.
-  /// 1 MB is generous enough for any legitimate SSE event.
-  static const int maxSseEventSize = 1 * 1024 * 1024; // 1 MB
+  /// 5 MB accommodates large tool call responses (file reads, code exec).
+  static const int maxSseEventSize = 5 * 1024 * 1024; // 5 MB
 
   /// Maximum size in bytes for a JSON HTTP response body.
   /// Responses exceeding this are rejected with [PayloadTooLargeException].

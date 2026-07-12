@@ -98,8 +98,8 @@ void main() {
   });
 
   group('SecurityLimits constants', () {
-    test('maxSseEventSize is 1MB', () {
-      expect(SecurityLimits.maxSseEventSize, 1 * 1024 * 1024);
+    test('maxSseEventSize is 5MB', () {
+      expect(SecurityLimits.maxSseEventSize, 5 * 1024 * 1024);
     });
 
     test('maxJsonResponseSize is 10MB', () {
