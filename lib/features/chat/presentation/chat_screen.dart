@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/colors.dart';
+import '../../../core/constants/route_paths.dart';
 import '../providers/chat_provider.dart';
 import 'chat_input.dart';
 import 'message_bubble.dart';
@@ -28,19 +29,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _textController = TextEditingController();
   final _scrollController = ScrollController();
   bool _showScrollFab = false;
-  bool _initialized = false;
+  String? _lastSessionId;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize chat after first frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initChat();
-    });
-
     // Listen for scroll position to show/hide FAB.
     _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initChatIfNeeded();
   }
 
   @override
@@ -51,26 +53,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  /// Initialize the chat: connect to server, then optionally load a session.
-  Future<void> _initChat() async {
-    if (_initialized) return;
-    _initialized = true;
+  /// Initialize chat when the route changes (session switch, new chat, etc.).
+  ///
+  /// Uses [GoRouterState] to read query parameters. Called from
+  /// [didChangeDependencies] so it reacts to route changes even inside
+  /// a [ShellRoute] with [NoTransitionPage] where the widget is not rebuilt.
+  Future<void> _initChatIfNeeded() async {
+    final uri = GoRouterState.of(context).uri;
+    final sessionId = uri.queryParameters['session'];
+
+    if (sessionId == null || sessionId.isEmpty) {
+      // Clean /chat route — no session to load.
+      _lastSessionId = null;
+      return;
+    }
+
+    if (sessionId == _lastSessionId) return; // same session, skip
+    _lastSessionId = sessionId;
 
     final notifier = ref.read(chatProvider.notifier);
     await notifier.initialize();
-
     if (!mounted) return;
-    final uri = GoRouterState.of(context).uri;
-    final sessionId = uri.queryParameters['session'];
-    if (sessionId != null && sessionId.isNotEmpty) {
-      final title = uri.queryParameters['title'];
-      final modelName = uri.queryParameters['model'];
-      await notifier.loadHistory(
-        sessionId,
-        title: title,
-        modelName: modelName,
-      );
-    }
+
+    final title = uri.queryParameters['title'];
+    final modelName = uri.queryParameters['model'];
+    await notifier.loadHistory(sessionId, title: title, modelName: modelName);
   }
 
   void _onScroll() {
@@ -126,12 +133,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: 'New Chat',
             onPressed: () {
               _textController.clear();
-              _initialized = false;
               ref.read(chatProvider.notifier).startNewChat();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _initialized = false;
-                _initChat();
-              });
+              context.go(RoutePaths.chat);
             },
           ),
           SizedBox(width: 4),
@@ -188,6 +191,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            softWrap: false,
           ),
           if (state.sessionModelName != null &&
               state.sessionModelName!.isNotEmpty)
@@ -198,6 +202,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              softWrap: false,
             ),
         ],
       );

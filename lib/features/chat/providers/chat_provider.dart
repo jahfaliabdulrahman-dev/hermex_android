@@ -113,7 +113,16 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Must be called before any chat operations. Safe to call multiple times —
   /// subsequent calls are no-ops if already initialized.
   Future<void> initialize() async {
-    if (state.isInitialized && _repository != null) return;
+    // Guard: already initialized with a valid repository for this server.
+    // This is intentionally a no-op on subsequent calls — the repository
+    // connects to the same Hermes Agent API Server across all sessions.
+    // Only startNewChat() disposes and recreates the repository.
+    if (state.isInitialized && _repository != null) {
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: ChatNotifier.initialize — already initialized, no-op ===');
+      }
+      return;
+    }
 
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: ChatNotifier.initialize ===');
@@ -393,6 +402,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     state = state.copyWith(
+      messages: [], // ← CLEAR old messages before loading new session
       isLoadingHistory: true,
       sessionId: sessionId,
       sessionTitle: title,

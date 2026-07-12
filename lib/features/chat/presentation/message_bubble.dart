@@ -81,17 +81,20 @@ class _UserBubble extends StatelessWidget {
  ),
  ),
  child: Column(
- crossAxisAlignment: CrossAxisAlignment.end,
- children: [
- SelectableText(
- message.content,
- style: Theme.of(context).textTheme.bodyLarge?.copyWith(
- color: HermesColors.userBubbleText,
- ),
- ),
- const SizedBox(height: 4),
- _TimestampLabel(timestamp: message.timestamp),
- ],
+     crossAxisAlignment: CrossAxisAlignment.end,
+     mainAxisSize: MainAxisSize.min,
+     children: [
+       Text(
+         message.content,
+         softWrap: true,
+         overflow: TextOverflow.ellipsis,
+         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+           color: HermesColors.userBubbleText,
+         ),
+       ),
+       const SizedBox(height: 4),
+       _TimestampLabel(timestamp: message.timestamp),
+     ],
  ),
  ),
  ),
@@ -240,22 +243,26 @@ class _ToolBubble extends StatelessWidget {
  ),
  ),
  if (message.toolName != null) ...[
- const SizedBox(width: 8),
- Container(
- padding:
- const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
- decoration: BoxDecoration(
- color: HermesColors.navy.withValues(alpha: 0.6),
- borderRadius: BorderRadius.circular(6),
- ),
- child: Text(
- message.toolName!,
- style: Theme.of(context).textTheme.labelSmall?.copyWith(
- color: HermesColors.cyan,
- fontSize: 10,
- ),
- ),
- ),
+   const SizedBox(width: 8),
+   Flexible(
+     child: Container(
+       padding:
+           const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+       decoration: BoxDecoration(
+         color: HermesColors.navy.withValues(alpha: 0.6),
+         borderRadius: BorderRadius.circular(6),
+       ),
+       child: Text(
+         message.toolName!,
+         maxLines: 1,
+         overflow: TextOverflow.ellipsis,
+         style: Theme.of(context).textTheme.labelSmall?.copyWith(
+           color: HermesColors.cyan,
+           fontSize: 10,
+         ),
+       ),
+     ),
+   ),
  ],
  ],
  ),
@@ -280,9 +287,11 @@ class _SystemBubble extends StatelessWidget {
  margin: EdgeInsets.symmetric(vertical: 8),
  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
  child: Text(
- message.content,
- textAlign: TextAlign.center,
- style: Theme.of(context).textTheme.bodySmall?.copyWith(
+   message.content,
+   textAlign: TextAlign.center,
+   maxLines: 4,
+   overflow: TextOverflow.ellipsis,
+   style: Theme.of(context).textTheme.bodySmall?.copyWith(
  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
  fontStyle: FontStyle.italic,
  ),
