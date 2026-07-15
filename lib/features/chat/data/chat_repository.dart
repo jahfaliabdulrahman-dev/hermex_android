@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/api/api_client.dart';
@@ -62,6 +63,19 @@ class ChatRepository {
           .toList();
     } on ApiException {
       rethrow;
+    } on DioException catch (e) {
+      // A.2: Unwrap the original classified exception from the interceptor.
+      if (e.error != null) {
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatRepository.getModels — unwrapping DioException.error: ${e.error.runtimeType} ===');
+        }
+        throw e.error!;
+      }
+      if (kDebugMode) {
+        debugPrint('=== HERMEX DEBUG: ChatRepository.getModels error — $e ===');
+      }
+      throw ClientException('Failed to load models: ${e.message}');
     } catch (e) {
       if (kDebugMode) {
         debugPrint('=== HERMEX DEBUG: ChatRepository.getModels error — $e ===');
@@ -100,6 +114,20 @@ class ChatRepository {
           .toList();
     } on ApiException {
       rethrow;
+    } on DioException catch (e) {
+      // A.2: Unwrap the original classified exception from the interceptor.
+      if (e.error != null) {
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatRepository.getSessionMessages — unwrapping DioException.error: ${e.error.runtimeType} ===');
+        }
+        throw e.error!;
+      }
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatRepository.getSessionMessages error — $e ===');
+      }
+      throw ClientException('Failed to load messages: ${e.message}');
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
@@ -236,6 +264,20 @@ class ChatRepository {
       return '';
     } on ApiException {
       rethrow;
+    } on DioException catch (e) {
+      // A.2: Unwrap the original classified exception from the interceptor.
+      if (e.error != null) {
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatRepository.sendChatCompletion — unwrapping DioException.error: ${e.error.runtimeType} ===');
+        }
+        throw e.error!;
+      }
+      if (kDebugMode) {
+        debugPrint(
+          '=== HERMEX DEBUG: ChatRepository.sendChatCompletion error — $e ===');
+      }
+      throw ClientException('Chat request failed: ${e.message}');
     } catch (e) {
       if (kDebugMode) {
         debugPrint(

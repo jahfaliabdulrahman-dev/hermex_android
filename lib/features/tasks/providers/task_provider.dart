@@ -629,9 +629,13 @@ final modelListProvider = FutureProvider<List<ModelInfo>>((ref) async {
   final apiKey = await authManager.getApiKey();
   if (apiKey == null || apiKey.isEmpty) return [];
 
+  // AUD-001: Wire certificate pinner.
+  final pinner = ref.read(certificatePinnerProvider).valueOrNull;
+
   final apiClient = ApiClient(
     baseUrl: activeServer.url,
     apiKey: apiKey,
+    certificatePinner: pinner,
   );
 
   try {

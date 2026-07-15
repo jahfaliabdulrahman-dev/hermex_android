@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/endpoints.dart';
+import '../../../core/errors/error_classifier.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../../../models/insights_data.dart';
 
@@ -42,6 +43,6 @@ final insightsProvider = FutureProvider<InsightsData>((ref) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: insightsProvider — stack: $stack ===');
     }
-    throw Exception('Failed to load insights: $e');
+    throw Exception(ErrorClassifier.sanitizeMessage(e));
   }
 });

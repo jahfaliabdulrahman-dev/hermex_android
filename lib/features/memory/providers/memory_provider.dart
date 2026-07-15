@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/endpoints.dart';
+import '../../../core/errors/error_classifier.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../../../models/memory_entry.dart';
 
@@ -42,6 +43,6 @@ final memoryListProvider = FutureProvider<List<MemoryEntry>>((ref) async {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: memoryListProvider — stack: $stack ===');
     }
-    throw Exception('Failed to load memory entries: $e');
+    throw Exception(ErrorClassifier.sanitizeMessage(e));
   }
 });

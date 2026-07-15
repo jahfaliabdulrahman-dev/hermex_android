@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_classifier.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../models/server_config.dart';
 import '../data/server_repository.dart';
@@ -303,7 +304,7 @@ class ConnectionNotifier extends Notifier<ServerConnectionState> {
       }
       state = state.copyWith(
         status: ConnectionStatus.error,
-        errorMessage: 'Unexpected error: $e',
+        errorMessage: ErrorClassifier.sanitizeMessage(e),
         isBusy: false,
       );
     }
