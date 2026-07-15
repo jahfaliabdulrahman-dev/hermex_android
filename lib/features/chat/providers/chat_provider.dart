@@ -522,7 +522,7 @@ class ChatNotifier extends Notifier<ChatState> {
       }
       state = state.copyWith(
         isLoadingHistory: false,
-        errorMessage: e.message,
+        errorMessage: ErrorClassifier.sanitizeMessage(e),
       );
     } catch (e) {
       if (kDebugMode) {

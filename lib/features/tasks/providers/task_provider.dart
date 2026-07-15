@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
-import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_manager.dart';
+import '../../../core/errors/error_classifier.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../models/cron_job.dart';
@@ -85,10 +85,8 @@ class TaskListState {
 }
 
 /// Never expose raw server body to users.
-String _sanitizeError(Object e) {
-  if (e is ApiException) return e.message;
-  return e.toString();
-}
+/// Delegates to [ErrorClassifier.sanitizeMessage] for centralized safe messages.
+String _sanitizeError(Object e) => ErrorClassifier.sanitizeMessage(e);
 
 // ─── Notifier ───
 
