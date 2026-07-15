@@ -66,30 +66,27 @@
 
 ---
 
-## Phase 0 / HERMEX-008 Decisions (2026-07-15)
+## RC6 Remediation Decisions (2026-07-15)
 
-### ADR-010: HermesProfile as a First-Class Isar Entity
+### ADR-010: Hermes Profile as First-Class Entity with Per-Profile Model + Reasoning-Effort
 **Date:** 2026-07-15
-**Status:** ACCEPTED (owner-approved)
-**Decision:** Introduce `HermesProfile` as a first-class Isar entity extending the concept of server profiles with per-profile UX-layer fields: `defaultModelId` (String?), `reasoningEffort` (String? enum: minimal/low/medium/high/max), `isActive` (bool). The existing `ServerConfig` model retains its role for connection/auth data (id, name, url, apiKey) stored in secure storage; `HermesProfile` is the UX-layer entity for profile-level user preferences.
-**Rationale:** Currently `ServerConfig` only carries id/name/url/isDefault/lastConnected — there is no place to persist per-profile model preference or reasoning depth. Without this entity, model selection (F-002) and reasoning-effort control (F-008) are impossible to persist across app restarts. Defect C.11 identifies the absence of a first-class profile entity as a major gap. Defects D.14-18 show model selection is dead code with no backing persistence. Defects E.19-20 confirm reasoning-effort is entirely absent. A separate entity avoids polluting the secure-storage `ServerConfig` with UX preferences and keeps the data-layer concerns cleanly separated.
+**Decision:** Introduce `HermesProfile` as a first-class Isar entity — replacing the flat `ServerConfig` model — carrying per-profile `defaultModelId` and `reasoningEffort` fields. Profiles are owner-approved as the canonical unit of server identity.
+**Rationale:** Current `ServerConfig` (defect C.11) only stores id/name/url/isDefault/lastConnected — no model or reasoning-effort settings. The model selection UI (defects D.14-D.18) is dead code with no data model to bind to. Reasoning-effort control (defects E.19-E.20) has zero plumbing. A first-class `HermesProfile` entity is the architectural prerequisite for: reactive profile switching (C.12), model selection wired end-to-end (D.14-D.18), reasoning-effort/thinking control (E.19-E.20), and the orphaned "Default Model" setting (D.17). This is the single data-model change that unlocks 12 of the 26 RC6 defects. Owner explicitly approved this direction — do not revert to flat ServerConfig.
 **Consequences:**
-- A new Isar collection `HermesProfile` must be created with schema migration (add collection on first access)
-- `ServerConfig` continues to hold connection/auth fields in secure storage; a 1:1 foreign key (serverId) links `HermesProfile` to `ServerConfig`
-- Chat provider (`chat_provider.dart`) reads `defaultModelId` and `reasoningEffort` from the active `HermesProfile` instead of hardcoding `'hermes-default'`
-- Settings screen wires `defaultModelProvider` to the active profile's `defaultModelId` field
-- Task form model field binds to the same profile-bound model selector
-- Profile switching must invalidate cached profile state and re-read settings
-**Cross-references:** GOAL_RC6 defects C.11, D.14-18, E.19-20. PRD features F-001 (Server Connection — multiple server profiles), F-002 (Chat — model selection), F-008 (Settings — model preference, profile switching).
+- Requires Isar schema migration from `ServerConfig` to `HermesProfile` (Backend/DB Architect — Phase 1a)
+- Every screen that reads server identity (Chat, Sessions, Tasks, Settings) must bind to the new entity
+- `resolvedApiClientProvider` must derive its active server from `HermesProfile.isActive`
+- Per-profile model/reasoning-effort defaults travel with the profile, not global app state
+- This decision is IRREVERSIBLE within RC6 — reverting to flat ServerConfig would regress 12 defects
+**References:** C.11, D.14-D.18, E.19-E.20, PRD F-001 (Multiple server profiles), PRD F-008 (Profile switching, Model preference)
 
-### ADR-011: FLAG_SECURE Removal — Permanent
+### ADR-011: FLAG_SECURE Permanent Removal from MainActivity.kt
 **Date:** 2026-07-15
-**Status:** ACCEPTED (owner-explicitly-confirmed)
-**Decision:** Remove all instances of `WindowManager.LayoutParams.FLAG_SECURE` from `android/app/src/main/kotlin/com/jahfali/hermex_android/MainActivity.kt`. This flag is currently applied in three lifecycle methods: `onCreate`, `onResume`, and `onWindowFocusChanged`. All three are to be removed fully and permanently.
-**Rationale:** FLAG_SECURE blocks screenshots and screen recording at the Android OS level. While this is appropriate for banking or DRM-protected apps, Hermex Android is a chat client for a locally-running Hermes Agent API Server — there is no sensitive data requiring OS-level screen-capture prevention. The flag interferes with normal Android usage: screenshots for sharing, screen recording for debugging, and accessibility overlays. This flag was previously reinstated by the swarm against an earlier removal directive — recording this as a formal ADR prevents silent reversal in future commits. Defect G.25 in GOAL_RC6 identifies this as the specific item to remediate.
+**Decision:** Remove `FLAG_SECURE` from all three locations in `MainActivity.kt` (`onCreate`, `onResume`, `onWindowFocusChanged`). This removal is permanent and owner-confirmed — do not re-add.
+**Rationale:** `FLAG_SECURE` blocks screenshots and screen recording across the entire app. The owner has explicitly confirmed this should be removed, permanently, from all locations. FLAG_SECURE was previously reinstated by the swarm against an earlier removal directive — this ADR serves as the authoritative record that the removal is intentional and must not be silently reversed. Hermex Android is a client for self-hosted agents; users own their data and should be able to capture their own screens. Security-sensitive content (API keys) is already protected at the OS level via `flutter_secure_storage` and never displayed in plaintext in the UI.
 **Consequences:**
-- `MainActivity.kt` loses three `window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, ...)` calls
-- Users regain the ability to take screenshots and record their screen within the app
-- Zero-trust auditor must verify no FLAG_SECURE remnants remain (`grep -rn "FLAG_SECURE" android/` → 0 matches)
-- Any future attempt to re-add FLAG_SECURE must produce a new ADR referencing and explicitly overturning this one
-**Cross-references:** GOAL_RC6 defect G.25. Exit criteria: `grep -rn "FLAG_SECURE" android/` → 0 matches.
+- Users can take screenshots and screen-record the app
+- Exit criterion: `grep -rn "FLAG_SECURE" android/` must return 0 matches
+- If a future security requirement demands screenshot blocking, it must be scoped to specific screens (e.g., settings/API key view) via a platform channel toggle, NOT a global window flag — and must go through a new ADR with owner approval
+- This ADR supersedes any prior implicit assumption that FLAG_SECURE should be present
+**References:** G.25, VEC-001 (credential leakage already mitigated by flutter_secure_storage)
