@@ -46,6 +46,31 @@ abstract class AppStrings {
   static const sslError =
       'Secure connection failed. The server may have an invalid certificate.';
   static const timeout = 'Connection timed out';
+
+  // ─── Error Classification (ErrorClassifier) ───
+  static const connectionFailedWithHint =
+      'Connection failed. Check your network and server URL.';
+  static const serverTemporarilyUnavailable =
+      'Server is temporarily unavailable. Please try again.';
+  static const serverOverloaded =
+      'Server is overloaded. Please wait and try again.';
+  static const serverErrorGeneric =
+      'Server error occurred. Please try again later.';
+  static const resourceNotFound =
+      'The requested resource was not found.';
+  static const tooManyRequests =
+      'Too many requests. Please wait before trying again.';
+  static const requestFailed =
+      'Request failed. Please check your input and try again.';
+  static const responseTooLarge =
+      'Response was too large to display.';
+  static const streamInterrupted =
+      'Stream connection was interrupted. Please reconnect.';
+  static const contentTruncatedForSafety =
+      'Content was truncated for display safety.';
+  static const unexpectedError =
+      'An unexpected error occurred. Please try again.';
+
   static const failedToLoadSessions = 'Failed to load sessions';
   static const failedToLoadJobs = 'Failed to load jobs';
   static const failedToLoadSkills = 'Failed to load skills';
