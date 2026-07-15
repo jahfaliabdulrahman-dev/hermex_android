@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/api/sse_client.dart';
 import '../../../core/constants/security_limits.dart';
+import '../../../core/errors/error_classifier.dart';
 import '../../../models/stream_event.dart';
 
 /// Manages an active SSE stream connection, wrapping [SseClient] with a
@@ -81,7 +82,7 @@ class StreamManager {
         }
         if (_controller != null && !_controller!.isClosed) {
           _controller!.add(StreamEvent.error(
-            message: error.toString(),
+            message: ErrorClassifier.sanitizeMessage(error),
           ));
         }
       },

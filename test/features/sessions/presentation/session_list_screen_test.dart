@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hermex_android/features/sessions/presentation/session_list_screen.dart';
 import 'package:hermex_android/features/sessions/providers/session_provider.dart';
+import 'package:hermex_android/features/sessions/data/session_repository.dart';
 import 'package:hermex_android/models/session_summary.dart';
 import 'package:hermex_android/core/constants/app_strings.dart';
 
@@ -14,7 +15,7 @@ Widget createTestableSessionListScreen({
   List<SessionSummary>? sessions,
   Object? error,
   bool isLoading = false,
-  Completer<List<SessionSummary>>? loadingCompleter,
+  Completer<SessionListPage>? loadingCompleter,
 }) {
   return ProviderScope(
     overrides: [
@@ -25,7 +26,7 @@ Widget createTestableSessionListScreen({
         if (error != null) {
           return Future.error(error);
         }
-        return Future.value(sessions ?? []);
+        return Future.value(SessionListPage(sessions: sessions ?? []));
       }),
     ],
     child: const MaterialApp(
@@ -37,7 +38,7 @@ Widget createTestableSessionListScreen({
 void main() {
   group('SessionListScreen — Loading State', () {
     testWidgets('shows skeleton loading cards while fetching', (tester) async {
-      final completer = Completer<List<SessionSummary>>();
+      final completer = Completer<SessionListPage>();
 
       await tester.pumpWidget(createTestableSessionListScreen(
         isLoading: true,

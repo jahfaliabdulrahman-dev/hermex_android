@@ -38,7 +38,7 @@ class ApiClient {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      validateStatus: (status) => status != null && status < 500,
+      validateStatus: (status) => status != null && status < 400,
     ));
 
     // AUD-001: Certificate pinning for production builds.
@@ -63,7 +63,15 @@ class ApiClient {
           debugPrint(
               '=== HERMEX DEBUG: ApiClient error — ${exception.toDebugString()} ===');
         }
-        handler.next(error);
+        // Forward the CLASSIFIED exception so that AuthException/ClientException
+        // actually propagate to callers instead of the original DioException.
+        handler.next(DioException(
+          requestOptions: error.requestOptions,
+          response: error.response,
+          type: error.type,
+          error: exception,
+          message: exception.message,
+        ));
       },
     ));
   }
@@ -240,6 +248,27 @@ class _SizeLimitInterceptor extends Interceptor {
         if (kDebugMode) {
           debugPrint(
               '=== HERMEX DEBUG: Response rejected — size ${data.length} '
+              'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
+        }
+        handler.reject(
+          DioException(
+            requestOptions: response.requestOptions,
+            response: response,
+            type: DioExceptionType.badResponse,
+            message: 'Response body too large',
+          ),
+          true,
+        );
+        return;
+      }
+    } else if (data is Map) {
+      // Map responses are the dominant response shape for this API.
+      // Check serialized size to prevent OOM from large JSON objects.
+      final size = data.toString().length;
+      if (size > SecurityLimits.maxJsonResponseSize) {
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: Map response rejected — size $size '
               'exceeds limit ${SecurityLimits.maxJsonResponseSize} ===');
         }
         handler.reject(

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_classifier.dart';
 import '../../../data/datasources/local/isar_provider.dart';
 import '../../../data/models/hermes_profile.dart';
 import '../../../data/repositories/hermes_profile_repository.dart';
@@ -55,12 +56,18 @@ class ProfileScreenState {
   /// Whether a delete confirmation dialog is showing.
   final int? deleteConfirmId;
 
+  /// Monotonically-increasing counter incremented after every successful
+  /// mutation. Used by external listeners to trigger provider invalidations
+  /// without calling ref.invalidate() from inside the Notifier (ADR-009).
+  final int dataVersion;
+
   const ProfileScreenState({
     this.profiles = const [],
     this.activeProfile,
     this.mutatingIds = const {},
     this.errorMessage,
     this.deleteConfirmId,
+    this.dataVersion = 0,
   });
 
   bool isMutating(int id) => mutatingIds.contains(id);
@@ -74,6 +81,7 @@ class ProfileScreenState {
     bool clearError = false,
     int? deleteConfirmId,
     bool clearDeleteConfirm = false,
+    int? dataVersion,
   }) =>
       ProfileScreenState(
         profiles: profiles ?? this.profiles,
@@ -83,6 +91,7 @@ class ProfileScreenState {
         errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
         deleteConfirmId:
             clearDeleteConfirm ? null : (deleteConfirmId ?? this.deleteConfirmId),
+        dataVersion: dataVersion ?? this.dataVersion,
       );
 }
 
@@ -135,9 +144,10 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
         thinkingBudgetTokens: thinkingBudgetTokens,
         isActive: isActive,
       );
-      ref.invalidate(profileListProvider);
-      ref.invalidate(activeProfileProvider);
+      // ADR-009: Bump dataVersion instead of calling ref.invalidate() inside Notifier.
+      // External listener on profileNotifierProvider invalidates downstream providers.
       await _loadProfiles();
+      state = state.copyWith(dataVersion: state.dataVersion + 1);
       return profile;
     } catch (e) {
       if (kDebugMode) {
@@ -145,7 +155,7 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
           '=== HERMEX DEBUG: ProfileNotifier.createProfile — error: $e ===');
       }
       state = state.copyWith(
-        errorMessage: 'Failed to create profile: $e',
+        errorMessage: 'Failed to create profile: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return null;
     }
@@ -187,12 +197,11 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
         clearReasoningEffort: clearReasoningEffort,
         clearThinkingBudgetTokens: clearThinkingBudgetTokens,
       );
-      ref.invalidate(profileListProvider);
-      ref.invalidate(activeProfileProvider);
-      ref.invalidate(currentServerProfileProvider);
+      // ADR-009: Bump dataVersion — external listener handles provider invalidation.
       await _loadProfiles();
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
+        dataVersion: state.dataVersion + 1,
       );
       return true;
     } catch (e) {
@@ -202,7 +211,7 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
       }
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
-        errorMessage: 'Failed to update profile: $e',
+        errorMessage: 'Failed to update profile: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return false;
     }
@@ -224,12 +233,11 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
     final repository = ref.read(profileRepositoryProvider);
     try {
       await repository.setActive(id);
-      ref.invalidate(profileListProvider);
-      ref.invalidate(activeProfileProvider);
-      ref.invalidate(currentServerProfileProvider);
+      // ADR-009: Bump dataVersion — external listener handles provider invalidation.
       await _loadProfiles();
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
+        dataVersion: state.dataVersion + 1,
       );
       return true;
     } catch (e) {
@@ -239,7 +247,7 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
       }
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
-        errorMessage: 'Failed to set active profile: $e',
+        errorMessage: 'Failed to set active profile: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return false;
     }
@@ -262,12 +270,11 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
     final repository = ref.read(profileRepositoryProvider);
     try {
       await repository.softDelete(id);
-      ref.invalidate(profileListProvider);
-      ref.invalidate(activeProfileProvider);
-      ref.invalidate(currentServerProfileProvider);
+      // ADR-009: Bump dataVersion — external listener handles provider invalidation.
       await _loadProfiles();
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
+        dataVersion: state.dataVersion + 1,
       );
       return true;
     } catch (e) {
@@ -277,7 +284,7 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
       }
       state = state.copyWith(
         mutatingIds: state.mutatingIds.difference({id}),
-        errorMessage: 'Failed to delete profile: $e',
+        errorMessage: 'Failed to delete profile: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return false;
     }
@@ -297,10 +304,9 @@ class ProfileNotifier extends Notifier<ProfileScreenState> {
         name: name,
         defaultModelId: defaultModelId,
       );
-      ref.invalidate(profileListProvider);
-      ref.invalidate(activeProfileProvider);
-      ref.invalidate(currentServerProfileProvider);
+      // ADR-009: Bump dataVersion — external listener handles provider invalidation.
       await _loadProfiles();
+      state = state.copyWith(dataVersion: state.dataVersion + 1);
       return profile;
     } catch (e) {
       if (kDebugMode) {
@@ -337,3 +343,20 @@ final profileNotifierProvider =
     NotifierProvider<ProfileNotifier, ProfileScreenState>(
   ProfileNotifier.new,
 );
+
+/// Listens for dataVersion bumps in [profileNotifierProvider] and invalidates
+/// downstream profile-list providers. This replaces the ADR-009-violating
+/// ref.invalidate() calls that were previously inside ProfileNotifier.
+///
+/// Must be initialized early (e.g., in the app shell or profile screen)
+/// so mutations are reflected in profileListProvider / activeProfileProvider.
+final profileInvalidationListener = Provider<void>((ref) {
+  // Watch the notifier's dataVersion — when it changes, invalidate downstream.
+  ref.listen(profileNotifierProvider, (prev, next) {
+    if (prev?.dataVersion != next.dataVersion && next.dataVersion > 0) {
+      ref.invalidate(profileListProvider);
+      ref.invalidate(activeProfileProvider);
+      ref.invalidate(currentServerProfileProvider);
+    }
+  });
+});

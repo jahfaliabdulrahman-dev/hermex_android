@@ -138,7 +138,7 @@ class _AgentBubble extends StatelessWidget {
  margin: const EdgeInsets.only(right: 64),
  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
  decoration: BoxDecoration(
- color: HermesColors.agentBubble,
+   color: Theme.of(context).colorScheme.surfaceContainerHighest,
  borderRadius: BorderRadius.only(
  topLeft: Radius.circular(4),
  topRight: Radius.circular(16),

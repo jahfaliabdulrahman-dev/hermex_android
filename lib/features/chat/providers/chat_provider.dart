@@ -7,10 +7,14 @@ import '../../../core/api/api_client.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/sse_client.dart';
 import '../../../core/auth/auth_manager.dart';
+import '../../../core/errors/error_classifier.dart';
+import '../../../core/providers/api_client_provider.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../models/chat_message.dart';
 import '../../../models/model_info.dart';
 import '../../../models/stream_event.dart';
+import '../../connection/providers/connection_provider.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../data/chat_repository.dart';
 
 /// Complete UI state for the chat feature.
@@ -26,6 +30,8 @@ class ChatState {
   final bool isLoadingModels;
   final bool isLoadingHistory;
   final bool isInitialized;
+  /// E.19: Selected reasoning effort level (null = omit parameter).
+  final String? reasoningEffort;
 
   const ChatState({
     this.messages = const [],
@@ -39,6 +45,7 @@ class ChatState {
     this.isLoadingModels = false,
     this.isLoadingHistory = false,
     this.isInitialized = false,
+    this.reasoningEffort,
   });
 
   ChatState copyWith({
@@ -58,6 +65,8 @@ class ChatState {
     bool? isLoadingModels,
     bool? isLoadingHistory,
     bool? isInitialized,
+    String? reasoningEffort,
+    bool clearReasoningEffort = false,
   }) =>
       ChatState(
         messages: messages ?? this.messages,
@@ -78,6 +87,9 @@ class ChatState {
         isLoadingModels: isLoadingModels ?? this.isLoadingModels,
         isLoadingHistory: isLoadingHistory ?? this.isLoadingHistory,
         isInitialized: isInitialized ?? this.isInitialized,
+        reasoningEffort: clearReasoningEffort
+            ? null
+            : (reasoningEffort ?? this.reasoningEffort),
       );
 }
 
@@ -93,9 +105,13 @@ class ChatState {
 /// - Load session history
 ///
 /// NOT autoDispose — shared long-lived controller (DEC-034 rule 2).
+///
+/// C.12: Reactively watches [connectionProvider]. When the active server changes,
+/// tears down old ApiClient + SSE stream and rebuilds with new config.
 class ChatNotifier extends Notifier<ChatState> {
   ChatRepository? _repository;
   StreamSubscription<StreamEvent>? _streamSubscription;
+  String? _activeServerId; // Tracks the current server to detect switches.
 
   @override
   ChatState build() {
@@ -105,8 +121,33 @@ class ChatNotifier extends Notifier<ChatState> {
       _repository?.dispose();
     });
 
+    // C.12: Watch connectionProvider reactively. When activeServer changes,
+    // tear down and re-initialize with the new server config.
+    ref.listen(connectionProvider, (prev, next) {
+      final newServerId = next.activeServer?.id;
+      if (newServerId != null && newServerId != _activeServerId) {
+        if (kDebugMode) {
+          debugPrint(
+            '=== HERMEX DEBUG: ChatNotifier — server switch detected: '
+            '$_activeServerId → $newServerId. Re-initializing. ===');
+        }
+        _activeServerId = newServerId;
+        _tearDown();
+        state = ChatState();
+        initialize();
+      }
+    });
+
     // Start uninitialized. The UI calls initialize() on first build.
     return const ChatState();
+  }
+
+  /// Tear down current repository and stream subscription.
+  void _tearDown() {
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
+    _repository?.dispose();
+    _repository = null;
   }
 
   /// Initialize the repository from the active server configuration.
@@ -150,8 +191,18 @@ class ChatNotifier extends Notifier<ChatState> {
         return;
       }
 
+      _activeServerId = config.id;
+
+      // AUD-001: Wire certificate pinner for MITM protection.
+      // Mirrors resolvedApiClientProvider pattern (api_client_provider.dart:64-75).
+      final pinner = ref.read(certificatePinnerProvider).valueOrNull;
+
       _repository = ChatRepository(
-        apiClient: ApiClient(baseUrl: config.url, apiKey: apiKey),
+        apiClient: ApiClient(
+          baseUrl: config.url,
+          apiKey: apiKey,
+          certificatePinner: pinner,
+        ),
         sseClient: SseClient(baseUrl: config.url),
         apiKey: apiKey,
       );
@@ -161,14 +212,28 @@ class ChatNotifier extends Notifier<ChatState> {
       // Load models after initialization.
       await loadModels();
 
-      // Auto-select model: preference → first available → hardcoded default.
-      // Never leave selectedModelId null — the model selector UI was removed
-      // per user directive, so there's no way for the user to pick a model.
-      if (state.selectedModelId == null && state.availableModels.isEmpty) {
-        state = state.copyWith(selectedModelId: 'hermes-default');
-        if (kDebugMode) {
-          debugPrint(
-            '=== HERMEX DEBUG: ChatNotifier.initialize — fallback model: hermes-default ===');
+      // D.15 + D.17: Auto-select model priority:
+      // 1. User-selected model (already set in state)
+      // 2. Settings "Default Model" (persisted by settings_screen.dart)
+      // 3. First available model from /v1/models
+      // 4. null — UI will prompt user to select a model
+      if (state.selectedModelId == null) {
+        final settingsModel = ref.read(defaultModelProvider);
+        if (settingsModel != null && settingsModel.isNotEmpty &&
+            state.availableModels.any((m) => m.id == settingsModel)) {
+          state = state.copyWith(selectedModelId: settingsModel);
+          if (kDebugMode) {
+            debugPrint(
+              '=== HERMEX DEBUG: ChatNotifier.initialize — using settings default model: $settingsModel ===');
+          }
+        } else if (state.availableModels.isNotEmpty) {
+          state = state.copyWith(
+            selectedModelId: _firstModelId(state.availableModels),
+          );
+          if (kDebugMode) {
+            debugPrint(
+              '=== HERMEX DEBUG: ChatNotifier.initialize — auto-selected first model: ${state.selectedModelId} ===');
+          }
         }
       }
     } catch (e) {
@@ -178,7 +243,7 @@ class ChatNotifier extends Notifier<ChatState> {
       }
       state = state.copyWith(
         isInitialized: true,
-        errorMessage: 'Failed to initialize chat: $e',
+        errorMessage: 'Failed to initialize chat: ${ErrorClassifier.sanitizeMessage(e)}',
       );
     }
   }
@@ -222,6 +287,19 @@ class ChatNotifier extends Notifier<ChatState> {
         '=== HERMEX DEBUG: ChatNotifier.selectModel — $modelId ===');
     }
     state = state.copyWith(selectedModelId: modelId);
+  }
+
+  /// E.19: Select reasoning effort level for chat requests.
+  /// Valid values: null (omit), "none", "low", "medium", "high".
+  void selectReasoningEffort(String? level) {
+    if (kDebugMode) {
+      debugPrint(
+        '=== HERMEX DEBUG: ChatNotifier.selectReasoningEffort — $level ===');
+    }
+    state = state.copyWith(
+      reasoningEffort: level,
+      clearReasoningEffort: level == null,
+    );
   }
 
   // ─── Send Message ──────────────────────────────────────────────────────
@@ -321,6 +399,7 @@ class ChatNotifier extends Notifier<ChatState> {
           sessionId: state.sessionId!,
           message: trimmed,
           model: state.selectedModelId!,
+          reasoningEffort: state.reasoningEffort,
         );
       } else {
         // REG-1: Exclude the just-appended user message from history.
@@ -331,6 +410,7 @@ class ChatNotifier extends Notifier<ChatState> {
           message: trimmed,
           model: state.selectedModelId!,
           history: history,
+          reasoningEffort: state.reasoningEffort,
         );
       }
 
@@ -353,6 +433,7 @@ class ChatNotifier extends Notifier<ChatState> {
         final response = await _repository!.sendChatCompletion(
           message: trimmed,
           model: state.selectedModelId!,
+          reasoningEffort: state.reasoningEffort,
         );
 
         // Replace the placeholder with the actual response.
@@ -473,10 +554,7 @@ class ChatNotifier extends Notifier<ChatState> {
     if (kDebugMode) {
       debugPrint('=== HERMEX DEBUG: ChatNotifier.startNewChat ===');
     }
-    _streamSubscription?.cancel();
-    _streamSubscription = null;
-    _repository?.dispose();
-    _repository = null;
+    _tearDown();
     state = ChatState();
     // Reinitialize after reset.
     initialize();
@@ -559,10 +637,10 @@ class ChatNotifier extends Notifier<ChatState> {
       );
     }
 
-    final errorText = error is String ? error : error.toString();
+    final errorText = ErrorClassifier.sanitizeMessage(error);
     messages.add(ChatMessage(
       role: 'system',
-      content: 'Error: $errorText',
+      content: errorText,
       timestamp: DateTime.now(),
     ));
 

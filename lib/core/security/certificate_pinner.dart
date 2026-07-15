@@ -22,6 +22,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// | profile   | Warn only           | Always allow                        |
 /// | release   | **Enforce**         | TOFU — pin on first connect         |
 ///
+/// ## TODO (B.8): TOFU user confirmation
+/// The current TOFU implementation silently pins the first-seen certificate.
+/// Per the security spec, the user should be shown the certificate fingerprint
+/// and asked to confirm before trusting it. This requires a platform channel
+/// or dialog integration that is deferred to a future release.
+/// Tracked in: GOAL_RC6_COMPREHENSIVE_REMEDIATION.md §B.8
+///
 /// ## Storage
 ///
 /// Pinned fingerprints are stored in SharedPreferences keyed by `host:port`
@@ -60,12 +67,32 @@ class CertificatePinner {
     final fingerprint = _sha256Hex(cert.der);
     final hostKey = '$host:$port';
 
-    // Non-release: warn only, always allow.
+    // Non-release: validate cert chain but allow on mismatch (dev flexibility).
+    // Log a warning so developers see pinning issues during development
+    // instead of being silently bypassed.
     if (!kReleaseMode) {
+      final pinned = _pinCache[hostKey];
       if (kDebugMode) {
         debugPrint(
             '=== HERMEX DEBUG: CertificatePinner — '
-            'non-release: allowing $hostKey (SHA-256: $fingerprint) ===');
+            'non-release: $hostKey (SHA-256: $fingerprint) ===');
+      }
+      // If a pin exists and mismatches, log a WARNING (but still allow).
+      if (pinned != null && pinned != fingerprint) {
+        debugPrint(
+            '=== HERMEX WARNING: CertificatePinner — '
+            'certificate MISMATCH for $hostKey. '
+            'Pinned: $pinned, Got: $fingerprint. '
+            'Allowed in non-release, but WILL BE REJECTED in release. ===');
+      } else if (pinned == null) {
+        // TOFU in non-release: pin the cert but still allow the connection.
+        if (kDebugMode) {
+          debugPrint(
+              '=== HERMEX DEBUG: CertificatePinner — '
+              'TOFU (non-release): pinning $hostKey → $fingerprint ===');
+        }
+        _pinCache[hostKey] = fingerprint;
+        _persistPinAsync(hostKey, fingerprint);
       }
       return true;
     }

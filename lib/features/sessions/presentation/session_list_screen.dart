@@ -173,8 +173,8 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
               loading: () => _buildLoadingSkeleton(),
               error: (error, stack) =>
                   _buildErrorState(error.toString()),
-              data: (sessions) {
-                final filtered = _filterSessions(sessions, uiState);
+              data: (page) {
+                final filtered = _filterSessions(page.sessions, uiState);
                 if (filtered.isEmpty) {
                   return _buildEmptyState();
                 }
@@ -207,7 +207,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: AppStrings.searchSessions,
-          hintStyle: TextStyle(color: HermesColors.textDisabled),
+          // hintStyle: Inherits from Theme.of(context).inputDecorationTheme.hintStyle
           prefixIcon:
               Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
           suffixIcon: _searchController.text.isNotEmpty
@@ -357,7 +357,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
                   ? Icons.archive_outlined
                   : Icons.forum_outlined,
               size: 64,
-              color: HermesColors.textDisabled,
+                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             SizedBox(height: 16),
             Text(
@@ -373,7 +373,7 @@ class _SessionListScreenState extends ConsumerState<SessionListScreen> {
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: HermesColors.textDisabled,
+                                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                   ),
               textAlign: TextAlign.center,
             ),
@@ -606,7 +606,7 @@ class _SessionCard extends ConsumerWidget {
                               Icon(
                                 Icons.smart_toy_outlined,
                                 size: 12,
-                                color: HermesColors.textDisabled,
+                                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                               ),
                               SizedBox(width: 4),
                               Text(
@@ -620,7 +620,7 @@ class _SessionCard extends ConsumerWidget {
                             Icon(
                               Icons.chat_bubble_outline,
                               size: 12,
-                              color: HermesColors.textDisabled,
+                                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -643,7 +643,7 @@ class _SessionCard extends ConsumerWidget {
                         Text(
                           DateFormatter.relativeTime(session.lastActivity!),
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: HermesColors.textDisabled,
+                                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                           ),
                         ),
                       SizedBox(height: 4),

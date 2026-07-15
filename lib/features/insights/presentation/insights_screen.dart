@@ -180,12 +180,12 @@ class InsightsScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.sync, size: 16, color: HermesColors.textDisabled),
+          Icon(Icons.sync, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
           SizedBox(width: 8),
           Text(
             '${AppStrings.lastSynced}: ${_formatDateTime(data.lastSynced!)}',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: HermesColors.textDisabled,
+                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
           ),
         ],
@@ -205,7 +205,7 @@ class InsightsScreen extends ConsumerWidget {
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: HermesColors.textDisabled,
+                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             SizedBox(height: 16),
             Text(

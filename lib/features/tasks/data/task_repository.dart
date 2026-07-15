@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/endpoints.dart';
-import '../../../core/api/api_exception.dart';
+import '../../../core/errors/error_classifier.dart';
 import '../../../models/cron_job.dart';
 
 /// Repository for CronJob CRUD and action operations against Hermes Agent API.
@@ -50,7 +50,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.getAll DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -70,7 +70,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.getById DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -110,7 +110,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.create DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -160,7 +160,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.update DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -178,7 +178,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.delete DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -200,7 +200,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.runNow DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -223,7 +223,7 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.pause DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
@@ -246,40 +246,8 @@ class TaskRepository {
         debugPrint(
           '=== HERMEX DEBUG: TaskRepository.resume DioException — ${e.type}: ${e.message} ===');
       }
-      throw _classifyError(e);
+      throw ErrorClassifier.classifyDioError(e);
     }
   }
 
-  // ─── Error Classification ───
-
-  static ApiException _classifyError(DioException error) {
-    final message = error.message ?? 'Unknown error';
-    final statusCode = error.response?.statusCode;
-    final body = error.response?.data?.toString();
-
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.connectionError:
-        return ConnectionException(message,
-            statusCode: statusCode, responseBody: body);
-
-      case DioExceptionType.badResponse:
-        if (statusCode == 401) {
-          return AuthException(message,
-              statusCode: statusCode, responseBody: body);
-        }
-        if (statusCode != null && statusCode >= 500) {
-          return ServerException(message,
-              statusCode: statusCode, responseBody: body);
-        }
-        return ClientException(message,
-            statusCode: statusCode, responseBody: body);
-
-      default:
-        return ConnectionException(message,
-            statusCode: statusCode, responseBody: body);
-    }
-  }
 }

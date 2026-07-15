@@ -309,14 +309,73 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
 
  const SizedBox(height: 16),
 
- // ─── Model Name ───
- _buildLabeledField(
- theme: theme,
- label: 'Model (optional)',
- hint: 'e.g., deepseek-v4-pro',
- controller: _modelNameController,
- icon: Icons.smart_toy_outlined,
- enabled: !_isSubmitting,
+ // ─── Model Name (D.18: bound to /v1/models list) ───
+ Consumer(
+   builder: (context, ref, _) {
+     final modelsAsync = ref.watch(modelListProvider);
+     return modelsAsync.when(
+       data: (models) {
+         if (models.isEmpty) {
+           return _buildLabeledField(
+             theme: theme,
+             label: 'Model (optional)',
+             hint: 'e.g., deepseek-v4-pro',
+             controller: _modelNameController,
+             icon: Icons.smart_toy_outlined,
+             enabled: !_isSubmitting,
+           );
+         }
+         return Padding(
+           padding: const EdgeInsets.symmetric(horizontal: 4),
+           child: DropdownButtonFormField<String>(
+             value: _modelNameController.text.isNotEmpty &&
+                     models.any((m) => m.id == _modelNameController.text)
+                 ? _modelNameController.text
+                 : null,
+             decoration: InputDecoration(
+               labelText: 'Model (optional)',
+               hintText: 'Select a model',
+               prefixIcon: const Icon(Icons.smart_toy_outlined),
+               border: OutlineInputBorder(
+                 borderRadius: BorderRadius.circular(4),
+               ),
+             ),
+             items: [
+               const DropdownMenuItem<String>(
+                 value: null,
+                 child: Text('Server default'),
+               ),
+               ...models.map((m) => DropdownMenuItem<String>(
+                     value: m.id,
+                     child: Text(m.id),
+                   )),
+             ],
+             onChanged: _isSubmitting
+                 ? null
+                 : (value) {
+                     _modelNameController.text = value ?? '';
+                   },
+           ),
+         );
+       },
+       loading: () => _buildLabeledField(
+         theme: theme,
+         label: 'Model (optional)',
+         hint: 'Loading models...',
+         controller: _modelNameController,
+         icon: Icons.smart_toy_outlined,
+         enabled: false,
+       ),
+       error: (_, __) => _buildLabeledField(
+         theme: theme,
+         label: 'Model (optional)',
+         hint: 'e.g., deepseek-v4-pro',
+         controller: _modelNameController,
+         icon: Icons.smart_toy_outlined,
+         enabled: !_isSubmitting,
+       ),
+     );
+   },
  ),
 
  const SizedBox(height: 16),

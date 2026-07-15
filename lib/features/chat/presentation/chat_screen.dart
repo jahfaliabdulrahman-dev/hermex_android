@@ -7,6 +7,7 @@ import '../../../core/constants/route_paths.dart';
 import '../providers/chat_provider.dart';
 import 'chat_input.dart';
 import 'message_bubble.dart';
+import 'model_selector.dart';
 
 /// Main chat screen — F-002 flagship feature.
 ///
@@ -118,6 +119,59 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appBar: AppBar(
         title: _buildAppBarTitle(state),
         actions: [
+          // D.14: Model selector button — shows bottom sheet with available models.
+          if (state.availableModels.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.smart_toy_outlined),
+              tooltip: 'Select Model',
+              onPressed: () {
+                ModelSelector.show(
+                  context,
+                  models: state.availableModels,
+                  selectedModelId: state.selectedModelId,
+                  onModelSelected: (modelId) {
+                    ref.read(chatProvider.notifier).selectModel(modelId);
+                  },
+                );
+              },
+            ),
+          // E.19: Reasoning-effort selector.
+          PopupMenuButton<String>(
+            tooltip: 'Reasoning Effort',
+            icon: Icon(
+              Icons.psychology_outlined,
+              color: state.reasoningEffort != null
+                  ? Theme.of(context).colorScheme.secondary
+                  : null,
+            ),
+            onSelected: (level) {
+              ref.read(chatProvider.notifier).selectReasoningEffort(
+                    level == 'default' ? null : level,
+                  );
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'default',
+                child: Text('Server default'),
+              ),
+              const PopupMenuItem(
+                value: 'none',
+                child: Text('None'),
+              ),
+              const PopupMenuItem(
+                value: 'low',
+                child: Text('Low'),
+              ),
+              const PopupMenuItem(
+                value: 'medium',
+                child: Text('Medium'),
+              ),
+              const PopupMenuItem(
+                value: 'high',
+                child: Text('High'),
+              ),
+            ],
+          ),
           // New chat button.
           IconButton(
             icon: Icon(Icons.add_comment_outlined),
@@ -239,7 +293,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Icon(
               Icons.chat_bubble_outline,
               size: 64,
-              color: HermesColors.textDisabled.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
             ),
             SizedBox(height: 16),
             Text(
@@ -253,7 +307,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Text(
                 'Using ${state.selectedModelId ?? "default model"}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: HermesColors.textDisabled,
+                                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
               ),
           ],

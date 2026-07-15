@@ -2,10 +2,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:hermex_android/features/chat/providers/chat_provider.dart';
+import 'package:hermex_android/features/connection/providers/connection_provider.dart';
 import 'package:hermex_android/models/chat_message.dart';
 import 'package:hermex_android/models/model_info.dart';
+import 'package:hermex_android/models/server_config.dart';
+
+/// Lightweight stub for connectionProvider that doesn't require SecureStorage.
+class _TestConnNotifier extends ConnectionNotifier {
+  @override
+  ServerConnectionState build() => ServerConnectionState(
+        status: ConnectionStatus.connected,
+        activeServer: ServerConfig(
+          id: 'test-server',
+          name: 'Test Server',
+          url: 'https://test.example.com',
+          createdAt: DateTime(2024),
+        ),
+      );
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // ─── ChatState — copyWith ────────────────────────────────────────────
 
   group('ChatState — copyWith', () {
@@ -120,7 +137,13 @@ void main() {
     late ProviderContainer container;
 
     setUp(() {
-      container = ProviderContainer();
+      container = ProviderContainer(
+        overrides: [
+          // ChatNotifier.build() watches connectionProvider — use stub
+          // that doesn't require SecureStorage platform bindings.
+          connectionProvider.overrideWith(() => _TestConnNotifier()),
+        ],
+      );
       addTearDown(container.dispose);
     });
 

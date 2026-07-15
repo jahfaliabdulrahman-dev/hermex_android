@@ -6,6 +6,19 @@ import '../../../core/api/endpoints.dart';
 import '../../../data/models/cached_session.dart';
 import '../../../models/session_summary.dart';
 
+/// G.24: Paginated response wrapper for session list queries.
+class SessionListPage {
+  final List<SessionSummary> sessions;
+  final String? nextCursor;
+
+  const SessionListPage({
+    required this.sessions,
+    this.nextCursor,
+  });
+
+  bool get hasMore => nextCursor != null && nextCursor!.isNotEmpty;
+}
+
 /// Repository for session CRUD operations via API + local Isar cache.
 ///
 /// - Server is the source of truth; cache is read-only fallback.
@@ -15,24 +28,45 @@ import '../../../models/session_summary.dart';
 class SessionRepository {
   final ApiClient _apiClient;
   final Isar _isar;
+  final String _serverId;
   static const _cacheTtl = Duration(days: 7);
 
   SessionRepository({
     required ApiClient apiClient,
     required Isar isar,
+    required String serverId,
   })  : _apiClient = apiClient,
-        _isar = isar;
+        _isar = isar,
+        _serverId = serverId;
 
   // ─── API Operations ───
 
   /// Fetch all sessions from the API.
   /// Returns a list of [SessionSummary] parsed from the server response.
-  Future<List<SessionSummary>> getSessions() async {
+  ///
+  /// G.24: Supports server-side pagination via [perPage] and [cursor].
+  /// Set [perPage] to control page size (default 50).
+  /// Pass [cursor] to fetch the next page.
+  Future<SessionListPage> getSessions({
+    int perPage = 50,
+    String? cursor,
+  }) async {
     if (kDebugMode) {
-      debugPrint('=== HERMEX DEBUG: SessionRepository.getSessions ===');
+      debugPrint(
+        '=== HERMEX DEBUG: SessionRepository.getSessions — perPage=$perPage, cursor=$cursor ===');
     }
 
-    final data = await _apiClient.getDynamic(ApiEndpoints.sessions);
+    final queryParams = <String, dynamic>{
+      'per_page': perPage,
+    };
+    if (cursor != null && cursor.isNotEmpty) {
+      queryParams['cursor'] = cursor;
+    }
+
+    final data = await _apiClient.getDynamic(
+      ApiEndpoints.sessions,
+      queryParameters: queryParams,
+    );
     if (kDebugMode) {
       debugPrint(
         '=== HERMEX DEBUG: SessionRepository.getSessions — raw response type=${data.runtimeType} ===');
@@ -40,6 +74,9 @@ class SessionRepository {
 
     // The API may return a list directly or wrap it in a 'sessions' key.
     final List<dynamic> rawList = _extractListFromResponse(data);
+    final nextCursor = data is Map<String, dynamic>
+        ? data['next_cursor'] as String?
+        : null;
 
     final sessions = rawList
         .map((json) => SessionSummary.fromJson(json as Map<String, dynamic>))
@@ -47,13 +84,16 @@ class SessionRepository {
 
     if (kDebugMode) {
       debugPrint(
-        '=== HERMEX DEBUG: SessionRepository.getSessions — got ${sessions.length} sessions ===');
+        '=== HERMEX DEBUG: SessionRepository.getSessions — got ${sessions.length} sessions, hasMore=${nextCursor != null} ===');
     }
 
     // Cache to Isar.
     await _cacheSessions(sessions);
 
-    return sessions;
+    return SessionListPage(
+      sessions: sessions,
+      nextCursor: nextCursor,
+    );
   }
 
   /// Fetch a single session by ID from the API.
@@ -148,7 +188,7 @@ class SessionRepository {
       for (final session in sessions) {
         final cached = CachedSession(
           sessionId: session.id,
-          serverId: _apiClient.dio.options.baseUrl, // Use server URL as foreign key
+          serverId: _serverId, // Store ServerConfig.id as stable foreign key
           title: session.title,
           modelName: session.modelName,
           messageCount: session.messageCount,

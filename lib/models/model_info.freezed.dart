@@ -27,6 +27,17 @@ mixin _$ModelInfo {
   @JsonKey(name: 'owned_by')
   String? get ownedBy => throw _privateConstructorUsedError;
 
+  /// List of capability strings (e.g., ["chat", "reasoning", "vision", "tools"]).
+  /// D.16: Added for model-capability-aware features (reasoning-effort, tool use).
+  List<String> get capabilities => throw _privateConstructorUsedError;
+
+  /// Supported reasoning effort levels (e.g., ["none", "low", "medium", "high"]).
+  /// Empty list means the model does not support reasoning-effort control.
+  /// D.16 + E.20: Added for reasoning-effort / thinking control feature.
+  @JsonKey(name: 'reasoning_effort')
+  List<String> get supportedReasoningEfforts =>
+      throw _privateConstructorUsedError;
+
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $ModelInfoCopyWith<ModelInfo> get copyWith =>
@@ -42,7 +53,10 @@ abstract class $ModelInfoCopyWith<$Res> {
       {String id,
       String object,
       @JsonKey(name: 'created') int? created,
-      @JsonKey(name: 'owned_by') String? ownedBy});
+      @JsonKey(name: 'owned_by') String? ownedBy,
+      List<String> capabilities,
+      @JsonKey(name: 'reasoning_effort')
+      List<String> supportedReasoningEfforts});
 }
 
 /// @nodoc
@@ -62,6 +76,8 @@ class _$ModelInfoCopyWithImpl<$Res, $Val extends ModelInfo>
     Object? object = null,
     Object? created = freezed,
     Object? ownedBy = freezed,
+    Object? capabilities = null,
+    Object? supportedReasoningEfforts = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -80,6 +96,14 @@ class _$ModelInfoCopyWithImpl<$Res, $Val extends ModelInfo>
           ? _value.ownedBy
           : ownedBy // ignore: cast_nullable_to_non_nullable
               as String?,
+      capabilities: null == capabilities
+          ? _value.capabilities
+          : capabilities // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      supportedReasoningEfforts: null == supportedReasoningEfforts
+          ? _value.supportedReasoningEfforts
+          : supportedReasoningEfforts // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ) as $Val);
   }
 }
@@ -96,7 +120,10 @@ abstract class _$$ModelInfoImplCopyWith<$Res>
       {String id,
       String object,
       @JsonKey(name: 'created') int? created,
-      @JsonKey(name: 'owned_by') String? ownedBy});
+      @JsonKey(name: 'owned_by') String? ownedBy,
+      List<String> capabilities,
+      @JsonKey(name: 'reasoning_effort')
+      List<String> supportedReasoningEfforts});
 }
 
 /// @nodoc
@@ -114,6 +141,8 @@ class __$$ModelInfoImplCopyWithImpl<$Res>
     Object? object = null,
     Object? created = freezed,
     Object? ownedBy = freezed,
+    Object? capabilities = null,
+    Object? supportedReasoningEfforts = null,
   }) {
     return _then(_$ModelInfoImpl(
       id: null == id
@@ -132,6 +161,14 @@ class __$$ModelInfoImplCopyWithImpl<$Res>
           ? _value.ownedBy
           : ownedBy // ignore: cast_nullable_to_non_nullable
               as String?,
+      capabilities: null == capabilities
+          ? _value._capabilities
+          : capabilities // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      supportedReasoningEfforts: null == supportedReasoningEfforts
+          ? _value._supportedReasoningEfforts
+          : supportedReasoningEfforts // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }
@@ -143,7 +180,12 @@ class _$ModelInfoImpl implements _ModelInfo {
       {required this.id,
       this.object = 'model',
       @JsonKey(name: 'created') this.created,
-      @JsonKey(name: 'owned_by') this.ownedBy});
+      @JsonKey(name: 'owned_by') this.ownedBy,
+      final List<String> capabilities = const [],
+      @JsonKey(name: 'reasoning_effort')
+      final List<String> supportedReasoningEfforts = const []})
+      : _capabilities = capabilities,
+        _supportedReasoningEfforts = supportedReasoningEfforts;
 
   factory _$ModelInfoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ModelInfoImplFromJson(json);
@@ -160,9 +202,40 @@ class _$ModelInfoImpl implements _ModelInfo {
   @JsonKey(name: 'owned_by')
   final String? ownedBy;
 
+  /// List of capability strings (e.g., ["chat", "reasoning", "vision", "tools"]).
+  /// D.16: Added for model-capability-aware features (reasoning-effort, tool use).
+  final List<String> _capabilities;
+
+  /// List of capability strings (e.g., ["chat", "reasoning", "vision", "tools"]).
+  /// D.16: Added for model-capability-aware features (reasoning-effort, tool use).
+  @override
+  @JsonKey()
+  List<String> get capabilities {
+    if (_capabilities is EqualUnmodifiableListView) return _capabilities;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_capabilities);
+  }
+
+  /// Supported reasoning effort levels (e.g., ["none", "low", "medium", "high"]).
+  /// Empty list means the model does not support reasoning-effort control.
+  /// D.16 + E.20: Added for reasoning-effort / thinking control feature.
+  final List<String> _supportedReasoningEfforts;
+
+  /// Supported reasoning effort levels (e.g., ["none", "low", "medium", "high"]).
+  /// Empty list means the model does not support reasoning-effort control.
+  /// D.16 + E.20: Added for reasoning-effort / thinking control feature.
+  @override
+  @JsonKey(name: 'reasoning_effort')
+  List<String> get supportedReasoningEfforts {
+    if (_supportedReasoningEfforts is EqualUnmodifiableListView)
+      return _supportedReasoningEfforts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_supportedReasoningEfforts);
+  }
+
   @override
   String toString() {
-    return 'ModelInfo(id: $id, object: $object, created: $created, ownedBy: $ownedBy)';
+    return 'ModelInfo(id: $id, object: $object, created: $created, ownedBy: $ownedBy, capabilities: $capabilities, supportedReasoningEfforts: $supportedReasoningEfforts)';
   }
 
   @override
@@ -173,12 +246,23 @@ class _$ModelInfoImpl implements _ModelInfo {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.object, object) || other.object == object) &&
             (identical(other.created, created) || other.created == created) &&
-            (identical(other.ownedBy, ownedBy) || other.ownedBy == ownedBy));
+            (identical(other.ownedBy, ownedBy) || other.ownedBy == ownedBy) &&
+            const DeepCollectionEquality()
+                .equals(other._capabilities, _capabilities) &&
+            const DeepCollectionEquality().equals(
+                other._supportedReasoningEfforts, _supportedReasoningEfforts));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, object, created, ownedBy);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      object,
+      created,
+      ownedBy,
+      const DeepCollectionEquality().hash(_capabilities),
+      const DeepCollectionEquality().hash(_supportedReasoningEfforts));
 
   @JsonKey(ignore: true)
   @override
@@ -199,7 +283,10 @@ abstract class _ModelInfo implements ModelInfo {
       {required final String id,
       final String object,
       @JsonKey(name: 'created') final int? created,
-      @JsonKey(name: 'owned_by') final String? ownedBy}) = _$ModelInfoImpl;
+      @JsonKey(name: 'owned_by') final String? ownedBy,
+      final List<String> capabilities,
+      @JsonKey(name: 'reasoning_effort')
+      final List<String> supportedReasoningEfforts}) = _$ModelInfoImpl;
 
   factory _ModelInfo.fromJson(Map<String, dynamic> json) =
       _$ModelInfoImpl.fromJson;
@@ -214,6 +301,18 @@ abstract class _ModelInfo implements ModelInfo {
   @override
   @JsonKey(name: 'owned_by')
   String? get ownedBy;
+  @override
+
+  /// List of capability strings (e.g., ["chat", "reasoning", "vision", "tools"]).
+  /// D.16: Added for model-capability-aware features (reasoning-effort, tool use).
+  List<String> get capabilities;
+  @override
+
+  /// Supported reasoning effort levels (e.g., ["none", "low", "medium", "high"]).
+  /// Empty list means the model does not support reasoning-effort control.
+  /// D.16 + E.20: Added for reasoning-effort / thinking control feature.
+  @JsonKey(name: 'reasoning_effort')
+  List<String> get supportedReasoningEfforts;
   @override
   @JsonKey(ignore: true)
   _$$ModelInfoImplCopyWith<_$ModelInfoImpl> get copyWith =>

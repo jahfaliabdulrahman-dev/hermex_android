@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_classifier.dart';
 import '../../../core/providers/api_client_provider.dart';
 import '../../../data/datasources/local/isar_provider.dart';
 import '../../../models/session_summary.dart';
+import '../../connection/providers/connection_provider.dart';
 import '../data/session_repository.dart';
 
 /// Provider for the SessionRepository (DI).
@@ -12,13 +14,20 @@ final sessionRepositoryProvider = Provider<SessionRepository?>((ref) {
   if (apiClient == null) return null;
 
   final isar = ref.watch(isarProvider);
-  return SessionRepository(apiClient: apiClient, isar: isar);
+  final connectionState = ref.watch(connectionProvider);
+  final serverId = connectionState.activeServer?.id ?? '';
+  return SessionRepository(
+    apiClient: apiClient,
+    isar: isar,
+    serverId: serverId,
+  );
 });
 
 /// Fetch the list of sessions from the API.
 /// FutureProvider: handles loading/error/data states automatically.
 /// Falls back to cache if API call fails.
-final sessionListProvider = FutureProvider<List<SessionSummary>>((ref) async {
+/// G.24: Returns paginated results via SessionListPage.
+final sessionListProvider = FutureProvider<SessionListPage>((ref) async {
   final repository = ref.watch(sessionRepositoryProvider);
   if (repository == null) {
     throw StateError('No active server — cannot fetch sessions.');
@@ -36,7 +45,7 @@ final sessionListProvider = FutureProvider<List<SessionSummary>>((ref) async {
     final cached = await repository.getCachedSessions();
     if (cached.isNotEmpty) {
       // Convert CachedSession to SessionSummary for UI consistency.
-      return cached
+      final sessions = cached
           .map((c) => SessionSummary(
                 id: c.sessionId,
                 title: c.title,
@@ -47,6 +56,7 @@ final sessionListProvider = FutureProvider<List<SessionSummary>>((ref) async {
                 isArchived: c.isArchived,
               ))
           .toList();
+      return SessionListPage(sessions: sessions);
     }
 
     rethrow;
@@ -192,7 +202,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
           '=== HERMEX DEBUG: SessionsNotifier.createSession — error: $e ===');
       }
       state = state.copyWith(
-        errorMessage: 'Failed to create session: $e',
+        errorMessage: 'Failed to create session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return null;
     }
@@ -244,7 +254,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
-        errorMessage: 'Failed to rename session: $e',
+        errorMessage: 'Failed to rename session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return false;
     }
@@ -295,7 +305,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
-        errorMessage: 'Failed to delete session: $e',
+        errorMessage: 'Failed to delete session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return false;
     }
@@ -328,7 +338,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
           '=== HERMEX DEBUG: SessionsNotifier.togglePin — error: $e ===');
       }
       state = state.copyWith(
-        errorMessage: 'Failed to update session: $e',
+        errorMessage: 'Failed to update session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
     } finally {
       state = state.copyWith(
@@ -364,7 +374,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
           '=== HERMEX DEBUG: SessionsNotifier.toggleArchive — error: $e ===');
       }
       state = state.copyWith(
-        errorMessage: 'Failed to update session: $e',
+        errorMessage: 'Failed to update session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
     } finally {
       state = state.copyWith(
@@ -410,7 +420,7 @@ class SessionsNotifier extends Notifier<SessionsScreenState> {
       }
       state = state.copyWith(
         mutatingSessionIds: state.mutatingSessionIds.difference({id}),
-        errorMessage: 'Failed to fork session: $e',
+        errorMessage: 'Failed to fork session: ${ErrorClassifier.sanitizeMessage(e)}',
       );
       return null;
     }

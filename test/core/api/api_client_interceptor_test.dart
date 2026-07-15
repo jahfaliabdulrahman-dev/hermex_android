@@ -445,10 +445,12 @@ void main() {
         responseBody: {'error': 'not found'},
       );
 
-      // validateStatus < 500 → 404 is a valid HTTP response, not an exception.
-      // The callee is responsible for inspecting response data for errors.
-      final response = await client.get('/test');
-      expect(response, {'error': 'not found'});
+      // A.1 fix: validateStatus < 400 → 404 is now rejected as an exception.
+      // The caller must catch DioException and inspect response data.
+      expect(
+        () => client.get('/test'),
+        throwsA(isA<DioException>()),
+      );
     });
 
     test('ApiClient healthCheck returns false on 404', () async {

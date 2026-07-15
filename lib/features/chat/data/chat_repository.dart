@@ -125,10 +125,11 @@ class ChatRepository {
     required String message,
     required String model,
     List<Map<String, dynamic>>? history,
+    String? reasoningEffort,
   }) {
     if (kDebugMode) {
       debugPrint(
-        '=== HERMEX DEBUG: ChatRepository.streamChatCompletion — model=$model ===');
+        '=== HERMEX DEBUG: ChatRepository.streamChatCompletion — model=$model, reasoningEffort=$reasoningEffort ===');
     }
 
     final messages = <Map<String, dynamic>>[];
@@ -150,6 +151,11 @@ class ChatRepository {
       'stream': true,
     };
 
+    // E.20: Wire reasoning_effort to API request if selected.
+    if (reasoningEffort != null && reasoningEffort.isNotEmpty) {
+      body['reasoning_effort'] = reasoningEffort;
+    }
+
     return _sseClient.connect(
       ApiEndpoints.chatCompletions,
       apiKey: _apiKey,
@@ -164,16 +170,22 @@ class ChatRepository {
     required String sessionId,
     required String message,
     required String model,
+    String? reasoningEffort,
   }) {
     if (kDebugMode) {
       debugPrint(
-        '=== HERMEX DEBUG: ChatRepository.streamSessionChat — session=$sessionId, model=$model ===');
+        '=== HERMEX DEBUG: ChatRepository.streamSessionChat — session=$sessionId, model=$model, reasoningEffort=$reasoningEffort ===');
     }
 
     final body = {
       'message': message,
       'model': model,
     };
+
+    // E.20: Wire reasoning_effort to API request if selected.
+    if (reasoningEffort != null && reasoningEffort.isNotEmpty) {
+      body['reasoning_effort'] = reasoningEffort;
+    }
 
     return _sseClient.connect(
       ApiEndpoints.sessionChatStream(sessionId),
@@ -190,10 +202,11 @@ class ChatRepository {
   Future<String> sendChatCompletion({
     required String message,
     required String model,
+    String? reasoningEffort,
   }) async {
     if (kDebugMode) {
       debugPrint(
-        '=== HERMEX DEBUG: ChatRepository.sendChatCompletion (non-streaming) — model=$model ===');
+        '=== HERMEX DEBUG: ChatRepository.sendChatCompletion (non-streaming) — model=$model, reasoningEffort=$reasoningEffort ===');
     }
 
     try {
@@ -204,6 +217,11 @@ class ChatRepository {
         ],
         'stream': false,
       };
+
+      // E.20: Wire reasoning_effort to API request if selected.
+      if (reasoningEffort != null && reasoningEffort.isNotEmpty) {
+        body['reasoning_effort'] = reasoningEffort;
+      }
 
       final json = await _apiClient.post(
         ApiEndpoints.chatCompletions,

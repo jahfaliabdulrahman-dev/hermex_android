@@ -133,7 +133,7 @@ class SettingsScreen extends ConsumerWidget {
       return _buildCard(context,
         child: Column(
           children: [
-            Icon(Icons.dns_outlined, color: HermesColors.textDisabled, size: 32),
+            Icon(Icons.dns_outlined,              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 32),
             SizedBox(height: 8),
             Text(
               AppStrings.noSavedServers,
@@ -224,7 +224,7 @@ class SettingsScreen extends ConsumerWidget {
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         decoration: InputDecoration(
           hintText: 'e.g., deepseek-v4-pro',
-          hintStyle: TextStyle(color: HermesColors.textDisabled),
+          // hintStyle: Inherits from Theme.of(context).inputDecorationTheme.hintStyle
           prefixIcon: Icon(Icons.smart_toy, color: HermesColors.cyan),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -640,7 +640,7 @@ class _ServerTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: Icon(
         isActive ? Icons.check_circle : Icons.circle_outlined,
-        color: isActive ? HermesColors.success : HermesColors.textDisabled,
+        color: isActive ? HermesColors.success : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
         size: 22,
       ),
       title: Text(

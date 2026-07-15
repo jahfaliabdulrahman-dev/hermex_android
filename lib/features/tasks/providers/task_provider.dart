@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_manager.dart';
+import '../../../core/providers/api_client_provider.dart';
 import '../../../core/storage/secure_storage.dart';
 import '../../../models/cron_job.dart';
+import '../../../models/model_info.dart';
 import '../../connection/providers/connection_provider.dart';
 import '../data/task_repository.dart';
 
@@ -133,8 +135,15 @@ class TaskListNotifier extends Notifier<TaskListState> {
       return;
     }
 
+    // AUD-001: Wire certificate pinner.
+    final pinner = ref.read(certificatePinnerProvider).valueOrNull;
+
     _repository = TaskRepository(
-      apiClient: ApiClient(baseUrl: activeServer.url, apiKey: apiKey),
+      apiClient: ApiClient(
+        baseUrl: activeServer.url,
+        apiKey: apiKey,
+        certificatePinner: pinner,
+      ),
     );
 
     // Load jobs after repository is initialized.
@@ -153,8 +162,15 @@ class TaskListNotifier extends Notifier<TaskListState> {
     final apiKey = await authManager.getApiKey();
     if (apiKey == null || apiKey.isEmpty) return null;
 
+    // AUD-001: Wire certificate pinner.
+    final pinner = ref.read(certificatePinnerProvider).valueOrNull;
+
     _repository = TaskRepository(
-      apiClient: ApiClient(baseUrl: activeServer.url, apiKey: apiKey),
+      apiClient: ApiClient(
+        baseUrl: activeServer.url,
+        apiKey: apiKey,
+        certificatePinner: pinner,
+      ),
     );
     return _repository;
   }
@@ -589,7 +605,54 @@ final taskDetailProvider =
     throw StateError('No API key — please reconnect.');
   }
 
-  final apiClient = ApiClient(baseUrl: activeServer.url, apiKey: apiKey);
+  // AUD-001: Wire certificate pinner.
+  final pinner = ref.read(certificatePinnerProvider).valueOrNull;
+
+  final apiClient = ApiClient(
+    baseUrl: activeServer.url,
+    apiKey: apiKey,
+    certificatePinner: pinner,
+  );
   final repository = TaskRepository(apiClient: apiClient);
   return repository.getById(id);
+});
+
+/// D.18: Shared provider for available models from the server.
+/// Reuses the ChatRepository's model list so task forms can display
+/// a dropdown instead of free-text input.
+final modelListProvider = FutureProvider<List<ModelInfo>>((ref) async {
+  final connectionState = ref.read(connectionProvider);
+  final activeServer = connectionState.activeServer;
+  if (activeServer == null) return [];
+
+  final authManager = AuthManager(secureStorage: SecureStorage());
+  final apiKey = await authManager.getApiKey();
+  if (apiKey == null || apiKey.isEmpty) return [];
+
+  final apiClient = ApiClient(
+    baseUrl: activeServer.url,
+    apiKey: apiKey,
+  );
+
+  try {
+    // Fetch models using the same endpoint as chat_provider.
+    final data = await apiClient.getDynamic('/v1/models');
+    final List<dynamic> rawList;
+    if (data is List) {
+      rawList = data;
+    } else if (data is Map && data.containsKey('data')) {
+      rawList = data['data'] as List<dynamic>;
+    } else {
+      return [];
+    }
+    return rawList
+        .map((json) => ModelInfo.fromJson(json as Map<String, dynamic>))
+        .toList();
+  } catch (e) {
+    if (kDebugMode) {
+      debugPrint(
+        '=== HERMEX DEBUG: modelListProvider — error: $e ===');
+    }
+    return [];
+  }
 });

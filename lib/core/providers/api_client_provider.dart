@@ -19,23 +19,7 @@ final certificatePinnerProvider = FutureProvider<CertificatePinner>((ref) async 
   return pinner;
 });
 
-/// Centralized ApiClient provider — depends on the active server connection.
-///
-/// Reads the active server URL from [connectionProvider] and the API key
-/// from [AuthManager] backed by secure storage.
-///
-/// Returns null when no active server is configured — features should
-/// guard against null or redirect to the connection screen.
-final apiClientProvider = Provider<ApiClient?>((ref) {
-  final connectionState = ref.watch(connectionProvider);
-  final activeServer = connectionState.activeServer;
-  if (activeServer == null) return null;
-
-  // Asynchronous API key resolution is handled by resolvedApiClientProvider below.
-  return null; // Placeholder — resolved async below.
-});
-
-/// Async provider that resolves the ApiClient once the API key is available.
+/// Centralized provider that resolves a fully-configured ApiClient.
 ///
 /// Features should use this provider. It:
 /// - Watches the active server config from [connectionProvider]

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/colors.dart';
 import '../../../models/model_info.dart';
 
 /// Model selector — bottom sheet with available models.
@@ -101,19 +100,19 @@ class ModelSelector extends StatelessWidget {
 
  return ListTile(
  leading: Icon(
- isSelected
- ? Icons.check_circle
- : Icons.circle_outlined,
- color:
- isSelected ? HermesColors.cyan : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+   isSelected
+       ? Icons.check_circle
+       : Icons.circle_outlined,
+   color:
+       isSelected ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
  size: 20,
  ),
  title: Text(
  model.id,
  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
- color: isSelected
- ? HermesColors.cyan
- : Theme.of(context).colorScheme.onSurface,
+   color: isSelected
+       ? Theme.of(context).colorScheme.secondary
+       : Theme.of(context).colorScheme.onSurface,
  fontWeight: isSelected
  ? FontWeight.w600
  : FontWeight.normal,

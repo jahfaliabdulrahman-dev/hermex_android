@@ -7,9 +7,9 @@ import 'package:hermex_android/features/connection/presentation/connection_scree
 import 'package:hermex_android/features/connection/providers/connection_provider.dart';
 import 'package:hermex_android/features/sessions/presentation/session_list_screen.dart';
 import 'package:hermex_android/features/sessions/providers/session_provider.dart';
+import 'package:hermex_android/features/sessions/data/session_repository.dart';
 import 'package:hermex_android/features/settings/presentation/settings_screen.dart';
 import 'package:hermex_android/features/settings/providers/settings_provider.dart';
-import 'package:hermex_android/models/session_summary.dart';
 
 /// Integration-level navigation flow tests.
 
@@ -26,7 +26,7 @@ Widget _wrap(GoRouter router) {
   return ProviderScope(
     overrides: [
       connectionProvider.overrideWith(() => _TestConnNotifier()),
-      sessionListProvider.overrideWith((ref) async => <SessionSummary>[]),
+      sessionListProvider.overrideWith((ref) async => SessionListPage(sessions: [])),
       sessionsNotifierProvider.overrideWith(() => _TestSessionsNotifier()),
       settingsProvider.overrideWith(() => _TestSettingsNotifier(ThemeModeOption.dark)),
     ],
