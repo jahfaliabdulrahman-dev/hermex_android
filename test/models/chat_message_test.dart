@@ -109,6 +109,62 @@ void main() {
 
       expect(msg.timestamp, isNull);
     });
+
+    // ─── BUG-RC6-SESSION-RESTORE regression tests ───
+    // The live Hermes server sends message `id` as an int and `timestamp`
+    // as a float (epoch seconds with fraction). Both previously threw or
+    // silently dropped data, breaking history restore for EVERY session.
+    test('parses real server payload shape: int id + float timestamp + null fields', () {
+      final json = {
+        'id': 4102,
+        'session_id': '20260712_045131_469146',
+        'role': 'user',
+        'content': 'مرحبا',
+        'timestamp': 1752629471.831553,
+        'tool_call_id': null,
+        'tool_calls': null,
+        'tool_name': null,
+        'token_count': null,
+      };
+
+      final msg = ChatMessage.fromJson(json);
+
+      expect(msg.id, '4102');
+      expect(msg.role, 'user');
+      expect(msg.content, 'مرحبا');
+      expect(
+        msg.timestamp,
+        DateTime.fromMillisecondsSinceEpoch(
+            (1752629471.831553 * 1000).round()),
+      );
+      expect(msg.toolCallId, isNull);
+      expect(msg.toolCalls, isEmpty);
+    });
+
+    test('parses int tool_call_id tolerantly', () {
+      final json = {
+        'role': 'tool',
+        'content': 'result',
+        'tool_call_id': 987,
+      };
+
+      final msg = ChatMessage.fromJson(json);
+
+      expect(msg.toolCallId, '987');
+    });
+
+    test('parses int timestamp (epoch seconds) unchanged', () {
+      final json = {
+        'role': 'user',
+        'content': 'Hello',
+        'timestamp': 1700000000,
+      };
+
+      final msg = ChatMessage.fromJson(json);
+
+      expect(msg.timestamp,
+          DateTime.fromMillisecondsSinceEpoch(1700000000 * 1000));
+    });
   });
 
   group('ChatMessage — equality', () {

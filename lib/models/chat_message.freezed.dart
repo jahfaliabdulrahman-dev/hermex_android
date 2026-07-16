@@ -22,7 +22,7 @@ ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
 mixin _$ChatMessage {
   String get role => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  @JsonKey(name: 'tool_call_id')
+  @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
   String? get toolCallId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tool_name')
   String? get toolName => throw _privateConstructorUsedError;
@@ -30,7 +30,9 @@ mixin _$ChatMessage {
   DateTime? get timestamp => throw _privateConstructorUsedError;
   @JsonKey(name: 'tool_calls')
   List<ToolCall> get toolCalls => throw _privateConstructorUsedError;
-  bool get isStreaming => throw _privateConstructorUsedError;
+  bool get isStreaming =>
+      throw _privateConstructorUsedError; // Server sends numeric ids — parse tolerantly (see _stringFromJson).
+  @JsonKey(fromJson: _stringFromJson)
   String? get id => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,12 +50,13 @@ abstract class $ChatMessageCopyWith<$Res> {
   $Res call(
       {String role,
       String content,
-      @JsonKey(name: 'tool_call_id') String? toolCallId,
+      @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
+      String? toolCallId,
       @JsonKey(name: 'tool_name') String? toolName,
       @JsonKey(name: 'timestamp', fromJson: _fromTimestamp) DateTime? timestamp,
       @JsonKey(name: 'tool_calls') List<ToolCall> toolCalls,
       bool isStreaming,
-      String? id});
+      @JsonKey(fromJson: _stringFromJson) String? id});
 }
 
 /// @nodoc
@@ -126,12 +129,13 @@ abstract class _$$ChatMessageImplCopyWith<$Res>
   $Res call(
       {String role,
       String content,
-      @JsonKey(name: 'tool_call_id') String? toolCallId,
+      @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
+      String? toolCallId,
       @JsonKey(name: 'tool_name') String? toolName,
       @JsonKey(name: 'timestamp', fromJson: _fromTimestamp) DateTime? timestamp,
       @JsonKey(name: 'tool_calls') List<ToolCall> toolCalls,
       bool isStreaming,
-      String? id});
+      @JsonKey(fromJson: _stringFromJson) String? id});
 }
 
 /// @nodoc
@@ -197,12 +201,12 @@ class _$ChatMessageImpl implements _ChatMessage {
   const _$ChatMessageImpl(
       {required this.role,
       required this.content,
-      @JsonKey(name: 'tool_call_id') this.toolCallId,
+      @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson) this.toolCallId,
       @JsonKey(name: 'tool_name') this.toolName,
       @JsonKey(name: 'timestamp', fromJson: _fromTimestamp) this.timestamp,
       @JsonKey(name: 'tool_calls') final List<ToolCall> toolCalls = const [],
       this.isStreaming = false,
-      this.id})
+      @JsonKey(fromJson: _stringFromJson) this.id})
       : _toolCalls = toolCalls;
 
   factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
@@ -213,7 +217,7 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   final String content;
   @override
-  @JsonKey(name: 'tool_call_id')
+  @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
   final String? toolCallId;
   @override
   @JsonKey(name: 'tool_name')
@@ -233,7 +237,9 @@ class _$ChatMessageImpl implements _ChatMessage {
   @override
   @JsonKey()
   final bool isStreaming;
+// Server sends numeric ids — parse tolerantly (see _stringFromJson).
   @override
+  @JsonKey(fromJson: _stringFromJson)
   final String? id;
 
   @override
@@ -290,15 +296,17 @@ class _$ChatMessageImpl implements _ChatMessage {
 
 abstract class _ChatMessage implements ChatMessage {
   const factory _ChatMessage(
-      {required final String role,
-      required final String content,
-      @JsonKey(name: 'tool_call_id') final String? toolCallId,
-      @JsonKey(name: 'tool_name') final String? toolName,
-      @JsonKey(name: 'timestamp', fromJson: _fromTimestamp)
-      final DateTime? timestamp,
-      @JsonKey(name: 'tool_calls') final List<ToolCall> toolCalls,
-      final bool isStreaming,
-      final String? id}) = _$ChatMessageImpl;
+          {required final String role,
+          required final String content,
+          @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
+          final String? toolCallId,
+          @JsonKey(name: 'tool_name') final String? toolName,
+          @JsonKey(name: 'timestamp', fromJson: _fromTimestamp)
+          final DateTime? timestamp,
+          @JsonKey(name: 'tool_calls') final List<ToolCall> toolCalls,
+          final bool isStreaming,
+          @JsonKey(fromJson: _stringFromJson) final String? id}) =
+      _$ChatMessageImpl;
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$ChatMessageImpl.fromJson;
@@ -308,7 +316,7 @@ abstract class _ChatMessage implements ChatMessage {
   @override
   String get content;
   @override
-  @JsonKey(name: 'tool_call_id')
+  @JsonKey(name: 'tool_call_id', fromJson: _stringFromJson)
   String? get toolCallId;
   @override
   @JsonKey(name: 'tool_name')
@@ -321,7 +329,8 @@ abstract class _ChatMessage implements ChatMessage {
   List<ToolCall> get toolCalls;
   @override
   bool get isStreaming;
-  @override
+  @override // Server sends numeric ids — parse tolerantly (see _stringFromJson).
+  @JsonKey(fromJson: _stringFromJson)
   String? get id;
   @override
   @JsonKey(ignore: true)

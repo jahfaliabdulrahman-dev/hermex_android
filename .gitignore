@@ -1,3 +1,8 @@
+# ─── macOS ───
+.DS_Store
+**/.DS_Store
+
+# ─── Flutter / Dart ───
 .dart_tool/
 .packages
 build/
@@ -8,10 +13,20 @@ local.properties
 .kotlin/
 __pycache__/
 
-# ─── C-4: Never commit keystore or signing credentials ───
+# ─── IDE ───
+.idea/
+*.swp
+*.swo
+
+# ─── Security: Never commit keystore or signing credentials ───
 *.jks
 *.keystore
 key.properties
 audit-report-*.md
 app-spec/HUNT_REPORT_*.md
 bench_orchestration_prompt.md
+
+# ─── Internal artifacts ───
+docs/EPIC_*_MOA_REASONING_LOG.md
+docs/EPIC_*_SESSION_EVENT_LOG.md
+docs/EPIC_*_COMPLETION_REPORT.md

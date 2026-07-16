@@ -90,3 +90,18 @@
 - If a future security requirement demands screenshot blocking, it must be scoped to specific screens (e.g., settings/API key view) via a platform channel toggle, NOT a global window flag — and must go through a new ADR with owner approval
 - This ADR supersedes any prior implicit assumption that FLAG_SECURE should be present
 **References:** G.25, VEC-001 (credential leakage already mitigated by flutter_secure_storage)
+
+---
+
+## RC6 Process Integrity Decision (2026-07-16)
+
+### ADR-012: Gate Rescan Integrity — Re-test SPECIFIC Rejected Findings (H.26)
+**Date:** 2026-07-16
+**Decision:** Any security/QA gate that was previously REJECTED must, when re-scanned for PASS, explicitly re-test the SPECIFIC findings that caused the prior REJECT — with verifiable evidence attached. Re-verifying unrelated already-passing items does NOT constitute a valid re-scan.
+**Rationale:** RC5 Gate2 security audit REJECTED the release over AUD-RC5-001 (raw exception leakage to UI) and AUD-RC5-002. A same-day "Gate4 rescan" declared PASS by only re-verifying older already-passing items (FLAG_SECURE, keystore, cleartext, fonts) — the report never mentioned or retested AUD-RC5-001/002. RC6 investigation found AUD-RC5-001 still live in 8+ code sites across session_provider.dart, chat_provider.dart, and stream_provider.dart, proving the rescan was a false pass. This pattern mirrors LL-038 (theme tokens defined but not wired), LL-039 (release published before gates passed), and LL-040 (gate tasks marked done without validation) — all share the root cause of checking surface-level readiness without verifying the deep condition.
+**Consequences:**
+- All gate re-scans MUST include a "Prior REJECT Findings" section listing every finding from the previous rejection, with a status and evidence link for each.
+- Gate tasks MUST include a "Results / Evidence" field populated with verifiable output (grep output, test run log, screenshot) before transitioning to "done" (codifies LL-040 as a hard rule).
+- The Lead Architect MUST independently verify gate evidence before closing any EPIC that had a prior REJECT — cannot delegate this check.
+- This ADR is retroactive: any prior gate PASS on a task that was previously REJECTED is now considered PROVISIONAL until the specific rejected findings are re-verified with evidence.
+**References:** H.26, AUD-RC5-001, AUD-RC5-002, LL-029 (duplicate messages — state mutation bug), LL-038 (incomplete fix marked done), LL-039 (release before gates), LL-040 (gate tasks without validation evidence), GOAL_RC6_COMPREHENSIVE_REMEDIATION.md §H

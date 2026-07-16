@@ -49,8 +49,9 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: RoutePaths.chat,
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ChatScreen(),
+          pageBuilder: (context, state) => NoTransitionPage(
+            key: ValueKey(state.uri.toString()),
+            child: const ChatScreen(),
           ),
         ),
         GoRoute(

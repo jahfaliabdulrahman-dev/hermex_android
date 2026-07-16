@@ -1,9 +1,9 @@
 # 00 — Lessons Learned
 
 > Initiated: 2026-07-04
-> Last Updated: 2026-07-11
+> Last Updated: 2026-07-16
 > Project: hermex_android
-> Version: 1.5.0
+> Version: 1.6.0
 
 ## 2026-07-04 — Project Initiation
 - Decided Flutter over native Android (single codebase, existing expertise)
@@ -164,7 +164,7 @@
 | Governance failures | 1 (LL-030 Orchestrator Direct Code Execution) |
 | Branch hygiene | 1 (LL-033 Stale WIP artifacts) |
 | Kanban usage pattern | 1 (LL-041 EPIC dispatch deadlock) |
-| **Total lessons** | **35 (LL-001 through LL-041)** |
+| **Total lessons** | **51 (LL-001 through LL-051)** |
 
 ---
 
@@ -414,3 +414,92 @@
 - **Prevention Rule:** Always test API endpoints with `?include_disabled=true` when paused/disabled entities are expected. Document ALL query parameters in `06_api_contract.md`. For Flutter clients fetching entity lists that include paused items, always pass `include_disabled=true`.
 - **Fix (Hermex):** Add `'include_disabled': 'true'` to `queryParameters` in `TaskRepository.getAll()` (line 31 of `task_repository.dart`).
 - **Linked Decision ID:** DEC-T3-JOBSFILTER
+
+---
+
+## 2026-07-12 — HERMEX-007 Lessons (RC5 Coordination)
+
+### LL-043: Hermes SSE Event Types — assistant.delta with delta:text format
+- **Date:** 2026-07-12
+- **Stage:** HERMEX-007 (SSE Streaming Fix)
+- **Files Affected:** lib/core/api/sse_client.dart, lib/features/chat/providers/chat_provider.dart
+- **Lesson:** The Hermes Agent API uses a custom SSE event type system: `event: assistant.delta` with `data: {"delta": "text"}` — completely different from OpenAI's `data: {"choices": [{"delta": {"content": "..."}}]}`. The parser must handle multiple event types: `assistant.delta`, `tool.progress`, `run.started`, `message.started`.
+- **Root Cause:** The SSE parser was written assuming OpenAI-compatible format. Hermes Agent uses a custom event protocol where text arrives in `{"delta": "text"}` not `choices[0].delta.content`.
+- **Prevention Rule:** Always capture and log the raw SSE `event:` type and `data:` structure before writing the parser. Handle at minimum: `assistant.delta` (streaming text), `tool.progress` (tool execution status), `run.started` (session start), `message.started` (message boundary). Fall through unknown event types with a warning log.
+- **Linked Decision ID:** DEC-HERMEX-007-SSE
+
+### LL-044: Build Responsibility Boundary — Lead Architect does not build APKs
+- **Date:** 2026-07-12
+- **Stage:** HERMEX-007 (RC5 Coordination)
+- **Files Affected:** Kanban task definitions, flutter-lead-architect/SOUL.md, flutter-devops-release-engineer profile
+- **Lesson:** The Lead Architect attempted to directly close BUILD tasks during HERMEX-007 coordination, bypassing the DevOps Release Engineer's build pipeline. BUILD tasks were marked "done" without producing a verifiable APK artifact.
+- **Root Cause:** No explicit boundary in profiles prevented the Lead Architect from executing BUILD tasks. The Lead Architect's SOUL did not explicitly forbid direct build execution.
+- **Prevention Rule:** All BUILD tasks must be assigned exclusively to flutter-devops-release-engineer. The Lead Architect may create and coordinate BUILD tasks but may not close them without verifiable APK output and DevOps approval.
+- **Linked Decision ID:** DEC-HERMEX-007-BUILD
+
+### LL-045: Lessons Flow to Shared Knowledge Base — EPIC final task gate
+- **Date:** 2026-07-12
+- **Stage:** HERMEX-007 (EPIC Closure)
+- **Files Affected:** `~/.hermes/skills/flutter-lessons-patterns/SKILL.md`, EPIC task definitions
+- **Lesson:** During HERMEX-007 closure, lessons were elevated to the shared knowledge base only if a dedicated DOCS task existed. Without this gate, LL-045 itself — the meta-pattern about elevating lessons — would have been left only in the project-level 00_lessons_learned.md.
+- **Root Cause:** No governance rule required an EPIC's final task to be a DOCS handoff to the shared knowledge base. The documentation steward can only elevate lessons if a task exists.
+- **Prevention Rule:** Every EPIC must end with a DOCS task assigned to flutter-documentation-steward. The task body must explicitly list which LL-IDs need elevation. The kanban board should enforce this as a gate (EPIC not closed until steward completes).
+- **Linked Decision ID:** DEC-HERMEX-007-LESSONS
+
+### LL-046: Impact Analysis Before Implementation — Never code without downstream analysis
+- **Date:** 2026-07-12
+- **Stage:** HERMEX-007 (EPIC Closure — Post-Mortem)
+- **Files Affected:** Multiple — cross-cutting pattern observed across all Hermex Android lessons
+- **Lesson:** Every regression bug in Hermex Android (duplicate messages LL-029, fake connection LL-023, API key redaction LL-022, disabled jobs filter LL-042, build namespace LL-024, Isar+ProGuard LL-025, cleartext blocking LL-027) shares a common pattern: the implementer coded the immediate fix without analyzing what else their change would affect. A 30-second downstream impact analysis before implementation would have caught every single one.
+- **Root Cause:** No meta-pattern exists that requires "impact analysis" as a pre-implementation step. Developers focus on the specific bug/feature without tracing the full data flow from trigger → mutation → API call → state change → UI update.
+- **Prevention Rule:** Before any implementation, trace the full impact chain: Which providers read this state? Which widgets listen to these providers? Which API calls consume this data? What test expectations would this change invalidate?
+- **Linked Decision ID:** N/A (meta-pattern — applies across all lessons)
+
+---
+
+## 2026-07-15 — RC6 (HERMEX-008) Comprehensive Remediation
+
+### LL-047: Error-Handling Architecture — validateStatus + interceptor + sanitizeError
+- **Date:** 2026-07-15
+- **Stage:** RC6 Phase 2 Implementation
+- **Files Affected:** lib/core/api/api_client.dart, lib/features/chat/providers/chat_provider.dart, lib/features/sessions/providers/session_provider.dart, lib/features/chat/providers/stream_provider.dart, lib/features/tasks/data/task_repository.dart
+- **Lesson:** The Dio interceptor chain had three architectural flaws that compounded into a complete error-handling bypass: (1) `validateStatus` accepted all codes <500 so Dio never threw on 4xx, (2) `onError` computed a classified exception but called `handler.next(error)` with the original DioException — discarding the classification entirely, (3) a duplicate `_classifyError` existed in `task_repository.dart` divergent from the one in `api_client.dart`. The fix rebuilt the chain: `validateStatus` now throws on >=400, `onError` calls `handler.reject()` with the classified exception, and a single `_sanitizeError()` helper applied uniformly at 8+ error catch sites prevents raw server body leaks to UI.
+- **Root Cause:** The interceptor was designed incrementally — each piece added without tracing the full error flow from Dio → interceptor → provider → UI. `AuthException` and `ClientException` were defined but unreachable because `handler.next` bypassed them.
+- **Prevention Rule:** When designing interceptors/middleware, trace the full object lifecycle from entry → processing → exit. Write an integration test that triggers each error category (401, 403, 404, 500, connection-refused) and asserts the exact exception type and sanitized message reaches the provider. Never define exception classes without a test proving they are actually thrown.
+- **Linked Decision ID:** ADR-010 (HermesProfile indirectly required clean error surfacing for profile switching)
+
+### LL-048: Certificate Pinning Gap — Uniform wiring through single provider
+- **Date:** 2026-07-15
+- **Stage:** RC6 Phase 2 Implementation
+- **Files Affected:** lib/features/chat/providers/chat_provider.dart, lib/features/tasks/providers/task_provider.dart, lib/core/providers/api_client_provider.dart
+- **Lesson:** Chat and Tasks providers constructed `ApiClient(...)` directly without `certificatePinner`, bypassing TLS pinning entirely. Sessions/Insights/Memory/Workspace/Skills correctly went through `resolvedApiClientProvider` which wired the pinner. The `apiClientProvider` itself was a dead stub always returning null.
+- **Root Cause:** Multiple ApiClient construction paths evolved without a single gate: (a) `resolvedApiClientProvider` with pinner for read-only features, (b) direct construction without pinner for Chat/Tasks. No audit verified uniform pinning across all ApiClient instances.
+- **Prevention Rule:** Exactly ONE provider must construct `ApiClient` instances in the app. All features consume it. Add a CI grep rule: `grep -rn "ApiClient(" lib/ --include="*.dart" | grep -v "api_client_provider.dart"` must return zero matches. Certificate pinning is security-critical — a single bypass path defeats the entire mechanism.
+- **Linked Decision ID:** B.7–B.10 (GOAL_RC6_COMPREHENSIVE_REMEDIATION.md)
+
+### LL-049: Reactive Profile Switching — Watch connectionProvider, don't cache once
+- **Date:** 2026-07-15
+- **Stage:** RC6 Phase 2 Implementation
+- **Files Affected:** lib/features/chat/providers/chat_provider.dart
+- **Lesson:** `ChatNotifier.initialize()` read the active server once via `AuthManager.getActiveServerConfig()` and guarded with `if (state.isInitialized && _repository != null) return;` — making it blind to profile switches. Switching servers/profiles while the chat screen was alive left chat silently talking to the old server until the user manually tapped "New Chat."
+- **Root Cause:** The initialize-once pattern assumes server identity is immutable during a screen's lifetime. With multi-profile support, server identity can change at any moment — the provider must reactively watch the connection state, not cache it.
+- **Prevention Rule:** Any provider that constructs a server-dependent resource (ApiClient, repository, SSE stream) MUST reactively watch the connection/session provider that owns server identity. Use `ref.watch(connectionProvider)` and rebuild the resource when the watched provider's server identity changes. Never guard with `isInitialized` when server identity is mutable.
+- **Linked Decision ID:** ADR-010 (HermesProfile as first-class entity enabled reactive profile switching)
+
+### LL-050: Gate Rescan Integrity — Re-test SPECIFIC rejected findings (H.26)
+- **Date:** 2026-07-16
+- **Stage:** RC6 Post-Mortem
+- **Files Affected:** app-spec/12_decision_log.md (ADR-012), docs/audit/RC5_GATE2_SECURITY_AUDIT.md, app-spec/HUNT_REPORT_20260711_RC6_GATE4_RESCAN.md
+- **Lesson:** RC5 Gate2 security audit REJECTED the release over AUD-RC5-001/002. A same-day "Gate4 rescan" declared PASS by only re-verifying older already-passing items (FLAG_SECURE, keystore, cleartext, fonts) — the report never mentioned or retested AUD-RC5-001/002. RC6 investigation found AUD-RC5-001 still live in 8+ code sites, proving the rescan was a false pass.
+- **Root Cause:** The gate re-scan process had no rule requiring re-test of the specific findings that caused the prior REJECT. The auditor re-ran a standard checklist that had already passed, not a targeted re-audit of the rejected items. This mirrors LL-038 (theme tokens defined but not wired), LL-039 (release published before gates), and LL-040 (gate tasks marked done without validation).
+- **Prevention Rule:** Any gate PASS after a prior REJECT MUST include a "Prior REJECT Findings" section listing every finding from the previous rejection, with a status and evidence link for each. A gate task with an empty evidence field cannot transition to "done." The Lead Architect MUST independently verify gate evidence before closing an EPIC that had a prior REJECT. Codified as ADR-012.
+- **Linked Decision ID:** ADR-012
+
+### LL-051: Bundled-Task Pattern for Shared-File Conflicts (chat_provider.dart nexus)
+- **Date:** 2026-07-16
+- **Stage:** RC6 Coordination
+- **Files Affected:** lib/features/chat/providers/chat_provider.dart, Kanban task decomposition
+- **Lesson:** `chat_provider.dart` was the nexus for 5+ RC6 defects spanning error handling (A.3–A.5), profile switching (C.12), model selection (D.15), message rendering (F.21), and stream handling (A.4). Multiple specialist agents working on separate parallel tasks that all modified the same file created a merge-conflict storm. Bundling all `chat_provider.dart`-touching work into a single Phase 2 task with a single assignee eliminated the conflicts.
+- **Root Cause:** Parallel task decomposition assumed file-level isolation — each defect was its own task, unaware that 5+ defects shared the same file. The Kanban pipeline had no "shared file conflict" detection.
+- **Prevention Rule:** During EPIC decomposition, run a file-affinity analysis: for each target file, count how many planned tasks would modify it. Files with ≥3 modifying tasks should either: (a) be bundled into a single assignee task, or (b) have tasks sequenced (not parallel) with explicit merge checkpoints. Add this check to the Lead Architect's decomposition checklist.
+- **Linked Decision ID:** N/A (process pattern — RC6 coordination discovery)

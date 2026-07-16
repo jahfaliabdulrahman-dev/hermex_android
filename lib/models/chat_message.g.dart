@@ -10,7 +10,7 @@ _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
     _$ChatMessageImpl(
       role: json['role'] as String,
       content: json['content'] as String,
-      toolCallId: json['tool_call_id'] as String?,
+      toolCallId: _stringFromJson(json['tool_call_id']),
       toolName: json['tool_name'] as String?,
       timestamp: _fromTimestamp(json['timestamp']),
       toolCalls: (json['tool_calls'] as List<dynamic>?)
@@ -18,7 +18,7 @@ _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       isStreaming: json['isStreaming'] as bool? ?? false,
-      id: json['id'] as String?,
+      id: _stringFromJson(json['id']),
     );
 
 Map<String, dynamic> _$$ChatMessageImplToJson(_$ChatMessageImpl instance) =>

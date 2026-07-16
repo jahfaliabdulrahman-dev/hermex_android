@@ -1,8 +1,12 @@
 # Hermex Android
 
+[![Tests](https://img.shields.io/badge/tests-529%2F529-brightgreen)](https://github.com/jahfaliabdulrahman-dev/hermex_android/actions)
+[![Flutter](https://img.shields.io/badge/flutter-3.41%2B-blue)](https://flutter.dev)
+[![License](https://img.shields.io/badge/license-MIT-purple)](LICENSE)
+
 **Your Hermes Agent. On your phone. Anywhere.**
 
-Chat with your AI agent, manage sessions, run tasks — all from your Android phone. Connects directly to your own Hermes server. No cloud. No third parties. Your data stays yours.
+Chat with your AI agent, manage sessions, run tasks, browse workspaces — all from your Android phone. Connects directly to your own [Hermes Agent](https://hermes-agent.nousresearch.com) server. No cloud. No third parties. Your data stays yours.
 
 ---
 
@@ -10,143 +14,136 @@ Chat with your AI agent, manage sessions, run tasks — all from your Android ph
 
 👉 **[Download Latest APK](https://github.com/jahfaliabdulrahman-dev/hermex_android/releases/latest)**
 
-*(Tap the link on your phone, then open the downloaded file to install. You may need to allow "Install from unknown sources" in your Android settings.)*
+> **Two builds available:**
+> - `app-release.apk` (65 MB) — optimized, no debug overhead
+> - `app-debug.apk` (178 MB) — includes debug symbols for troubleshooting
+
+Tap the link on your phone, open the downloaded file to install. You may need to allow "Install from unknown sources" in Android Settings → Security.
 
 ---
 
-## 🚀 Setup — Two Options
+## 🚀 Quick Start
 
-### Option A: Same WiFi Network (Simplest)
+### Option A: Same WiFi (Home / Office)
 
-You only need this if your phone and computer are on the same WiFi. Works at home, office, etc.
-
-**Step 1 — Enable server on your computer**
-
-Open a **new Terminal window** (not inside Hermes) and run:
-
-```
+**1. Enable the API server on your computer:**
+```bash
 hermes config set platforms.api_server.extra.host 0.0.0.0
 hermes gateway restart
 ```
 
-**Step 2 — Find your computer's IP address**
-
-```
+**2. Find your computer's IP:**
+```bash
 ifconfig | grep "inet " | grep -v 127.0.0.1
 ```
+→ You'll see something like `192.168.8.80` or `192.168.1.5`.
 
-Look for a number like `192.168.8.80` or `192.168.1.5`.
-
-**Step 3 — Find your API key**
-
-```
+**3. Find your API key:**
+```bash
 grep API_SERVER_KEY ~/.hermes/.env
 ```
 
-Copy everything after the `=` sign. It should look like:
-`carsah-local-51578e9b29eddd957aca5a0f71c39fb2`
+**4. Open the app and connect:**
 
-> ⚠️ The key is ONE continuous string — no spaces or line breaks.
-
-**Step 4 — Open the app and connect**
-
-| Field | What to type |
-|-------|-------------|
-| Server URL | `http://192.168.x.x:8642` *(use your computer's IP from Step 2)* |
-| API Key | Paste the key from Step 3 |
-
-Tap **Connect**. Done!
+| Field | Value |
+|-------|-------|
+| Server URL | `http://<YOUR_IP>:8642` |
+| API Key | Paste the key from step 3 |
 
 ---
 
-### Option B: Anywhere — Mobile Data + WiFi (Tailscale)
+### Option B: Anywhere — WiFi + Mobile Data (Tailscale)
 
-Use this if you want the app to work from **anywhere** — not just when you're on the same WiFi.
+Works from anywhere, not just your home network.
 
-**Step 1 — Install Tailscale on your computer**
-
-```
-https://tailscale.com/download
-```
-
-Download, install, sign in with Google.
-
-**Step 2 — Install Tailscale on your phone**
-
-Get it from the Play Store. Sign in with the **same Google account**.
-
-**Step 3 — Find your computer's Tailscale IP**
-
-On your computer:
-
-```
-tailscale status
-```
-
-Look for your computer's entry. The IP will start with `100.` — like `100.93.122.47`.
-
-**Step 4 — Find your API key** *(same as Option A)*
-
-```
-grep API_SERVER_KEY ~/.hermes/.env
-```
-
-**Step 5 — Open the app and connect**
-
-| Field | What to type |
-|-------|-------------|
-| Server URL | `http://100.x.x.x:8642` *(your Tailscale IP from Step 3)* |
-| API Key | Paste the key from Step 4 |
-
-Tap **Connect**. Works on WiFi AND mobile data!
+1. Install [Tailscale](https://tailscale.com/download) on both your computer and phone
+2. Sign in with the same Google account on both
+3. On your computer: `tailscale status` → find your `100.x.x.x` IP
+4. Use `http://<TAILSCALE_IP>:8642` as your server URL in the app
 
 ---
 
-## ❓ Common Problems — Quick Fixes
+## ✨ Features
 
-| Problem | Solution |
-|---------|----------|
-| "Server unreachable" | Make sure Hermes is running. Check your IP is correct. Both devices on same WiFi (or using Tailscale). |
-| "HTTP is only allowed on local network" | Update to the latest APK from the download link above. |
-| "Invalid API key" | Make sure you copied the FULL key from `.env` file — one continuous string, no spaces. |
-| App won't install | Go to Android Settings → Security → Allow "Install from unknown sources". |
-| Can't find API key | Run `grep API_SERVER_KEY ~/.hermes/.env` in Terminal. If empty, add: `echo 'API_SERVER_KEY=your-key-here' >> ~/.hermes/.env` then restart Hermes. |
-| Server works on WiFi but not mobile data | Use Tailscale (Option B above). WiFi IPs (192.168.x.x) don't work on mobile data. |
-| Connected but chat shows error | Make sure you have the latest APK. Old versions had encoding bugs with Arabic text. |
-
----
-
-## ✨ What You Can Do
-
-| Feature | What it does |
+| Feature | Description |
 |---------|-------------|
-| 💬 **Chat** | Talk to your AI. Markdown, code blocks, model switching. |
-| 📋 **Sessions** | Browse past conversations. Search, pin, archive. |
-| ⏰ **Tasks** | Manage scheduled jobs. Create, pause, run, view results. |
-| 🛠 **Skills** | Browse your agent's skills. Toggle them on/off. |
-| 📁 **Workspace** | Browse files on your server. |
-| 🧠 **Memory** | View what your agent remembers. |
-| ⚙️ **Settings** | Switch servers. Change theme. Disconnect & Exit. |
+| 💬 **Chat** | Real-time AI conversation with Markdown rendering, code blocks, streaming |
+| 🔄 **Model Switching** | Switch between AI models mid-conversation |
+| 📋 **Sessions** | Browse, search, pin, and archive past conversations |
+| ⏰ **Tasks** | Manage scheduled cron jobs — create, pause, run, view results |
+| 🛠 **Skills** | Browse and toggle your agent's skill library |
+| 📁 **Workspace** | Browse files on your Hermes server |
+| 🧠 **Memory** | View what your agent remembers across sessions |
+| ⚙️ **Settings** | Multiple server profiles, theme switching, disconnect |
 
 ---
 
-## 🔧 Advanced
+## 🔧 Build from Source
 
-**Build from source:**
-
-```
+```bash
 git clone https://github.com/jahfaliabdulrahman-dev/hermex_android.git
 cd hermex_android
 flutter pub get
+flutter test          # 529+ tests
 flutter build apk --release
 ```
 
-Requires: Flutter 3.41+, Android 8.0+ (API 26)
-
-**Architecture:** Flutter + Riverpod + GoRouter + Dio + Isar  
-**Theme:** Material 3 (navy #001F5E, cyan #32C2FF)  
-**License:** MIT — No tracking. No analytics. Your data, your server.
+**Requirements:**
+- Flutter 3.41+
+- Android 8.0+ (API 26)
+- A running [Hermes Agent](https://hermes-agent.nousresearch.com) server with `API_SERVER_ENABLED=true`
 
 ---
 
-Made with ❤️ by the Hermex Swarm — 10 autonomous Flutter AI agents.
+## 🏗 Architecture
+
+| Layer | Technology |
+|-------|------------|
+| **Framework** | Flutter 3.41 |
+| **State** | Riverpod (code generation) |
+| **Routing** | GoRouter (ShellRoute + deep linking) |
+| **HTTP** | Dio (REST) + `dart:io` HttpClient (SSE streaming) |
+| **Storage** | Isar (local NoSQL) |
+| **Theme** | Material 3 (navy `#001F5E`, cyan `#32C2FF`) |
+| **Architecture** | Clean Architecture (core → features → models) |
+
+Full specifications in [`app-spec/`](app-spec/) — 22 spec files covering architecture, routing, state management, and testing.
+
+---
+
+## 🧪 Testing
+
+```bash
+flutter test          # 529+ unit/widget tests
+flutter analyze       # static analysis
+flutter test --coverage
+```
+
+Test coverage includes: providers, repositories, models, API interceptors, SSE parsing, URL validation, and error classification.
+
+---
+
+## ❓ Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| "Server unreachable" | Check Hermes is running. Verify IP is correct. Both devices on same network (or Tailscale). |
+| "HTTP only allowed on local network" | Update to the latest APK. The app validates private IP ranges (RFC 1918 + Tailscale 100.64.0.0/10). |
+| "Invalid API key" | Copy the FULL key — one continuous string, no spaces. Run `grep API_SERVER_KEY ~/.hermes/.env`. |
+| App won't install | Settings → Security → Allow "Install from unknown sources". |
+| Works on WiFi but not mobile data | WiFi IPs (192.168.x.x) don't work on mobile data. Use Tailscale (Option B). |
+| Arabic text or special characters fail | Ensure you're on the latest build. Older versions had `dart:io` UTF-8 encoding bugs. |
+
+---
+
+## 🤖 Built by the Hermex Swarm
+
+This app was built by a **10-agent autonomous Flutter swarm** — AI agents collaborating via Kanban under a governance constitution. The Lead Architect (DeepSeek-v4-pro + Qwen3.7-Max + GLM-5.2) orchestrates 9 specialized engineers through a self-correcting pipeline.
+
+See [`app-spec/`](app-spec/) for the complete development log, lessons learned, and traceability matrix.
+
+---
+
+## 📄 License
+
+MIT — No tracking. No analytics. No telemetry. Your data, your server, your rules.

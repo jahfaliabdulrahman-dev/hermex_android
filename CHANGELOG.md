@@ -2,6 +2,52 @@
 
 > All notable changes to Hermex Android are documented here.
 
+## [0.2.0-rc6] — 2026-07-16
+
+### Added
+
+- **Hermes Profile as First-Class Entity** — Introduced `HermesProfile` as a first-class Isar entity carrying per-profile `defaultModelId` and `reasoningEffort` fields, replacing the flat `ServerConfig` model. Owner-approved as the canonical unit of server identity. (ADR-010, C.11)
+- **Model Selector Wired End-to-End** — Model selection UI (`model_selector.dart`) is now fully wired: selected model is propagated to the chat API request and persisted per-profile. Previously dead code. (D.14–D.18)
+- **Reasoning-Effort Control** — Per-profile reasoning-effort/thinking control plumbed end-to-end. `reasoningEffort` field travels with the profile and is sent in chat API requests. (E.19–E.20)
+- **Session Search with Server-Side Pagination** — Session search upgraded from client-side filtering of the full list to server-side query with pagination/cursor support. (G.24)
+
+### Fixed
+
+- **Chat Screen Stale Session Bug** — Switching between sessions in the bottom-nav ShellRoute showed stale data from the first session. Root cause: `const NoTransitionPage` returned the same Page object regardless of URL params, so Flutter never detected the route change and `didChangeDependencies()` never fired. Fixed by adding `ValueKey(state.uri.toString())` to force widget rebuild on session switch. (hotfix 2026-07-16)
+- **Stale AppBar Title on Untitled Sessions** — Opening an untitled session kept the previous session's title/model-name in the AppBar. Root cause: `ChatState.copyWith()` falls back to `this.sessionTitle` when `clearSessionTitle` is false and `sessionTitle` is null — untitled sessions pass `null` title from the API. Fixed by setting `clearSessionTitle: true` and `clearSessionModelName: true` when values are null/empty. (hotfix 2026-07-16)
+- **ChatMessage JSON Parsing** — `ChatMessage.fromJson()` hardened to accept null/invalid message content fields without crashing. (hotfix 2026-07-16)
+- **Error-Handling Architecture Rebuilt** — Fixed Dio interceptor chain: tight `validateStatus` (correctly throws on 4xx), `onError` interceptor now calls `handler.reject()` with the classified exception (not the original DioException), and `_sanitizeError()` applied uniformly across all 8+ error sites (sessions, chat, stream, tasks). Previously `AuthException`/`ClientException` were defined but dead code. (A.1–A.5)
+- **Certificate Pinning Uniform** — All `ApiClient` instances now go through `resolvedApiClientProvider` which wires `certificatePinner`. Chat and Tasks providers previously bypassed pinning entirely. (B.7–B.10)
+- **Profile Switching Reactively Resets Chat State** — `ChatNotifier` now reactively watches `connectionProvider`; switching profiles mid-chat-session resets chat state to the new server/ApiClient. Previously chat silently talked to the old server until manual "New Chat." (C.12)
+- **Server Config Foreign Key Fixed** — `CachedSession.serverId` now uses actual `ServerConfig.id` instead of fragile `baseUrl`. (C.13)
+- **_SizeLimitInterceptor Covers Map Responses** — OOM-protection guard now checks `data is Map` (the dominant API response shape) in addition to `String` and `List`. (A.6)
+- **Orphaned "Default Model" Setting Wired** — Settings screen's free-text "Default Model" field is now read by `chat_provider.dart` and bound to the active profile. (D.17)
+- **Task Model Field Bound to Server Model List** — Task form's model field is now a dropdown selector against the live `/v1/models` list, not free-text. (D.18)
+
+### Changed
+
+- **Light Theme Complete Pass** — Agent bubble background adapts to theme brightness (no longer hardcoded `#161B22`). All `textDisabled` instances converted to theme-adaptive tokens. Visual consistency audit completed across all screens (settings, insights, sessions, chat). (F.21–F.23)
+- **ModelInfo Extended** — `ModelInfo` now carries capability and reasoning-effort metadata fields. (D.16)
+
+### Removed
+
+- **FLAG_SECURE Permanent Removal** — All three locations in `MainActivity.kt` (`onCreate`, `onResume`, `onWindowFocusChanged`) removed. Owner-confirmed as permanent — do not re-add. Verified via `grep -rn "FLAG_SECURE" android/` → 0 matches. (G.25, ADR-011)
+- **Duplicate `_classifyError` Removed** — Error classification logic consolidated into the single shared `api_client.dart` utility; divergent copy in `task_repository.dart` removed. (A.5)
+- **Dead Certificate Pinner Stub Removed** — `apiClientProvider` always-returning-null stub removed. (B.10)
+
+### Process Integrity
+
+- **Gate4 Rescan Incident (H.26)** — RC5 Gate2 REJECTED over AUD-RC5-001/002. A same-day "Gate4 rescan" declared PASS without retesting the specific rejected findings. RC6 proved AUD-RC5-001 still live. New rule codified in ADR-012: any PASS after REJECT must re-test the SPECIFIC findings with evidence attached. Gate tasks must include a "Results / Evidence" field.
+
+### Technical
+
+- `flutter analyze` — 0 errors
+- `flutter test` — 529/529 passing
+- RC6 defects: 26 fixed across categories A–H + NB-1/NB-2 + 3 hotfixes
+- Files changed: 21
+- Baseline commit: `0a2532c`
+- Release APK: 65.8MB signed; Debug APK: 178MB; smoke-tested on TECNO LJ7
+
 ## [0.1.0-rc5] — 2026-07-11
 
 ### Fixed

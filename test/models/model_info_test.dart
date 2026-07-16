@@ -63,6 +63,63 @@ void main() {
     });
   });
 
+  group('ModelInfo — capabilities (D.16)', () {
+    test('parses capabilities list from JSON', () {
+      final json = {
+        'id': 'test-model',
+        'capabilities': ['chat', 'reasoning', 'vision', 'tools'],
+      };
+
+      final model = ModelInfo.fromJson(json);
+
+      expect(model.capabilities, ['chat', 'reasoning', 'vision', 'tools']);
+    });
+
+    test('defaults capabilities to empty list when missing', () {
+      final json = {'id': 'test-model'};
+
+      final model = ModelInfo.fromJson(json);
+
+      expect(model.capabilities, isEmpty);
+    });
+
+    test('capabilities from constructor are preserved', () {
+      final model = ModelInfo(
+        id: 'test',
+        capabilities: ['chat', 'reasoning'],
+      );
+
+      expect(model.capabilities, ['chat', 'reasoning']);
+    });
+  });
+
+  group('ModelInfo — supportedReasoningEfforts (E.20)', () {
+    test('parses reasoning_effort from JSON', () {
+      final json = {
+        'id': 'test-model',
+        'reasoning_effort': ['none', 'low', 'medium', 'high'],
+      };
+
+      final model = ModelInfo.fromJson(json);
+
+      expect(model.supportedReasoningEfforts, ['none', 'low', 'medium', 'high']);
+    });
+
+    test('defaults reasoning_effort to empty list when missing', () {
+      final json = {'id': 'test-model'};
+
+      final model = ModelInfo.fromJson(json);
+
+      expect(model.supportedReasoningEfforts, isEmpty);
+    });
+
+    test('empty reasoning_effort means model does not support reasoning control', () {
+      final model = ModelInfo(id: 'basic-model');
+
+      expect(model.supportedReasoningEfforts, isEmpty);
+    });
+  });
+
   group('ModelInfo — equality', () {
     test('two models with same id are equal', () {
       final a = ModelInfo(id: 'model-1');

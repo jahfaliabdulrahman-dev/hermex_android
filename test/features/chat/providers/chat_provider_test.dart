@@ -207,6 +207,26 @@ void main() {
       final state = container.read(chatProvider);
       expect(state.errorMessage, isNotNull);
     });
+
+    // E.19: Reasoning-effort control
+    test('selectReasoningEffort updates reasoningEffort', () {
+      final notifier = container.read(chatProvider.notifier);
+
+      notifier.selectReasoningEffort('high');
+
+      final state = container.read(chatProvider);
+      expect(state.reasoningEffort, 'high');
+    });
+
+    test('selectReasoningEffort with null clears the value', () {
+      final notifier = container.read(chatProvider.notifier);
+
+      notifier.selectReasoningEffort('medium');
+      notifier.selectReasoningEffort(null);
+
+      final state = container.read(chatProvider);
+      expect(state.reasoningEffort, isNull);
+    });
   });
 
   // ─── ChatState — Message Immutability ────────────────────────────────

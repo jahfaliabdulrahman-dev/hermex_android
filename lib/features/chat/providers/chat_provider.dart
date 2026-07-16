@@ -495,7 +495,9 @@ class ChatNotifier extends Notifier<ChatState> {
       isLoadingHistory: true,
       sessionId: sessionId,
       sessionTitle: title,
+      clearSessionTitle: title == null || title.isEmpty,
       sessionModelName: modelName,
+      clearSessionModelName: modelName == null || modelName.isEmpty,
       clearError: true,
     );
 
