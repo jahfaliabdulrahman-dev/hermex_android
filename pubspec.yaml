@@ -2,7 +2,7 @@ name: hermex_android
 description: "Hermex — Flutter mobile client for Hermes Agent API Server"
 publish_to: 'none'
 
-version: 0.1.0+1
+version: 0.2.0+6
 
 environment:
   sdk: ^3.11.4
